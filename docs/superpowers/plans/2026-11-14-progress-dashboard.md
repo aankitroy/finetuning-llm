@@ -249,7 +249,7 @@ def test_metrics_and_label_recorded():   # test calls report_metric("final_loss"
   - `pytest_collectreport`: catch collection errors.
   - `pytest_keyboard_interrupt`: set an interrupted flag.
   - `pytest_sessionfinish`: write exactly one record.
-  
+
   "Full suite" means `config.option.keyword` and `config.option.markexpr` are empty and every arg in `config.args` is a directory, with no `::` and no file paths. Build `ts` with `datetime.now().astimezone().isoformat(timespec="seconds")`.
 - [ ] **Step 4: Run** the same command. Expected: PASS.
 - [ ] **Step 5: Commit:** `git commit -am "feat: strict pytest plugin that records checkpoint attempts"`
@@ -323,7 +323,7 @@ def test_render_text_contains_next():    # "NEXT" and "make doctor" in render_te
   - course map grouped by Part, with expandable attempt history per module
   - results: a cumulative-passes timeline, per-module charts for each declared metric across attempts (x axis is the attempt, with `run_label` as the tick, and the title notes "lower/higher is better"), and a comparison bar chart of `peak_mem_gb`, `tokens_per_sec` and `trainable_pct` (plus `regression_score` when present) for m05, m07, m08, m10 and m12, using each module's latest passing record
   - empty state
-  
+
   It polls `/api/state` every 3000 ms, diffs the done set, and adds a 2 s highlight class to newly done modules. Charts are updated in place, not recreated. The Results section is hidden when no metrics exist. Warnings show as a small dismissible footer note. The style direction is a calm course companion: CSS variables for colours, a `prefers-color-scheme` dark palette, a single column below 720 px, and no horizontal scroll at 640 px.
 - [ ] **Step 3: Verify manually.** Run `python scripts/progress_server.py --root <fixture-root> --no-open` for the empty, partial and complete fixtures, and open each in a browser. Check that the next card matches `make progress TEXT=1`, the charts render offline (with the network disabled), dark mode works, and the layout holds at 640 px. Then run `make check M=00` in the real repo with the page open. Expected: M0 flips to ✔ within about 3 s and is highlighted.
 - [ ] **Step 4: Commit:** `git add dashboard tests/fixtures && git commit -m "feat: dashboard page with next step, course map and results charts"`

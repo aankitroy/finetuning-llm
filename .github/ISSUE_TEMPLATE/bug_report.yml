@@ -1,0 +1,39 @@
+name: Bug report
+description: Something in the course, a checkpoint or the dashboard doesn't work.
+labels: [bug]
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      description: Which module were you on? For example M06.
+    validations:
+      required: true
+  - type: input
+    id: machine
+    attributes:
+      label: Mac, chip and memory
+      description: For example "MacBook Pro, M5 Max, 36 GB".
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of make doctor
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What you ran and what happened
+      description: The command, the full error, and what you expected instead.
+      render: text
+    validations:
+      required: true

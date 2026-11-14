@@ -63,7 +63,7 @@ def _handler(root: Path):
             if path in ("/", "/index.html"):
                 return self._static("index.html")
             if path.startswith("/static/"):
-                return self._static(path[len("/static/"):])
+                return self._static(path[len("/static/") :])
             self._send(404, b"not found", "text/plain")
 
     return Handler

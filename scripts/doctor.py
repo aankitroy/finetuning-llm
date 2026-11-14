@@ -57,8 +57,14 @@ def main() -> int:
     print(f"  {mark(info['python_ok'])} Python {info['python']} (need 3.11+)")
     print(f"  {mark(info['apple_silicon'])} Apple Silicon Mac")
     print(f"  {mark(info['total_mem_gb'] > 0)} Memory: {info['total_mem_gb']} GB")
-    print(f"  {mark(info['mps_available'])} PyTorch MPS" + (" (installed in M1)" if info["mps_available"] is None else ""))
-    print(f"  {mark(info['mlx_available'])} MLX" + (" (installed in M7)" if info["mlx_available"] is None else ""))
+    print(
+        f"  {mark(info['mps_available'])} PyTorch MPS"
+        + (" (installed in M1)" if info["mps_available"] is None else "")
+    )
+    print(
+        f"  {mark(info['mlx_available'])} MLX"
+        + (" (installed in M7)" if info["mlx_available"] is None else "")
+    )
     print(f"Saved {OUT.relative_to(ROOT)}\n")
     return 0 if info["python_ok"] else 1
 

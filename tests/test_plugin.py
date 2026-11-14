@@ -65,7 +65,9 @@ def test_error_in_fixture_counts_as_failed(run):
 
 
 def test_skip_makes_it_fail(run):
-    body = "import pytest\ndef test_one():\n    pass\n@pytest.mark.skip\ndef test_two():\n    pass\n"
+    body = (
+        "import pytest\ndef test_one():\n    pass\n@pytest.mark.skip\ndef test_two():\n    pass\n"
+    )
     assert run({"test_a.py": body})["passed"] is False
 
 

@@ -1,0 +1,22 @@
+# Copy this folder to modules/mNN_your_slug and fill in every field.
+id = "mNN"
+title = "Module title"
+part = "C · Efficient tuning"
+order = 99
+summary = "One sentence on what the learner builds."
+est_minutes = 180
+
+[next]
+start = "Read modules/mNN_your_slug/README.md, then open lesson.ipynb"
+finish = "make check M=NN"
+why = "What passing the checkpoint proves, in one line"
+
+[artifacts]
+any = ["outputs/mNN/*"]
+
+# Declare every metric your checkpoint reports. Modules that train a model must
+# report peak_mem_gb, tokens_per_sec and trainable_pct (shared across modules).
+[[metrics]]
+key = "final_loss"
+label = "Final val loss"
+better = "lower"

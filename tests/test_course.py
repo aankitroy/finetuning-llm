@@ -37,3 +37,10 @@ def test_optional_sections_default_empty(copy_fixture):
     assert m.artifacts == ["outputs/m00/*"]
     assert m.metrics == [{"key": "total_mem_gb", "label": "Total memory (GB)", "better": "higher"}]
     assert m.next_start.startswith("Read") and m.next_why == "Checks your environment"
+
+
+def test_template_dir_not_loaded():
+    mods, warnings = load_modules(REPO_ROOT)
+    assert (REPO_ROOT / "modules" / "_template" / "module.toml").exists()
+    assert all(m.path.name != "_template" for m in mods)
+    assert not any("_template" in w for w in warnings)

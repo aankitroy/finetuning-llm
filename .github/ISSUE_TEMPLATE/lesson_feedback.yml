@@ -1,0 +1,24 @@
+name: Lesson feedback
+description: Something in a lesson was unclear, wrong or could be better.
+labels: [lesson]
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      description: For example M06.
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where in the lesson
+      description: The section, notebook cell or exercise.
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: What would make it better
+    validations:
+      required: true

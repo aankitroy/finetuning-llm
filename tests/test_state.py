@@ -10,7 +10,7 @@ def _manifest(i: int) -> str:
     finish = "make doctor" if i == 0 else f"make check M={nn}"
     return (
         f'id = "m{nn}"\ntitle = "Module {nn}"\npart = "A"\norder = {i}\nsummary = "s"\n'
-        f'est_minutes = {EST[f"m{nn}"]}\n'
+        f"est_minutes = {EST[f'm{nn}']}\n"
         f'[next]\nstart = "start m{nn}"\nfinish = "{finish}"\nwhy = "why m{nn}"\n'
         f'[artifacts]\nany = ["outputs/m{nn}/*"]\n'
         f'[[metrics]]\nkey = "peak_mem_gb"\nlabel = "Peak"\nbetter = "lower"\n'

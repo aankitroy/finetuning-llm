@@ -3,7 +3,7 @@
 FTCOURSE_ROOT ?= $(CURDIR)
 MODULE_TESTS = $(wildcard modules/m$(M)_*/tests)
 
-.PHONY: help doctor check progress test
+.PHONY: help doctor check progress test lint fmt
 
 help:
 	@echo "make doctor              Check your environment (completes M0)"
@@ -11,6 +11,7 @@ help:
 	@echo "make check M=NN LABEL=x  ...tagging this attempt (e.g. LABEL=\"r=8\")"
 	@echo "make progress            Open the progress dashboard (TEXT=1 for terminal)"
 	@echo "make test                Run the project's own test suite"
+	@echo "make lint / make fmt     Check / fix code style"
 
 doctor:
 	@uv run python scripts/doctor.py
@@ -29,3 +30,9 @@ progress:
 
 test:
 	@uv run pytest
+
+lint:
+	@uv run ruff check . && uv run ruff format --check .
+
+fmt:
+	@uv run ruff check --fix . && uv run ruff format .

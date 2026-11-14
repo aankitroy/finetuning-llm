@@ -88,7 +88,12 @@ def _next_step(modules: list[Module], status: dict[str, str], attempts: dict, an
 
     if not any_activity:
         first = modules[0] if modules else None
-        s = step("empty", first, "Check that your Mac and Python are ready for the course.", "make doctor")
+        s = step(
+            "empty",
+            first,
+            "Check that your Mac and Python are ready for the course.",
+            "make doctor",
+        )
         s["title"] = "Start with M0 · Setup"
         return s
 
@@ -102,7 +107,9 @@ def _next_step(modules: list[Module], status: dict[str, str], attempts: dict, an
             total = failed + int(last.get("passed", 0))
             msg = f"Your last check failed: {failed} of {total} tests. Fix them and re-run."
             return step("retry", m, msg, m.next_finish)
-        return step("finish", m, "You've started this module. Finish it with its checkpoint.", m.next_finish)
+        return step(
+            "finish", m, "You've started this module. Finish it with its checkpoint.", m.next_finish
+        )
 
     todo = [m for m in modules if status[m.id] == "not_started"]
     if todo:
