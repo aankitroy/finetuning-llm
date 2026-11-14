@@ -32,7 +32,9 @@
    ```
    It uses *your* `exercises.py` and saves `outputs/m01/run_summary.json`.
 
-4. **Pass the checkpoint:** run `make check M=01`. M1 turns green on the dashboard when every exercise passes and your validation accuracy reaches **95%**.
+4. **Answer the understanding checks** in [`answers.toml`](answers.toml): five short questions on shapes, memory, gradients and why the ReLU matters. Work them out in the notebook if you're unsure.
+
+5. **Pass the checkpoint:** run `make check M=01`. M1 turns green on the dashboard when every exercise passes, your answers are right, and your validation accuracy reaches **95%** with your own code.
 
 ## Concepts
 
@@ -47,4 +49,7 @@ Try `train.py --hidden 4` and `--hidden 256`. Tag each check with `make check M=
 
 ## Stuck?
 
-Reference solutions are in [`solutions/exercises.py`](solutions/exercises.py). Try for a while first: the struggle is where the learning happens.
+- `make hint M=01 EX=3` gives a nudge for exercise 3 (`EX=q2` for question 2).
+- `make solution M=01 EX=3` shows the reference answer for just that exercise.
+
+Both are logged on your dashboard. Try for a while first: the struggle is where the learning happens. To redo the module from scratch, run `make reset M=01`.

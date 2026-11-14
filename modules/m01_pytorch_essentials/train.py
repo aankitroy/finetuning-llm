@@ -70,6 +70,7 @@ def main() -> int:
         "lr": args.lr,
         "device": device,
         "seconds": round(time.time() - start, 2),
+        "used_solutions": bool(os.environ.get("FTCOURSE_SOLUTIONS")),
     }
     out = Path(os.environ.get("FTCOURSE_OUTPUTS") or ROOT / "outputs") / "m01"
     out.mkdir(parents=True, exist_ok=True)

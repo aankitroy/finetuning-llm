@@ -1,0 +1,4 @@
+[q1]
+kind = "choice"  # shape | number | choice | text
+answer = "b"
+why = "One or two sentences the learner sees with `make solution`."

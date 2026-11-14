@@ -141,3 +141,14 @@ def test_last_failed_rerun_never_passes(run, pytester):
 
 def test_stepwise_never_passes(run):
     assert run(TWO_PASS, "--sw")["passed"] is False
+
+
+def test_solutions_mode_never_passes(run, monkeypatch):
+    monkeypatch.setenv("FTCOURSE_SOLUTIONS", "1")
+    rec = run(TWO_PASS)
+    assert rec["passed"] is False and rec["used_solutions"] is True
+
+
+def test_normal_run_records_used_solutions_false(run, monkeypatch):
+    monkeypatch.delenv("FTCOURSE_SOLUTIONS", raising=False)
+    assert run(TWO_PASS)["used_solutions"] is False

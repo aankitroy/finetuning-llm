@@ -3,13 +3,16 @@
 FTCOURSE_ROOT ?= $(CURDIR)
 MODULE_TESTS = $(wildcard modules/m$(M)_*/tests)
 
-.PHONY: help doctor check progress test lint fmt
+.PHONY: help doctor check progress test lint fmt hint solution reset answer-hashes
 
 help:
 	@echo "make doctor              Check your environment (completes M0)"
 	@echo "make check M=NN          Run module NN's checkpoint and record progress"
 	@echo "make check M=NN LABEL=x  ...tagging this attempt (e.g. LABEL=\"r=8\")"
 	@echo "make progress            Open the progress dashboard (TEXT=1 for terminal)"
+	@echo "make hint M=NN EX=3      A nudge for one exercise (logged on the dashboard)"
+	@echo "make solution M=NN EX=3  The reference answer for one exercise (logged)"
+	@echo "make reset [M=NN]        Start the course (or one module) over; asks first"
 	@echo "make test                Run the project's own test suite"
 	@echo "make lint / make fmt     Check / fix code style"
 
@@ -36,3 +39,17 @@ lint:
 
 fmt:
 	@uv run ruff check --fix . && uv run ruff format .
+
+COURSE = uv run python scripts/course.py --root "$(FTCOURSE_ROOT)"
+
+hint solution:
+	@if [ -z "$(M)" ] || [ -z "$(EX)" ]; then \
+		echo "usage: make $@ M=NN EX=<exercise>   (e.g. make $@ M=01 EX=3)"; exit 2; fi
+	@$(COURSE) $@ $(M) $(EX)
+
+reset:
+	@$(COURSE) reset $(M)
+
+answer-hashes:
+	@if [ -z "$(M)" ]; then echo "usage: make answer-hashes M=NN"; exit 2; fi
+	@$(COURSE) answer-hashes $(M)

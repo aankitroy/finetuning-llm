@@ -6,11 +6,13 @@ import glob
 import json
 import math
 import os
+from datetime import datetime
 from pathlib import Path
 
 from common.course import Module, load_modules
 
 HISTORY_PATH = Path(".progress/history.jsonl")
+REVEALS_PATH = Path(".progress/reveals.jsonl")
 
 _metrics: dict[str, float] = {}
 
@@ -96,6 +98,45 @@ def read_history(root: Path) -> tuple[list[dict], list[str]]:
     return records, warnings
 
 
+# --- hints and solutions viewed ---
+
+
+def append_reveal(root: Path, module: str, exercise: str, kind: str) -> None:
+    """Log that a hint or solution was shown (kind is "hint" or "solution")."""
+    path = Path(root) / REVEALS_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rec = {
+        "v": 1,
+        "ts": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "module": module,
+        "exercise": exercise,
+        "kind": kind,
+    }
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+
+def read_reveals(root: Path) -> tuple[list[dict], list[str]]:
+    path = Path(root) / REVEALS_PATH
+    if not path.exists():
+        return [], []
+    out: list[dict] = []
+    warnings: list[str] = []
+    for n, raw in enumerate(path.read_bytes().split(b"\n"), start=1):
+        if not raw.strip():
+            continue
+        try:
+            rec = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            warnings.append(f"reveals line {n}: not valid JSON, skipped")
+            continue
+        if not isinstance(rec, dict) or rec.get("kind") not in ("hint", "solution"):
+            warnings.append(f"reveals line {n}: not a hint or solution record, skipped")
+            continue
+        out.append(rec)
+    return out, warnings
+
+
 # --- dashboard state ---
 
 
@@ -155,6 +196,12 @@ def compute_state(root: Path) -> dict:
     modules, warnings = load_modules(root)
     records, hist_warnings = read_history(root)
     warnings += hist_warnings
+    reveals, reveal_warnings = read_reveals(root)
+    warnings += reveal_warnings
+    reveal_counts: dict[str, dict[str, int]] = {}
+    for r in reveals:
+        c = reveal_counts.setdefault(r.get("module"), {"hints": 0, "solutions": 0})
+        c["hints" if r["kind"] == "hint" else "solutions"] += 1
 
     known = {m.id for m in modules}
     unknown = sorted({r["module"] for r in records} - known)
@@ -197,6 +244,7 @@ def compute_state(root: Path) -> dict:
                 if attempts[m.id]
                 else {},
                 "attempts": attempts[m.id],
+                "reveals": reveal_counts.get(m.id, {"hints": 0, "solutions": 0}),
                 "metrics": m.metrics,
             }
             for m in modules
@@ -208,6 +256,18 @@ def compute_state(root: Path) -> dict:
 
 
 # --- terminal rendering (`make progress TEXT=1`) ---
+
+
+def reveal_note(reveals: dict) -> str:
+    """'2 hints, 1 solution viewed' — empty when the learner used neither."""
+    parts = []
+    h, sol = reveals.get("hints", 0), reveals.get("solutions", 0)
+    if h:
+        parts.append(f"{h} hint" + ("s" if h != 1 else ""))
+    if sol:
+        parts.append(f"{sol} solution" + ("s" if sol != 1 else "") + " viewed")
+    return ", ".join(parts)
+
 
 _ICON = {"done": "✔", "in_progress": "◐", "not_started": "○"}
 
@@ -226,7 +286,9 @@ def render_text(state: dict) -> str:
         if m["part"] != part:
             part = m["part"]
             lines.append(f" {part}")
-        lines.append(f"   {_ICON[m['status']]} {m['id'].upper()} {m['title']}")
+        line = f"   {_ICON[m['status']]} {m['id'].upper()} {m['title']}"
+        note = reveal_note(m.get("reveals") or {})
+        lines.append(line + (f"   ({note})" if note else ""))
     n = state["next"]
     lines += ["", " ┌ NEXT " + "─" * 50, f" │ {n['title']}", f" │ {n['instruction']}"]
     if n["command"]:

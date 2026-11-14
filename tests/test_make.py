@@ -22,3 +22,18 @@ def test_check_unknown_module_exits_2(tmp_path):
     r = _make(tmp_path, "check", "M=99")
     assert r.returncode == 2
     assert "m99" in r.stdout + r.stderr
+
+
+def test_reset_on_empty_root_says_nothing_to_reset(tmp_path):
+    r = _make(tmp_path, "reset")
+    assert r.returncode == 0 and "Nothing to reset" in r.stdout
+
+
+def test_hint_without_ex_exits_2(tmp_path):
+    r = _make(tmp_path, "hint", "M=01")
+    assert r.returncode == 2 and "make hint M=NN EX=" in r.stdout + r.stderr
+
+
+def test_solution_without_m_exits_2(tmp_path):
+    r = _make(tmp_path, "solution", "EX=1")
+    assert r.returncode == 2

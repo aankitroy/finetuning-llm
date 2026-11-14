@@ -4,10 +4,13 @@ Run `uv run python modules/m01_pytorch_essentials/train.py` first, then `make ch
 """
 
 import json
+import os
 
 import pytest
 import torch
+from conftest import MODULE_DIR
 
+from common.checkpoint import check_answer
 from common.progress import report_metric
 
 
@@ -89,3 +92,21 @@ def test_trained_on_the_mac_gpu(outputs):
         pytest.skip("MPS isn't available on this machine")
     s = json.loads((outputs / "run_summary.json").read_text())
     assert s["device"] == "mps", "train.py should pick the 'mps' device when it's available"
+
+
+ANSWER_IDS = sorted(json.loads((MODULE_DIR / "tests" / "answer_hashes.json").read_text()))
+
+
+@pytest.mark.parametrize("qid", ANSWER_IDS)
+def test_understanding(qid):
+    ok, message = check_answer(MODULE_DIR, "m01", qid)
+    assert ok, message
+
+
+def test_trained_with_your_code(outputs):
+    if os.environ.get("FTCOURSE_SOLUTIONS"):
+        pytest.skip("reference-solution run (used by the project's own tests)")
+    s = json.loads((outputs / "run_summary.json").read_text())
+    assert not s.get("used_solutions"), (
+        "That training run used the reference solutions. Re-run train.py with your own code."
+    )

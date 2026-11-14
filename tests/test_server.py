@@ -117,3 +117,18 @@ def test_state_error_returns_500_json(server, monkeypatch):
         get(server + "/api/state")
     assert e.value.code == 500
     assert "kaboom" in json.loads(e.value.read())["error"]
+
+
+def test_render_text_shows_hints_and_solutions_viewed(tmp_path):
+    from common.progress import append_reveal
+
+    d = tmp_path / "modules" / "m01_x"
+    d.mkdir(parents=True)
+    (d / "module.toml").write_text(
+        'id = "m01"\ntitle = "Tensors"\npart = "A"\norder = 1\nsummary = "s"\nest_minutes = 1\n'
+        '[next]\nstart = "a"\nfinish = "make check M=01"\nwhy = "w"\n'
+    )
+    append_reveal(tmp_path, "m01", "3", "hint")
+    append_reveal(tmp_path, "m01", "3", "solution")
+    out = render_text(compute_state(tmp_path))
+    assert "1 hint" in out and "1 solution viewed" in out

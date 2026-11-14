@@ -88,8 +88,10 @@ def pytest_sessionfinish(session, exitstatus):
         return
     passed = _state["passed"] - _state["failed"]
     failed = _state["failed"]
+    used_solutions = bool(os.environ.get("FTCOURSE_SOLUTIONS"))
     ok = (
-        _full_suite(session.config)
+        not used_solutions  # the reference solutions never count as your progress
+        and _full_suite(session.config)
         and not _state["deselected"]
         and _state.get("collected", set()) <= (passed | failed | _state["skipped"])
         and len(passed) > 0
@@ -107,5 +109,6 @@ def pytest_sessionfinish(session, exitstatus):
         "tests": {"passed": len(passed), "failed": len(failed)},
         "metrics": collected_metrics(),
         "run_label": os.environ.get("FTCOURSE_LABEL") or None,
+        "used_solutions": used_solutions,
     }
     append_record(Path(os.environ.get("FTCOURSE_ROOT") or os.getcwd()), record)

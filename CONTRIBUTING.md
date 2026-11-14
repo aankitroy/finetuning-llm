@@ -28,17 +28,27 @@ CI runs both on macOS (Apple Silicon) and Linux with Python 3.11 and 3.12.
    - `[next]`: `start` (how to begin), `finish` (`make check M=NN`), and `why` (what the checkpoint proves)
    - `[artifacts] any`: globs under `outputs/mNN/` that show the learner has started
    - `[[metrics]]`: each metric your checkpoint reports, with `key`, `label` and `better` (`"lower"` or `"higher"`)
-3. Write the lesson: `README.md`, then `lesson.ipynb` and `exercises.ipynb`.
-4. Write checkpoint tests in `tests/test_checkpoint.py`.
+3. Write the lesson: `README.md` and `lesson.ipynb`. Execute the notebook end to end before committing.
+4. Write the learner's files and keep an identical copy in `starter/` (that's what `make reset` restores):
+   - `exercises.py`: functions with docstrings and `raise NotImplementedError("Exercise N: ...")`
+   - `answers.toml`: 3–6 understanding questions with `answer = ""`
+5. Write the reference answers:
+   - `solutions/exercises.py`
+   - `solutions/answers.toml`, with a `kind` (`shape`, `number`, `choice` or `text`), the `answer`, and a `why`
+   - then run `make answer-hashes M=NN` to write `tests/answer_hashes.json`
+6. Write `hints.toml`: one `[[exercise]]` per exercise and question, with `id`, `hint`, and (for code exercises) the `name` of the function or class.
+7. Write checkpoint tests in `tests/`. Load the learner's code with `common.checkpoint.load_exercise` and check answers with `common.checkpoint.check_answer`.
+8. Add the module to `MODULES` in `tests/test_module_solutions.py`, so CI proves the checkpoint passes with the reference solutions.
 
 ### Rules for checkpoints
 
-- **Checkpoints verify. They don't retrain.** Training scripts write `outputs/mNN/run_summary.json`, and the checkpoint reads it and asserts on it.
+- **Real learning first.** A module must require the learner to write code *and* answer questions about why it works. Never ship a checkpoint that passes on code alone.
+- **Checkpoints verify. They don't retrain.** Training scripts write `outputs/mNN/run_summary.json` (honouring `FTCOURSE_OUTPUTS`), including `used_solutions`, and the checkpoint reads it.
 - Report numbers with `common.progress.report_metric("key", value)` so they show up on the dashboard.
-- Modules that train a model must report the shared metrics `peak_mem_gb`, `tokens_per_sec` and `trainable_pct`. The dashboard compares techniques using these.
-- If a test depends on something optional (such as a package installed in a later module), mark it `@pytest.mark.optional_checkpoint` and skip it with a clear message. Any other skip fails the checkpoint.
+- Modules that train a model must report the shared metrics `peak_mem_gb`, `tokens_per_sec` and `trainable_pct`.
+- If a test depends on something optional, mark it `@pytest.mark.optional_checkpoint` and skip it with a clear message. Any other skip fails the checkpoint.
 - Every lesson's `--tiny` setting must finish in under 2 minutes on an M-series Mac.
-- Failure messages should tell the learner what to do next.
+- Failure messages should tell the learner what to do next, without giving the answer away.
 
 ## Commits and pull requests
 
