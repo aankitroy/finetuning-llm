@@ -24,6 +24,9 @@ HOST = "127.0.0.1"
 def find_free_port(start: int = 8765, tries: int = 20) -> int:
     for port in range(start, start + tries):
         with socket.socket() as s:
+            # Same option the server uses, so a port with only closed (TIME_WAIT)
+            # connections counts as free. A live listener still makes bind fail.
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 s.bind((HOST, port))
             except OSError:

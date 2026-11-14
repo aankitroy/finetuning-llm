@@ -65,6 +65,7 @@ def test_binds_localhost_only(tmp_path):
 def test_port_in_use_falls_forward():
     p = find_free_port()
     with socket.socket() as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # a live listener must still block
         s.bind(("127.0.0.1", p))
         s.listen()
         assert find_free_port(p) > p
@@ -132,3 +133,15 @@ def test_render_text_shows_hints_and_solutions_viewed(tmp_path):
     append_reveal(tmp_path, "m01", "3", "solution")
     out = render_text(compute_state(tmp_path))
     assert "1 hint" in out and "1 solution viewed" in out
+
+
+def test_port_is_reusable_right_after_a_server_stops(tmp_path):
+    """Restarting the dashboard should get the same port back, even with closed connections lingering."""
+    port = find_free_port()
+    srv = make_server(tmp_path, port)
+    t = threading.Thread(target=srv.serve_forever, daemon=True)
+    t.start()
+    get(f"http://127.0.0.1:{port}/api/state")  # leaves a closed connection in TIME_WAIT
+    srv.shutdown()
+    srv.server_close()
+    assert find_free_port(port) == port
