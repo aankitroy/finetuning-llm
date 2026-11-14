@@ -27,7 +27,15 @@ def pytest_configure(config):
     )
     reset_metrics()
     _state.clear()
-    _state.update(passed=set(), failed=set(), bad_skips=set(), collect_errors=0, interrupted=False)
+    _state.update(
+        passed=set(),
+        failed=set(),
+        bad_skips=set(),
+        collect_errors=0,
+        interrupted=False,
+        deselected=False,
+        skipped=set(),
+    )
 
 
 def pytest_collectreport(report):
@@ -39,10 +47,22 @@ def pytest_runtest_logreport(report):
     nid = report.nodeid
     if report.failed:
         _state["failed"].add(nid)
-    elif report.skipped and "optional_checkpoint" not in report.keywords:
-        _state["bad_skips"].add(nid)
+    elif report.skipped:
+        _state["skipped"].add(nid)
+        if "optional_checkpoint" not in report.keywords:
+            _state["bad_skips"].add(nid)
     elif report.when == "call" and report.passed:
         _state["passed"].add(nid)
+
+
+def pytest_collection_finish(session):
+    _state["collected"] = {item.nodeid for item in session.items}
+
+
+def pytest_deselected(items):
+    # -k, -m, --deselect, --lf and --sw all report here: part of the suite didn't run.
+    if items:
+        _state["deselected"] = True
 
 
 def pytest_keyboard_interrupt(excinfo):
@@ -51,6 +71,11 @@ def pytest_keyboard_interrupt(excinfo):
 
 def _full_suite(config) -> bool:
     if config.option.keyword or config.option.markexpr:
+        return False
+    if config.getoption("ignore", None) or config.getoption("ignore_glob", None):
+        return False
+    # --lf / --sw rerun only part of the suite (--lf does so without reporting deselection).
+    if config.getoption("lf", False) or config.getoption("stepwise", False):
         return False
     for arg in config.args:
         if "::" in arg or not Path(arg).is_dir():
@@ -65,6 +90,8 @@ def pytest_sessionfinish(session, exitstatus):
     failed = _state["failed"]
     ok = (
         _full_suite(session.config)
+        and not _state["deselected"]
+        and _state.get("collected", set()) <= (passed | failed | _state["skipped"])
         and len(passed) > 0
         and not failed
         and not _state["bad_skips"]

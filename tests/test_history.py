@@ -53,3 +53,59 @@ def test_report_metric_collects_and_resets():
     assert collected_metrics() == {"final_loss": 1.5}
     reset_metrics()
     assert collected_metrics() == {}
+
+
+def _write(tmp_path, data: bytes):
+    p = tmp_path / ".progress" / "history.jsonl"
+    p.parent.mkdir(exist_ok=True)
+    p.write_bytes(data)
+
+
+GOOD = b'{"v": 1, "module": "m00", "passed": true}\n'
+
+
+def test_nan_metric_written_as_null(tmp_path):
+    append_record(
+        tmp_path,
+        {
+            "v": 1,
+            "module": "m00",
+            "passed": False,
+            "metrics": {"final_loss": float("nan"), "x": float("inf")},
+        },
+    )
+    raw = (tmp_path / ".progress" / "history.jsonl").read_text()
+    assert "NaN" not in raw and "Infinity" not in raw
+    recs, _ = read_history(tmp_path)
+    assert recs[0]["metrics"] == {"final_loss": None, "x": None}
+
+
+def test_nan_token_in_file_is_sanitized(tmp_path):
+    _write(tmp_path, b'{"v": 1, "module": "m00", "passed": true, "metrics": {"l": NaN}}\n')
+    recs, w = read_history(tmp_path)
+    assert recs[0]["metrics"] == {"l": None} and w == []
+
+
+def test_invalid_utf8_line_skipped(tmp_path):
+    _write(
+        tmp_path,
+        GOOD
+        + b'{"v": 1, "module": "m00", "passed": true, "run_label": "caf\xe9"}\n'
+        + GOOD
+        + '{"v": 1, "module": "m0", "run_label": "α'.encode()[:-1],
+    )
+    recs, w = read_history(tmp_path)
+    assert len(recs) == 2 and len(w) == 2 and "line 2" in w[0]
+
+
+def test_bad_tests_and_metrics_shapes_skipped(tmp_path):
+    _write(
+        tmp_path,
+        GOOD
+        + b'{"v": 1, "module": "m00", "passed": false, "tests": "oops"}\n'
+        + b'{"v": 1, "module": "m00", "passed": false, "tests": {"failed": "x"}}\n'
+        + b'{"v": 1, "module": "m00", "passed": false, "metrics": [1, 2]}\n'
+        + b'{"v": 1, "module": "m00", "passed": false, "metrics": {"a": "high"}}\n',
+    )
+    recs, w = read_history(tmp_path)
+    assert len(recs) == 1 and len(w) == 4

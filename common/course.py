@@ -27,8 +27,16 @@ class Module:
 
 def _parse(data: dict, path: Path) -> Module:
     nxt = data["next"]
+    if not isinstance(nxt, dict):
+        raise ValueError("[next] must be a table")
+    raw_metrics = data.get("metrics", [])
+    if not isinstance(raw_metrics, list) or not all(isinstance(m, dict) for m in raw_metrics):
+        raise ValueError("metrics must be written as [[metrics]] tables")
+    artifacts = data.get("artifacts", {})
+    if not isinstance(artifacts, dict) or not isinstance(artifacts.get("any", []), list):
+        raise ValueError('artifacts must be an [artifacts] table with any = ["..."]')
     metrics = []
-    for m in data.get("metrics", []):
+    for m in raw_metrics:
         if m.get("better") not in _BETTER:
             raise ValueError(f"metric {m.get('key')!r}: better must be 'lower' or 'higher'")
         metrics.append({"key": str(m["key"]), "label": str(m["label"]), "better": m["better"]})
@@ -42,7 +50,7 @@ def _parse(data: dict, path: Path) -> Module:
         next_start=str(nxt["start"]),
         next_finish=str(nxt["finish"]),
         next_why=str(nxt["why"]),
-        artifacts=[str(p) for p in data.get("artifacts", {}).get("any", [])],
+        artifacts=[str(p) for p in artifacts.get("any", [])],
         metrics=metrics,
         path=path.parent,
     )

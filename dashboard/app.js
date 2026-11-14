@@ -337,10 +337,26 @@ function renderWarnings(ws) {
 
 async function tick() {
   try {
-    const res = await fetch("/api/state", { cache: "no-store" });
+    let res;
+    try {
+      res = await fetch("/api/state", { cache: "no-store" });
+    } catch {
+      $("tally").textContent = "Can't reach the progress server. Is `make progress` still running?";
+      return;
+    }
     const text = await res.text();
+    if (!res.ok) {
+      let detail = "";
+      try {
+        detail = JSON.parse(text).error || "";
+      } catch {}
+      $("tally").textContent =
+        "The progress server hit an error. Check the terminal running `make progress`." +
+        (detail ? ` (${detail})` : "");
+      lastJson = "";
+      return;
+    }
     if (text !== lastJson) {
-      lastJson = text;
       const s = JSON.parse(text);
       const done = new Set(s.modules.filter((m) => m.status === "done").map((m) => m.id));
       const newly = prevDone ? new Set([...done].filter((id) => !prevDone.has(id))) : new Set();
@@ -350,11 +366,13 @@ async function tick() {
       renderRoute(s, newly);
       renderResults(s);
       renderWarnings(s.warnings);
+      lastJson = text; // only after a successful render, so a bad payload is retried
     }
-  } catch {
-    $("tally").textContent = "Can't reach the progress server. Is `make progress` still running?";
+  } catch (e) {
+    $("tally").textContent = "The dashboard couldn't read your progress: " + e.message;
+  } finally {
+    setTimeout(tick, POLL_MS);
   }
-  setTimeout(tick, POLL_MS);
 }
 
 tick();

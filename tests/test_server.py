@@ -79,3 +79,41 @@ def test_render_text_lists_modules():
     out = render_text(compute_state(REPO_ROOT))
     assert "M06" in out and "LoRA from scratch" in out
     assert "/ 17" in out
+
+
+def test_api_state_is_strict_json(server, tmp_path):
+    from common.progress import append_record
+
+    d = tmp_path / "modules" / "m00_x"
+    d.mkdir(parents=True)
+    (d / "module.toml").write_text(
+        'id = "m00"\ntitle = "T"\npart = "A"\norder = 0\nsummary = "s"\nest_minutes = 1\n'
+        '[next]\nstart = "a"\nfinish = "make doctor"\nwhy = "w"\n'
+    )
+    (tmp_path / ".progress").mkdir()
+    (tmp_path / ".progress" / "history.jsonl").write_text(
+        '{"v": 1, "module": "m00", "passed": false, "metrics": {"final_loss": NaN}}\n'
+    )
+    append_record(
+        tmp_path,
+        {"v": 1, "module": "m00", "passed": False, "metrics": {"final_loss": float("nan")}},
+    )
+    _, _, body = get(server + "/api/state")
+
+    def reject(token):
+        raise ValueError(token)
+
+    json.loads(body, parse_constant=reject)
+
+
+def test_state_error_returns_500_json(server, monkeypatch):
+    import progress_server
+
+    def boom(root):
+        raise RuntimeError("kaboom")
+
+    monkeypatch.setattr(progress_server, "compute_state", boom)
+    with pytest.raises(urllib.error.HTTPError) as e:
+        get(server + "/api/state")
+    assert e.value.code == 500
+    assert "kaboom" in json.loads(e.value.read())["error"]

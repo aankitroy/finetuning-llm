@@ -120,3 +120,24 @@ def test_metrics_and_label_recorded(run, monkeypatch):
     )
     rec = run({"test_a.py": body})
     assert rec["metrics"] == {"final_loss": 1.2} and rec["run_label"] == "r=8"
+
+
+def test_deselect_never_passes(run, monkeypatch):
+    monkeypatch.setenv("PYTEST_ADDOPTS", f"--deselect {TESTS_DIR}/test_a.py::test_two")
+    assert run(TWO_PASS)["passed"] is False
+
+
+def test_ignore_never_passes(run):
+    files = {**TWO_PASS, "test_b.py": "def test_three():\n    pass\n"}
+    assert run(files, f"--ignore={TESTS_DIR}/test_b.py")["passed"] is False
+
+
+def test_last_failed_rerun_never_passes(run, pytester):
+    run({"test_a.py": "def test_one():\n    pass\n\ndef test_two():\n    assert False\n"})
+    (pytester.path / ".progress" / "history.jsonl").unlink()
+    rec = run({"test_a.py": "def test_one():\n    pass\n\ndef test_two():\n    pass\n"}, "--lf")
+    assert rec["passed"] is False
+
+
+def test_stepwise_never_passes(run):
+    assert run(TWO_PASS, "--sw")["passed"] is False

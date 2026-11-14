@@ -44,3 +44,31 @@ def test_template_dir_not_loaded():
     assert (REPO_ROOT / "modules" / "_template" / "module.toml").exists()
     assert all(m.path.name != "_template" for m in mods)
     assert not any("_template" in w for w in warnings)
+
+
+def _write_manifest(tmp_path, extra: str):
+    d = tmp_path / "modules" / "m05_x"
+    d.mkdir(parents=True)
+    (d / "module.toml").write_text(
+        'id = "m05"\ntitle = "T"\npart = "B"\norder = 5\nsummary = "s"\nest_minutes = 1\n'
+        "artifacts_placeholder = 0\n"
+        '[next]\nstart = "a"\nfinish = "make check M=05"\nwhy = "w"\n' + extra
+    )
+
+
+def test_single_metrics_table_is_a_warning_not_a_crash(tmp_path):
+    _write_manifest(tmp_path, '[metrics]\nkey = "k"\nlabel = "K"\nbetter = "lower"\n')
+    mods, warnings = load_modules(tmp_path)
+    assert mods == [] and len(warnings) == 1 and "metrics" in warnings[0]
+
+
+def test_artifacts_as_list_is_a_warning_not_a_crash(tmp_path):
+    d = tmp_path / "modules" / "m05_x"
+    d.mkdir(parents=True)
+    (d / "module.toml").write_text(
+        'id = "m05"\ntitle = "T"\npart = "B"\norder = 5\nsummary = "s"\nest_minutes = 1\n'
+        'artifacts = ["outputs/m05/*"]\n'
+        '[next]\nstart = "a"\nfinish = "make check M=05"\nwhy = "w"\n'
+    )
+    mods, warnings = load_modules(tmp_path)
+    assert mods == [] and len(warnings) == 1 and "artifacts" in warnings[0]

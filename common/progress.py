@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import glob
 import json
+import math
 import os
 from pathlib import Path
 
@@ -33,13 +34,41 @@ def reset_metrics() -> None:
 # --- history I/O ---
 
 
+def _is_num(v) -> bool:
+    return isinstance(v, int | float) and not isinstance(v, bool)
+
+
+def _finite_metrics(metrics: dict) -> dict:
+    """NaN/Infinity (e.g. a diverged loss) become None so the history stays strict JSON."""
+    return {k: (v if not _is_num(v) or math.isfinite(v) else None) for k, v in metrics.items()}
+
+
 def append_record(root: Path, record: dict) -> None:
     path = Path(root) / HISTORY_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
+    record = dict(record)
+    if isinstance(record.get("metrics"), dict):
+        record["metrics"] = _finite_metrics(record["metrics"])
     with path.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        f.write(json.dumps(record, ensure_ascii=False, allow_nan=False) + "\n")
         f.flush()
         os.fsync(f.fileno())
+
+
+def _shape_problem(rec) -> str | None:
+    if not isinstance(rec, dict):
+        return "not a JSON object"
+    if not isinstance(rec.get("module"), str) or not isinstance(rec.get("passed"), bool):
+        return "missing 'module' or 'passed'"
+    tests = rec.get("tests", {})
+    if not isinstance(tests, dict) or not all(_is_num(v) for v in tests.values()):
+        return "'tests' must be an object of numbers"
+    metrics = rec.get("metrics", {})
+    if metrics is None:
+        metrics = {}
+    if not isinstance(metrics, dict) or not all(v is None or _is_num(v) for v in metrics.values()):
+        return "'metrics' must be an object of numbers"
+    return None
 
 
 def read_history(root: Path) -> tuple[list[dict], list[str]]:
@@ -49,21 +78,20 @@ def read_history(root: Path) -> tuple[list[dict], list[str]]:
         return [], []
     records: list[dict] = []
     warnings: list[str] = []
-    for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-        if not line.strip():
+    for n, raw in enumerate(path.read_bytes().split(b"\n"), start=1):
+        if not raw.strip():
             continue
         try:
-            rec = json.loads(line)
-        except json.JSONDecodeError:
+            rec = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
             warnings.append(f"history line {n}: not valid JSON, skipped")
             continue
-        if (
-            not isinstance(rec, dict)
-            or not isinstance(rec.get("module"), str)
-            or not isinstance(rec.get("passed"), bool)
-        ):
-            warnings.append(f"history line {n}: missing 'module' or 'passed', skipped")
+        problem = _shape_problem(rec)
+        if problem:
+            warnings.append(f"history line {n}: {problem}, skipped")
             continue
+        if isinstance(rec.get("metrics"), dict):
+            rec["metrics"] = _finite_metrics(rec["metrics"])
         records.append(rec)
     return records, warnings
 

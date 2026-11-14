@@ -58,7 +58,12 @@ def _handler(root: Path):
         def do_GET(self):
             path = urllib.parse.unquote(urllib.parse.urlsplit(self.path).path)
             if path == "/api/state":
-                body = json.dumps(compute_state(root), ensure_ascii=False).encode()
+                try:
+                    state = compute_state(root)
+                    body = json.dumps(state, ensure_ascii=False, allow_nan=False).encode()
+                except Exception as e:  # never drop the connection: tell the page what broke
+                    err = json.dumps({"error": f"{type(e).__name__}: {e}"}).encode()
+                    return self._send(500, err, "application/json; charset=utf-8")
                 return self._send(200, body, "application/json; charset=utf-8")
             if path in ("/", "/index.html"):
                 return self._static("index.html")
