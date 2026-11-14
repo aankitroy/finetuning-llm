@@ -1,0 +1,19 @@
+id = "m00"
+title = "Environment & Apple Silicon setup"
+part = "A · Foundations"
+order = 0
+summary = "Set up a reproducible environment and learn how unified memory works."
+est_minutes = 60
+
+[next]
+start = "Read modules/m00_setup/README.md, then run make doctor"
+finish = "make doctor"
+why = "Checks Python, Apple Silicon, memory and MPS/MLX availability"
+
+[artifacts]
+any = ["outputs/m00/*"]
+
+[[metrics]]
+key = "total_mem_gb"
+label = "Total memory (GB)"
+better = "higher"

@@ -1,0 +1,24 @@
+id = "m14"
+title = "Merge, quantize & export"
+part = "F · Shipping"
+order = 14
+summary = "Merge adapters, convert to GGUF and quantize."
+est_minutes = 180
+
+[next]
+start = "Read modules/m14_export/README.md, then open lesson.ipynb"
+finish = "make check M=14"
+why = "Your GGUF model runs in llama.cpp and passes the regression suite"
+
+[artifacts]
+any = ["outputs/m14/*"]
+
+[[metrics]]
+key = "model_size_gb"
+label = "Model size (GB)"
+better = "lower"
+
+[[metrics]]
+key = "regression_score"
+label = "General-capability regression score"
+better = "higher"

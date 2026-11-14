@@ -1,0 +1,19 @@
+id = "m00"
+title = "Setup"
+part = "A · Foundations"
+order = 0
+summary = "Get set up."
+est_minutes = 60
+
+[next]
+start = "Read modules/m00_a/README.md"
+finish = "make doctor"
+why = "Checks your environment"
+
+[artifacts]
+any = ["outputs/m00/*"]
+
+[[metrics]]
+key = "total_mem_gb"
+label = "Total memory (GB)"
+better = "higher"

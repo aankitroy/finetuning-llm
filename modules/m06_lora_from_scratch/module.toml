@@ -1,0 +1,24 @@
+id = "m06"
+title = "LoRA from scratch"
+part = "C · Efficient tuning"
+order = 6
+summary = "Build a LoRA layer by hand and inject it into a real model."
+est_minutes = 180
+
+[next]
+start = "Read modules/m06_lora_from_scratch/README.md, then open lesson.ipynb"
+finish = "make check M=06"
+why = "Your LoRA layer matches the base at init and trains under 1% of parameters"
+
+[artifacts]
+any = ["outputs/m06/*"]
+
+[[metrics]]
+key = "final_loss"
+label = "Final val loss"
+better = "lower"
+
+[[metrics]]
+key = "trainable_pct"
+label = "Trainable parameters (%)"
+better = "lower"

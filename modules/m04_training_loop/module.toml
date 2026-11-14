@@ -1,0 +1,24 @@
+id = "m04"
+title = "The training loop, from scratch"
+part = "B · Training from zero"
+order = 4
+summary = "Train a tiny character-level GPT from zero."
+est_minutes = 240
+
+[next]
+start = "Read modules/m04_training_loop/README.md, then open lesson.ipynb"
+finish = "make check M=04"
+why = "Validation loss drops below the target and samples look like text"
+
+[artifacts]
+any = ["outputs/m04/*"]
+
+[[metrics]]
+key = "final_loss"
+label = "Final val loss"
+better = "lower"
+
+[[metrics]]
+key = "peak_mem_gb"
+label = "Peak memory (GB)"
+better = "lower"

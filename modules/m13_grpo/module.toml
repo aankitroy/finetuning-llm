@@ -1,0 +1,39 @@
+id = "m13"
+title = "RL with verifiable rewards (GRPO)"
+part = "E · Alignment"
+order = 13
+summary = "Improve reasoning on checkable tasks with GRPO."
+est_minutes = 300
+
+[next]
+start = "Read modules/m13_grpo/README.md, then open lesson.ipynb"
+finish = "make check M=13"
+why = "Held-out accuracy improves over the SFT baseline"
+
+[artifacts]
+any = ["outputs/m13/*"]
+
+[[metrics]]
+key = "final_loss"
+label = "Final val loss"
+better = "lower"
+
+[[metrics]]
+key = "peak_mem_gb"
+label = "Peak memory (GB)"
+better = "lower"
+
+[[metrics]]
+key = "tokens_per_sec"
+label = "Training speed (tokens/sec)"
+better = "higher"
+
+[[metrics]]
+key = "trainable_pct"
+label = "Trainable parameters (%)"
+better = "lower"
+
+[[metrics]]
+key = "accuracy"
+label = "Held-out accuracy"
+better = "higher"

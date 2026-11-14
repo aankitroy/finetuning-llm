@@ -1,0 +1,19 @@
+id = "m15"
+title = "Serve & integrate"
+part = "F · Shipping"
+order = 15
+summary = "Serve your model behind an OpenAI-compatible local API."
+est_minutes = 150
+
+[next]
+start = "Read modules/m15_serve/README.md, then open lesson.ipynb"
+finish = "make check M=15"
+why = "An end-to-end smoke test hits your local API and validates replies"
+
+[artifacts]
+any = ["outputs/m15/*"]
+
+[[metrics]]
+key = "latency_ms"
+label = "Median latency (ms)"
+better = "lower"
