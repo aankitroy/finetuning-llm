@@ -152,3 +152,22 @@ def test_solutions_mode_never_passes(run, monkeypatch):
 def test_normal_run_records_used_solutions_false(run, monkeypatch):
     monkeypatch.delenv("FTCOURSE_SOLUTIONS", raising=False)
     assert run(TWO_PASS)["used_solutions"] is False
+
+
+def test_failures_are_recorded_with_messages(run):
+    body = (
+        "import pytest\n"
+        "def test_one():\n    pass\n\n"
+        "def test_two():\n    assert 1 == 2, 'Use exactly two nn.Linear layers'\n\n"
+        "@pytest.mark.parametrize('q', ['q1', 'q2'])\n"
+        "def test_q(q):\n    assert q == 'q1', f'{q}: not quite'\n"
+    )
+    rec = run({"test_a.py": body})
+    by_test = {f["test"]: f["message"] for f in rec["failures"]}
+    assert set(by_test) == {"test_two", "test_q[q2]"}
+    assert by_test["test_two"].startswith("AssertionError: Use exactly two nn.Linear layers")
+    assert "\n" not in by_test["test_two"]
+
+
+def test_passing_run_records_no_failures(run):
+    assert run(TWO_PASS)["failures"] == []

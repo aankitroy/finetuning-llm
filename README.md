@@ -42,7 +42,7 @@ make doctor        # check your machine; this completes M0
 make progress      # open the dashboard in your browser
 ```
 
-Keep the dashboard open beside your terminal. It updates on its own as you pass checkpoints. If you'd rather stay in the terminal, run `make progress TEXT=1`.
+Keep the dashboard open beside your terminal. It shows the steps for the module you're on, with the command for each one, and ticks them off as you go: cells run in the lesson, exercises written and passing, questions answered, training done, checkpoint passed. Nothing is ticked by hand. If you'd rather stay in the terminal, run `make progress TEXT=1`.
 
 ## How progress works
 

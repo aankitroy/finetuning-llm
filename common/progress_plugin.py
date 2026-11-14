@@ -35,6 +35,7 @@ def pytest_configure(config):
         interrupted=False,
         deselected=False,
         skipped=set(),
+        failures={},
     )
 
 
@@ -47,6 +48,10 @@ def pytest_runtest_logreport(report):
     nid = report.nodeid
     if report.failed:
         _state["failed"].add(nid)
+        if nid not in _state["failures"]:
+            crash = getattr(report.longrepr, "reprcrash", None)
+            msg = crash.message if crash else str(report.longrepr)
+            _state["failures"][nid] = " ".join(msg.split())[:300]
     elif report.skipped:
         _state["skipped"].add(nid)
         if "optional_checkpoint" not in report.keywords:
@@ -110,5 +115,9 @@ def pytest_sessionfinish(session, exitstatus):
         "metrics": collected_metrics(),
         "run_label": os.environ.get("FTCOURSE_LABEL") or None,
         "used_solutions": used_solutions,
+        "failures": [
+            {"test": nid.split("::")[-1], "message": msg}
+            for nid, msg in list(_state["failures"].items())[:50]
+        ],
     }
     append_record(Path(os.environ.get("FTCOURSE_ROOT") or os.getcwd()), record)

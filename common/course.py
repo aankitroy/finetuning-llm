@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 _BETTER = {"lower", "higher"}
+STEP_KINDS = {"lesson", "exercises", "answers", "train", "checkpoint"}
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,7 @@ class Module:
     artifacts: list[str]
     metrics: list[dict]
     path: Path
+    steps: list[dict] = field(default_factory=list)
 
 
 def _parse(data: dict, path: Path) -> Module:
@@ -35,6 +37,23 @@ def _parse(data: dict, path: Path) -> Module:
     artifacts = data.get("artifacts", {})
     if not isinstance(artifacts, dict) or not isinstance(artifacts.get("any", []), list):
         raise ValueError('artifacts must be an [artifacts] table with any = ["..."]')
+    raw_steps = data.get("steps", [])
+    if not isinstance(raw_steps, list) or not all(isinstance(st, dict) for st in raw_steps):
+        raise ValueError("steps must be written as [[steps]] tables")
+    steps = []
+    for st in raw_steps:
+        if st.get("kind") not in STEP_KINDS:
+            raise ValueError(f"step kind {st.get('kind')!r} must be one of {sorted(STEP_KINDS)}")
+        steps.append(
+            {
+                "kind": st["kind"],
+                "title": str(st["title"]),
+                "detail": str(st.get("detail", "")),
+                "command": str(st["command"]) if st.get("command") else None,
+                "file": str(st["file"]) if st.get("file") else None,
+                "metric": str(st["metric"]) if st.get("metric") else None,
+            }
+        )
     metrics = []
     for m in raw_metrics:
         if m.get("better") not in _BETTER:
@@ -53,6 +72,7 @@ def _parse(data: dict, path: Path) -> Module:
         artifacts=[str(p) for p in artifacts.get("any", [])],
         metrics=metrics,
         path=path.parent,
+        steps=steps,
     )
 
 
