@@ -1,0 +1,19 @@
+id = "m09"
+title = "Data: the part that actually matters"
+part = "D · Making it useful"
+order = 9
+summary = "Build a cleaning, dedup and formatting pipeline, plus filtered synthetic data."
+est_minutes = 240
+
+[next]
+start = "Read modules/m09_data/README.md, then open lesson.ipynb"
+finish = "make check M=09"
+why = "The dataset validator passes: schema, no split leakage, sane lengths"
+
+[artifacts]
+any = ["outputs/m09/*"]
+
+[[metrics]]
+key = "examples"
+label = "Training examples"
+better = "higher"

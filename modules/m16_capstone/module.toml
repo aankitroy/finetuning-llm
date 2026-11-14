@@ -1,0 +1,14 @@
+id = "m16"
+title = "Build a domain specialist end to end"
+part = "Capstone"
+order = 16
+summary = "Pick a track and ship a specialist model with data, eval and export."
+est_minutes = 600
+
+[next]
+start = "Read modules/m16_capstone/README.md, then open lesson.ipynb"
+finish = "make check M=16"
+why = "Your capstone has a dataset card, eval report and exported model"
+
+[artifacts]
+any = ["outputs/m16/*"]

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fine-Tuning Progress</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <h1>Your fine-tuning course</h1>
+      <p class="tally" id="tally">Loading your progress…</p>
+      <div class="bar" role="progressbar" aria-labelledby="tally" id="bar"><span></span></div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <div class="col-main">
+      <section class="next" id="next" aria-live="polite"></section>
+
+      <section class="route" aria-labelledby="route-h">
+        <h2 id="route-h">The route</h2>
+        <div id="route"></div>
+      </section>
+    </div>
+
+    <div class="col-side" id="results" hidden>
+      <section aria-labelledby="results-h">
+        <h2 id="results-h">Results over time</h2>
+        <figure class="chart-box">
+          <figcaption>Checkpoints passed</figcaption>
+          <canvas id="chart-timeline" height="160"></canvas>
+        </figure>
+        <div id="compare"></div>
+        <div id="per-module"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="warnings" id="warnings" hidden>
+    <p id="warnings-text"></p>
+    <button type="button" id="warnings-close">Hide</button>
+  </footer>
+
+  <script src="/static/vendor/chart.umd.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

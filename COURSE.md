@@ -203,7 +203,7 @@ modules/
 
 **What makes it interactive:**
 - **Checkpoint tests:** `make check M=06` runs that module's pytest suite against *your* exercise code and gives specific hints when a test fails.
-- **Progress tracker:** `make progress` shows which modules have passed.
+- **Progress dashboard:** `make progress` opens a local page that updates live as you pass checkpoints. It shows the next step to take, the route through the course, and charts of your results across attempts. `make progress TEXT=1` prints the same in the terminal.
 - **Memory meter:** a shared helper prints peak memory and tokens/sec for every training run, so you build intuition for the hardware.
 - **Predict-then-run cells:** before key cells, the notebook asks you to predict the loss, memory or output, then shows the actual result.
 - **Tiny-first defaults:** every config has a `--tiny` flag that finishes in under 2 minutes for fast iteration.

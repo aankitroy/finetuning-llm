@@ -1,0 +1,14 @@
+id = "m03"
+title = "Tokenizers & chat templates"
+part = "A · Foundations"
+order = 3
+summary = "See exactly what the model sees: BPE, special tokens and chat templates."
+est_minutes = 150
+
+[next]
+start = "Read modules/m03_tokenizers/README.md, then open lesson.ipynb"
+finish = "make check M=03"
+why = "You predict token counts and template output for tricky inputs"
+
+[artifacts]
+any = ["outputs/m03/*"]

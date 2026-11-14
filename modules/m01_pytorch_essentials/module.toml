@@ -1,0 +1,19 @@
+id = "m01"
+title = "Tensors, autograd & PyTorch essentials"
+part = "A · Foundations"
+order = 1
+summary = "Learn just enough PyTorch to read and write training code."
+est_minutes = 180
+
+[next]
+start = "Read modules/m01_pytorch_essentials/README.md, then open lesson.ipynb"
+finish = "make check M=01"
+why = "Your hand-written MLP reaches at least 95% on the toy dataset"
+
+[artifacts]
+any = ["outputs/m01/*"]
+
+[[metrics]]
+key = "accuracy"
+label = "Accuracy"
+better = "higher"

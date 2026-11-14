@@ -1,0 +1,34 @@
+id = "m08"
+title = "QLoRA: bigger models, same laptop"
+part = "C · Efficient tuning"
+order = 8
+summary = "Fine-tune a 7B–8B model in 4-bit on 36 GB."
+est_minutes = 240
+
+[next]
+start = "Read modules/m08_qlora/README.md, then open lesson.ipynb"
+finish = "make check M=08"
+why = "Your QLoRA run fits the memory budget and beats the untuned 4-bit baseline"
+
+[artifacts]
+any = ["outputs/m08/*"]
+
+[[metrics]]
+key = "final_loss"
+label = "Final val loss"
+better = "lower"
+
+[[metrics]]
+key = "peak_mem_gb"
+label = "Peak memory (GB)"
+better = "lower"
+
+[[metrics]]
+key = "tokens_per_sec"
+label = "Training speed (tokens/sec)"
+better = "higher"
+
+[[metrics]]
+key = "trainable_pct"
+label = "Trainable parameters (%)"
+better = "lower"

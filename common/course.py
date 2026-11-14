@@ -1,0 +1,75 @@
+"""Load course module manifests (``modules/m*/module.toml``)."""
+
+from __future__ import annotations
+
+import tomllib
+from dataclasses import dataclass
+from pathlib import Path
+
+_BETTER = {"lower", "higher"}
+
+
+@dataclass(frozen=True)
+class Module:
+    id: str
+    title: str
+    part: str
+    order: int
+    summary: str
+    est_minutes: int
+    next_start: str
+    next_finish: str
+    next_why: str
+    artifacts: list[str]
+    metrics: list[dict]
+    path: Path
+
+
+def _parse(data: dict, path: Path) -> Module:
+    nxt = data["next"]
+    if not isinstance(nxt, dict):
+        raise ValueError("[next] must be a table")
+    raw_metrics = data.get("metrics", [])
+    if not isinstance(raw_metrics, list) or not all(isinstance(m, dict) for m in raw_metrics):
+        raise ValueError("metrics must be written as [[metrics]] tables")
+    artifacts = data.get("artifacts", {})
+    if not isinstance(artifacts, dict) or not isinstance(artifacts.get("any", []), list):
+        raise ValueError('artifacts must be an [artifacts] table with any = ["..."]')
+    metrics = []
+    for m in raw_metrics:
+        if m.get("better") not in _BETTER:
+            raise ValueError(f"metric {m.get('key')!r}: better must be 'lower' or 'higher'")
+        metrics.append({"key": str(m["key"]), "label": str(m["label"]), "better": m["better"]})
+    return Module(
+        id=str(data["id"]),
+        title=str(data["title"]),
+        part=str(data["part"]),
+        order=int(data["order"]),
+        summary=str(data["summary"]),
+        est_minutes=int(data["est_minutes"]),
+        next_start=str(nxt["start"]),
+        next_finish=str(nxt["finish"]),
+        next_why=str(nxt["why"]),
+        artifacts=[str(p) for p in artifacts.get("any", [])],
+        metrics=metrics,
+        path=path.parent,
+    )
+
+
+def load_modules(root: Path) -> tuple[list[Module], list[str]]:
+    """Return valid modules sorted by ``order`` plus human-readable warnings."""
+    modules: list[Module] = []
+    warnings: list[str] = []
+    for manifest in sorted(Path(root).glob("modules/m*/module.toml")):
+        name = manifest.parent.name
+        try:
+            with manifest.open("rb") as f:
+                modules.append(_parse(tomllib.load(f), manifest))
+        except tomllib.TOMLDecodeError as e:
+            warnings.append(f"{name}: invalid module.toml ({e})")
+        except KeyError as e:
+            warnings.append(f"{name}: module.toml missing required key {e}")
+        except (ValueError, TypeError) as e:
+            warnings.append(f"{name}: module.toml {e}")
+    modules.sort(key=lambda m: m.order)
+    return modules, warnings

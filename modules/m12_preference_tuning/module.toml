@@ -1,0 +1,39 @@
+id = "m12"
+title = "Preference tuning: DPO & ORPO"
+part = "E · Alignment"
+order = 12
+summary = "Teach the model which answer is better with DPO."
+est_minutes = 240
+
+[next]
+start = "Read modules/m12_preference_tuning/README.md, then open lesson.ipynb"
+finish = "make check M=12"
+why = "Your hand-written DPO loss matches the library and win rate beats SFT"
+
+[artifacts]
+any = ["outputs/m12/*"]
+
+[[metrics]]
+key = "final_loss"
+label = "Final val loss"
+better = "lower"
+
+[[metrics]]
+key = "peak_mem_gb"
+label = "Peak memory (GB)"
+better = "lower"
+
+[[metrics]]
+key = "tokens_per_sec"
+label = "Training speed (tokens/sec)"
+better = "higher"
+
+[[metrics]]
+key = "trainable_pct"
+label = "Trainable parameters (%)"
+better = "lower"
+
+[[metrics]]
+key = "win_rate"
+label = "Win rate vs SFT"
+better = "higher"

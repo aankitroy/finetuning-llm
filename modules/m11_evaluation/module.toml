@@ -1,0 +1,19 @@
+id = "m11"
+title = "Evaluation you can trust"
+part = "D · Making it useful"
+order = 11
+summary = "Build an eval harness with metrics, an LLM judge and a regression suite."
+est_minutes = 240
+
+[next]
+start = "Read modules/m11_evaluation/README.md, then open lesson.ipynb"
+finish = "make check M=11"
+why = "One command produces a comparison report across your models"
+
+[artifacts]
+any = ["outputs/m11/*"]
+
+[[metrics]]
+key = "regression_score"
+label = "General-capability regression score"
+better = "higher"

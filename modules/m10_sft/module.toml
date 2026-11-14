@@ -1,0 +1,39 @@
+id = "m10"
+title = "Instruction & chat tuning (SFT)"
+part = "D · Making it useful"
+order = 10
+summary = "Turn a base model into an assistant for your task."
+est_minutes = 240
+
+[next]
+start = "Read modules/m10_sft/README.md, then open lesson.ipynb"
+finish = "make check M=10"
+why = "Your model follows the output format on at least 90% of held-out prompts"
+
+[artifacts]
+any = ["outputs/m10/*"]
+
+[[metrics]]
+key = "final_loss"
+label = "Final val loss"
+better = "lower"
+
+[[metrics]]
+key = "peak_mem_gb"
+label = "Peak memory (GB)"
+better = "lower"
+
+[[metrics]]
+key = "tokens_per_sec"
+label = "Training speed (tokens/sec)"
+better = "higher"
+
+[[metrics]]
+key = "trainable_pct"
+label = "Trainable parameters (%)"
+better = "lower"
+
+[[metrics]]
+key = "format_rate"
+label = "Format compliance"
+better = "higher"

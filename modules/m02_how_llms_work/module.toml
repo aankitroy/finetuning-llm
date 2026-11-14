@@ -1,0 +1,14 @@
+id = "m02"
+title = "How an LLM actually works"
+part = "A · Foundations"
+order = 2
+summary = "Build a mental model of a decoder-only transformer and write sampling by hand."
+est_minutes = 180
+
+[next]
+start = "Read modules/m02_how_llms_work/README.md, then open lesson.ipynb"
+finish = "make check M=02"
+why = "Your generation loop matches model.generate() token for token"
+
+[artifacts]
+any = ["outputs/m02/*"]

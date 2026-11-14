@@ -1,0 +1,22 @@
+Course content license
+
+Copyright (c) 2026 Aankit Roy
+
+The course content in this repository is licensed under the Creative Commons
+Attribution 4.0 International License (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+
+"Course content" means:
+  - COURSE.md
+  - every README.md under modules/
+  - every Jupyter notebook (*.ipynb) under modules/
+
+You may share and adapt this content for any purpose, including commercially,
+as long as you give appropriate credit, link to the license, and indicate if
+changes were made.
+
+All other files (source code, tests, scripts, configuration and the dashboard)
+are licensed under the MIT License in LICENSE.
+
+Third-party files keep their own licenses, for example
+dashboard/vendor/chart.umd.min.js (Chart.js, MIT License).

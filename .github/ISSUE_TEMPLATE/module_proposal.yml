@@ -1,0 +1,27 @@
+name: Module proposal
+description: Suggest a new module or a capstone track.
+labels: [proposal]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Proposed module
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: What the learner builds and why it matters
+    validations:
+      required: true
+  - type: textarea
+    id: checkpoint
+    attributes:
+      label: How the checkpoint would prove it worked
+    validations:
+      required: true
+  - type: textarea
+    id: fits
+    attributes:
+      label: Does it fit on a 36 GB Apple Silicon Mac?
+      description: The model size, technique and rough peak memory.

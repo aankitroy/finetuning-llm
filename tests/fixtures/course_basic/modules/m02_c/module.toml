@@ -1,0 +1,10 @@
+id = "m02"
+part = "A · Foundations"
+order = 2
+summary = "No title here."
+est_minutes = 60
+
+[next]
+start = "x"
+finish = "make check M=02"
+why = "y"
