@@ -9,6 +9,8 @@ jobs:
   test:
     name: test (${{ matrix.os }}, py${{ matrix.python }})
     runs-on: ${{ matrix.os }}
+    env:
+      UV_NO_SYNC: "1"  # keep exactly what `uv sync` installed (no course deps on Linux)
     strategy:
       fail-fast: false
       matrix:
