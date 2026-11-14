@@ -1,0 +1,12 @@
+{"v": 1, "ts": "2026-11-01T10:00:00+05:30", "module": "m00", "passed": true, "tests": {"passed": 2, "failed": 0}, "metrics": {"total_mem_gb": 36.0}, "run_label": null}
+{"v": 1, "ts": "2026-11-02T11:00:00+05:30", "module": "m01", "passed": false, "tests": {"passed": 2, "failed": 1}, "metrics": {"accuracy": 0.91}, "run_label": null}
+{"v": 1, "ts": "2026-11-02T15:00:00+05:30", "module": "m01", "passed": true, "tests": {"passed": 3, "failed": 0}, "metrics": {"accuracy": 0.97}, "run_label": null}
+{"v": 1, "ts": "2026-11-03T18:00:00+05:30", "module": "m02", "passed": true, "tests": {"passed": 3, "failed": 0}, "metrics": {}, "run_label": null}
+{"v": 1, "ts": "2026-11-04T20:00:00+05:30", "module": "m03", "passed": true, "tests": {"passed": 3, "failed": 0}, "metrics": {}, "run_label": null}
+{"v": 1, "ts": "2026-11-06T09:00:00+05:30", "module": "m04", "passed": true, "tests": {"passed": 3, "failed": 0}, "metrics": {"final_loss": 1.62, "peak_mem_gb": 1.1}, "run_label": null}
+{"v": 1, "ts": "2026-11-08T21:00:00+05:30", "module": "m05", "passed": true, "tests": {"passed": 3, "failed": 0}, "metrics": {"final_loss": 1.21, "peak_mem_gb": 14.2, "tokens_per_sec": 2100, "trainable_pct": 100.0}, "run_label": "lr=2e-5"}
+{"v": 1, "ts": "2026-11-10T10:00:00+05:30", "module": "m06", "passed": false, "tests": {"passed": 2, "failed": 2}, "metrics": {"final_loss": 1.48, "trainable_pct": 0.11}, "run_label": "r=2"}
+{"v": 1, "ts": "2026-11-10T16:00:00+05:30", "module": "m06", "passed": true, "tests": {"passed": 3, "failed": 0}, "metrics": {"final_loss": 1.3, "trainable_pct": 0.42}, "run_label": "r=8"}
+{"v": 1, "ts": "2026-11-11T12:00:00+05:30", "module": "m06", "passed": true, "tests": {"passed": 3, "failed": 0}, "metrics": {"final_loss": 1.26, "trainable_pct": 1.6}, "run_label": "r=32"}
+{"v": 1, "ts": "2026-11-12T19:00:00+05:30", "module": "m07", "passed": true, "tests": {"passed": 3, "failed": 0}, "metrics": {"final_loss": 1.18, "peak_mem_gb": 9.6, "tokens_per_sec": 3400, "trainable_pct": 0.38}, "run_label": "mlx"}
+{"v": 1, "ts": "2026-11-13T20:00:00+05:30", "module": "m08", "passed": false, "tests": {"passed": 1, "failed": 2}, "metrics": {"final_loss": 1.35, "peak_mem_gb": 21.8, "tokens_per_sec": 900, "trainable_pct": 0.21}, "run_label": "7B q4"}

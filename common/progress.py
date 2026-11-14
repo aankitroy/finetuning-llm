@@ -88,7 +88,7 @@ def _next_step(modules: list[Module], status: dict[str, str], attempts: dict, an
 
     if not any_activity:
         first = modules[0] if modules else None
-        s = step("empty", first, "Start with M0 · Setup: check your environment.", "make doctor")
+        s = step("empty", first, "Check that your Mac and Python are ready for the course.", "make doctor")
         s["title"] = "Start with M0 · Setup"
         return s
 

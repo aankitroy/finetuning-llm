@@ -87,7 +87,7 @@ def main() -> int:
     port = find_free_port()
     srv = make_server(args.root, port)
     url = f"http://{HOST}:{port}"
-    print(f"Dashboard: {url}   (Ctrl-C to stop)")
+    print(f"Dashboard: {url}   (Ctrl-C to stop)", flush=True)
     if not args.no_open:
         webbrowser.open(url)
     try:
