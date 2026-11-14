@@ -5,6 +5,8 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- M1 · Tensors, autograd & PyTorch essentials: lesson notebook, six exercises, a two-moons training script and a checkpoint at 95% accuracy.
+- Course dependencies (PyTorch, NumPy, matplotlib, JupyterLab) in a `course` dependency group.
 - Course structure for 17 modules (`COURSE.md`) with a manifest per module.
 - Progress dashboard (`make progress`): next-step guidance, the course route, and results charts over time. Updates live as you pass checkpoints.
 - Terminal progress view (`make progress TEXT=1`).

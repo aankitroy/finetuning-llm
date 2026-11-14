@@ -18,7 +18,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
       - name: Install dependencies
-        run: uv sync --python ${{ matrix.python }}
+        # Course deps (PyTorch etc.) only on macOS, the course's target platform.
+        run: uv sync --python ${{ matrix.python }} ${{ matrix.os == 'ubuntu-latest' && '--no-group course' || '' }}
       - name: Lint
         run: make lint
       - name: Test
