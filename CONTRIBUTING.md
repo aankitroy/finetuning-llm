@@ -36,9 +36,10 @@ CI runs both on macOS (Apple Silicon) and Linux with Python 3.11 and 3.12.
    - `solutions/exercises.py`
    - `solutions/answers.toml`, with a `kind` (`shape`, `number`, `choice` or `text`), the `answer`, and a `why`
    - then run `make answer-hashes M=NN` to write `tests/answer_hashes.json`
-6. Write `hints.toml`: one `[[exercise]]` per exercise and question, with `id`, `hint`, and (for code exercises) the `name` of the function or class.
-7. Write checkpoint tests in `tests/`. Load the learner's code with `common.checkpoint.load_exercise` and check answers with `common.checkpoint.check_answer`.
-8. Add the module to `MODULES` in `tests/test_module_solutions.py`, so CI proves the checkpoint passes with the reference solutions.
+6. Write `hints.toml`: one `[[exercise]]` per exercise and question, with `id`, `hint`, the checkpoint `test` that checks it (e.g. `test_mse_loss` or `test_understanding[q2]`), and for code exercises the `name` of the function or class.
+7. Add `[[steps]]` to `module.toml` for the dashboard's step-by-step guide (see the template). Kinds are `lesson`, `exercises`, `answers`, `train` and `checkpoint`; each one's state is detected from files, so keep `file` and `metric` accurate.
+8. Write checkpoint tests in `tests/`. Load the learner's code with `common.checkpoint.load_exercise` and check answers with `common.checkpoint.check_answer`.
+9. Add the module to `MODULES` in `tests/test_module_solutions.py`, so CI proves the checkpoint passes with the reference solutions.
 
 ### Rules for checkpoints
 

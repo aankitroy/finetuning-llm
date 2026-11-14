@@ -1,8 +1,10 @@
 [[exercise]]
 id = "1"
+test = "test_example"
 name = "example"
 hint = "A nudge that points the way without giving the answer."
 
 [[exercise]]
 id = "q1"
+test = "test_understanding[q1]"
 hint = "Which experiment in the lesson would show you the answer?"

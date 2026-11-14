@@ -101,6 +101,54 @@ h2 { font-size: 1.125rem; margin-bottom: 0.75rem; }
 }
 .cmd button:hover { background: var(--cobalt); color: var(--surface); }
 
+/* step-by-step guide for one module */
+.guide { margin: -1rem 0 2rem; }
+.guide-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
+.guide-head h2 { margin: 0; }
+.guide-head .count { color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+.guide ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+.gstep { border: 1px solid var(--line); border-radius: 6px; background: var(--surface); margin-bottom: 0.5rem; }
+.gstep.current { border-color: var(--cobalt); box-shadow: 0 0 0 3px var(--cobalt-soft); }
+.gstep > details > summary {
+  list-style: none; cursor: pointer; display: grid; grid-template-columns: 1.75rem 1fr auto;
+  gap: 0.6rem; align-items: baseline; padding: 0.7rem 0.9rem;
+}
+.gstep > details > summary::-webkit-details-marker { display: none; }
+.gnum {
+  display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  font-size: 0.8rem; font-weight: 600; border: 2px solid var(--line); color: var(--muted);
+}
+.gstep.done .gnum { background: var(--moss); border-color: var(--moss); color: var(--surface); }
+.gstep.in_progress .gnum { border-color: var(--amber); color: var(--amber); }
+.gstep.current .gnum { border-color: var(--cobalt); color: var(--cobalt); }
+.gtitle { font-weight: 600; }
+.gprog { color: var(--muted); font-size: 0.85rem; text-align: right; }
+.gstep.done .gprog { color: var(--moss); }
+.gbody { padding: 0 0.9rem 0.9rem 3.25rem; }
+.gbody > p { margin: 0 0 0.75rem; max-width: 62ch; }
+.gbody .cmd { margin-bottom: 0.6rem; }
+.gbody .cmd code { font-size: 0.95rem; }
+.gnote { color: var(--amber); font-size: 0.9rem; }
+.items { list-style: none; margin: 0.25rem 0 0.75rem; padding: 0; font-size: 0.9rem; }
+.items li { display: grid; grid-template-columns: 1.25rem 1fr; gap: 0.4rem; padding: 0.3rem 0; border-top: 1px solid var(--line); }
+.items li:first-child { border-top: 0; }
+.items .mark { text-align: center; }
+.items .pass .mark { color: var(--moss); }
+.items .fail .mark { color: var(--amber); }
+.items .written .mark { color: var(--cobalt); }
+.items .todo .mark { color: var(--muted); }
+.items .iname { font-family: var(--mono); font-size: 0.85rem; }
+.items .imsg { display: block; color: var(--muted); font-size: 0.825rem; }
+.items .ihint { display: block; margin-top: 0.15rem; }
+.mini {
+  font: 500 0.78rem var(--font); color: var(--cobalt); background: transparent;
+  border: 1px solid var(--line); border-radius: 4px; padding: 0.1rem 0.45rem; cursor: pointer;
+}
+.mini code { font: 0.78rem var(--mono); }
+.mini:hover { border-color: var(--cobalt); }
+.open-guide { margin: 0.25rem 0 0.5rem; }
+.empty-guide { color: var(--muted); }
+
 /* the route: one line through every module */
 .part { margin: 0 0 1.25rem; }
 .part h3 { font-size: 0.9rem; color: var(--muted); font-weight: 500; margin: 0 0 0.35rem; }

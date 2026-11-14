@@ -2,50 +2,61 @@
 
 [[exercise]]
 id = "1"
+test = "test_linear_forward"
 name = "linear_forward"
 hint = "One line. `@` is matrix multiply, and the bias broadcasts across rows."
 
 [[exercise]]
 id = "2"
+test = "test_mse_loss"
 name = "mse_loss"
 hint = "Subtract, square (** 2), then take .mean(). The result should be a 0-d tensor."
 
 [[exercise]]
 id = "3"
+test = "test_sgd_step_updates_and_zeroes_grads"
 name = "sgd_step"
 hint = "Loop over params inside `with torch.no_grad():`. Use an in-place update (p -= ...) so p stays the same tensor, then set p.grad = None."
 
 [[exercise]]
 id = "4"
+test = "test_mlp_shapes_and_layers"
 name = "MLP"
 hint = "In __init__, create two nn.Linear layers and store them on self. In forward, apply the first, then torch.relu (or F.relu), then the second."
 
 [[exercise]]
 id = "5"
+test = "test_train_one_epoch_reduces_loss"
 name = "train_one_epoch"
 hint = "Shuffle indices with torch.randperm(len(X), device=X.device), step through them in slices of batch_size, use F.cross_entropy(logits, labels), and collect loss.item() to average."
 
 [[exercise]]
 id = "6"
+test = "test_accuracy"
 name = "accuracy"
 hint = "model(X).argmax(dim=1) gives predicted classes. Compare with y, convert to float, take the mean, and return .item()."
 
 [[exercise]]
 id = "q1"
+test = "test_understanding[q1]"
 hint = "(a, b) @ (b, c) gives (a, c). Then check what adding a (4,) tensor does via broadcasting."
 
 [[exercise]]
 id = "q2"
+test = "test_understanding[q2]"
 hint = "Count the numbers, then multiply by bytes per float32 (see x.element_size() in the lesson)."
 
 [[exercise]]
 id = "q3"
+test = "test_understanding[q3]"
 hint = "Differentiate (w - 5)^2 by hand, then plug in w = 3. You can also just run it in the notebook."
 
 [[exercise]]
 id = "q4"
+test = "test_understanding[q4]"
 hint = "In the lesson, try calling backward() twice without resetting and print w.grad each time."
 
 [[exercise]]
 id = "q5"
+test = "test_understanding[q5]"
 hint = "Write out W2 (W1 x + b1) + b2 and simplify. What kind of function is left?"

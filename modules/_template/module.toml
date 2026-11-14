@@ -20,3 +20,40 @@ any = ["outputs/mNN/*"]
 key = "final_loss"
 label = "Final val loss"
 better = "lower"
+
+# The step-by-step guide on the dashboard. Kinds: lesson, exercises, answers, train, checkpoint.
+# Each step's state is detected from files; nothing is ticked by hand.
+[[steps]]
+kind = "lesson"
+title = "Run the lesson"
+detail = "Open the notebook and run every cell. Save it so your progress shows here."
+command = "uv run jupyter lab modules/mNN_your_slug/lesson.ipynb"
+file = "lesson.ipynb"
+
+[[steps]]
+kind = "exercises"
+title = "Write the exercises"
+detail = "Replace each `raise NotImplementedError` in exercises.py with your code."
+command = "make check M=NN"
+file = "exercises.py"
+
+[[steps]]
+kind = "answers"
+title = "Answer the understanding checks"
+detail = "Fill in each answer in answers.toml."
+command = "make check M=NN"
+file = "answers.toml"
+
+[[steps]]
+kind = "train"
+title = "Train"
+detail = "What the run does and the result it needs."
+command = "uv run python modules/mNN_your_slug/train.py"
+file = "outputs/mNN/run_summary.json"
+metric = "final_loss"
+
+[[steps]]
+kind = "checkpoint"
+title = "Pass the checkpoint"
+detail = "Checks your exercises, answers and training run together."
+command = "make check M=NN"

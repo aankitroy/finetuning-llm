@@ -10,6 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 from common.course import Module, load_modules
+from common.guide import module_guide
 
 HISTORY_PATH = Path(".progress/history.jsonl")
 REVEALS_PATH = Path(".progress/reveals.jsonl")
@@ -245,6 +246,7 @@ def compute_state(root: Path) -> dict:
                 else {},
                 "attempts": attempts[m.id],
                 "reveals": reveal_counts.get(m.id, {"hints": 0, "solutions": 0}),
+                "guide": module_guide(root, m, attempts[m.id]),
                 "metrics": m.metrics,
             }
             for m in modules
@@ -270,6 +272,7 @@ def reveal_note(reveals: dict) -> str:
 
 
 _ICON = {"done": "✔", "in_progress": "◐", "not_started": "○"}
+STEP_ICON = {"done": "done", "in_progress": "in_progress", "todo": "not_started"}
 
 
 def render_text(state: dict) -> str:
@@ -296,6 +299,16 @@ def render_text(state: dict) -> str:
     if n["why"]:
         lines.append(f" │ Why: {n['why']}")
     lines.append(" └" + "─" * 56)
+    guide_for = next((m for m in state["modules"] if m["id"] == n.get("module")), None)
+    if guide_for and guide_for.get("guide"):
+        g = guide_for["guide"]
+        lines += ["", f" Steps for {guide_for['id'].upper()} ({g['done']} of {g['total']} done)"]
+        current = next((s for s in g["steps"] if s["status"] != "done"), None)
+        for i, st in enumerate(g["steps"], start=1):
+            extra = f"   {st['progress']}" if st.get("progress") else ""
+            lines.append(f"   {i}. {_ICON[STEP_ICON[st['status']]]} {st['title']}{extra}")
+            if st is current and st.get("command"):
+                lines.append(f"        $ {st['command']}")
     for w in state["warnings"]:
         lines.append(f" ! {w}")
     return "\n".join(lines)

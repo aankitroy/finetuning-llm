@@ -5,6 +5,8 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- Step-by-step module guide on the dashboard (and in `make progress TEXT=1`): each step's state is detected from your files and your last check, with per-exercise results, failure messages and hint commands.
+- Checkpoint runs record which tests failed and why.
 - Understanding checks: each module's `answers.toml` is checked against stored hashes.
 - `make hint` and `make solution` for one exercise at a time, logged and shown on the dashboard.
 - `make reset` / `make reset M=NN` to start over, with a typed confirmation.

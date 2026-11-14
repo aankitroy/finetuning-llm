@@ -72,3 +72,38 @@ def test_artifacts_as_list_is_a_warning_not_a_crash(tmp_path):
     )
     mods, warnings = load_modules(tmp_path)
     assert mods == [] and len(warnings) == 1 and "artifacts" in warnings[0]
+
+
+STEP_BASE = (
+    'id = "m05"\ntitle = "T"\npart = "B"\norder = 5\nsummary = "s"\nest_minutes = 1\n'
+    '[next]\nstart = "a"\nfinish = "make check M=05"\nwhy = "w"\n'
+)
+
+
+def test_steps_are_loaded(tmp_path):
+    d = tmp_path / "modules" / "m05_x"
+    d.mkdir(parents=True)
+    (d / "module.toml").write_text(
+        STEP_BASE + '[[steps]]\nkind = "lesson"\ntitle = "Run the lesson"\n'
+        'detail = "d"\ncommand = "uv run jupyter lab x"\nfile = "lesson.ipynb"\n'
+        '[[steps]]\nkind = "checkpoint"\ntitle = "Pass"\ndetail = "d"\ncommand = "make check M=05"\n'
+    )
+    (m,), warnings = load_modules(tmp_path)
+    assert warnings == []
+    assert [s["kind"] for s in m.steps] == ["lesson", "checkpoint"]
+    assert m.steps[0]["file"] == "lesson.ipynb" and m.steps[1].get("file") is None
+
+
+def test_unknown_step_kind_is_a_warning(tmp_path):
+    d = tmp_path / "modules" / "m05_x"
+    d.mkdir(parents=True)
+    (d / "module.toml").write_text(
+        STEP_BASE + '[[steps]]\nkind = "dance"\ntitle = "t"\ndetail = "d"\n'
+    )
+    mods, warnings = load_modules(tmp_path)
+    assert mods == [] and "step" in warnings[0] and "dance" in warnings[0]
+
+
+def test_steps_default_empty(copy_fixture):
+    mods, _ = load_modules(copy_fixture("course_basic"))
+    assert mods[0].steps == []

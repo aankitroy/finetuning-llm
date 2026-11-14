@@ -54,6 +54,33 @@ function renderHeader(s) {
   $("bar").firstElementChild.style.width = pct + "%";
 }
 
+// ---------- copy helpers ----------
+
+async function copyText(text, btn, idle) {
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = "Copied";
+  } catch {
+    btn.textContent = "Select and copy";
+  }
+  setTimeout(() => (btn.textContent = idle), 1500);
+}
+
+function cmdBox(command) {
+  const btn = el("button", { type: "button", text: "Copy" });
+  btn.addEventListener("click", () => copyText(command, btn, "Copy"));
+  return el("div", { class: "cmd" }, el("code", { text: command }), btn);
+}
+
+function miniCmd(command) {
+  const btn = el("button", { type: "button", class: "mini", title: "Copy command" }, el("code", { text: command }));
+  btn.addEventListener("click", () => {
+    const code = btn.firstChild;
+    copyText(command, code, command);
+  });
+  return btn;
+}
+
 // ---------- next step ----------
 
 const KICKER = {
@@ -71,20 +98,98 @@ function renderNext(n) {
     el("h3", { text: n.title }),
     el("p", { text: n.instruction }),
   );
-  if (n.command) {
-    const btn = el("button", { type: "button", text: "Copy" });
-    btn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(n.command);
-        btn.textContent = "Copied";
-      } catch {
-        btn.textContent = "Select and copy";
-      }
-      setTimeout(() => (btn.textContent = "Copy"), 1500);
-    });
-    box.append(el("div", { class: "cmd" }, el("code", { text: n.command }), btn));
-  }
+  if (n.command) box.append(cmdBox(n.command));
   if (n.why) box.append(el("p", { class: "why", text: "Why: " + n.why }));
+}
+
+// ---------- step-by-step guide ----------
+
+const SELECT_KEY = "ftcourse.guide.module";
+let selectedId = null;
+try {
+  selectedId = localStorage.getItem(SELECT_KEY);
+} catch {}
+const stepOpen = new Map();
+let lastState = null;
+
+function selectModule(id) {
+  selectedId = id;
+  try {
+    localStorage.setItem(SELECT_KEY, id);
+  } catch {}
+  if (lastState) renderGuide(lastState);
+  $("guide").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function itemRow(kind, it) {
+  const done = kind === "exercises" ? it.written : it.answered;
+  // Not written yet beats "failed": a stub failing its test isn't news.
+  const state = !done ? "todo" : it.last === "pass" ? "pass" : it.last === "fail" ? "fail" : "written";
+  const mark = { pass: "✔", fail: "✗", written: "●", todo: "○" }[state];
+  const label =
+    kind === "exercises" ? el("span", { class: "iname", text: `${it.id}. ${it.name}` }) : el("span", { text: `${it.id.toUpperCase()} ${it.question}` });
+  const body = el("div", {}, label);
+  if (state === "fail" && it.message) body.append(el("span", { class: "imsg", text: it.message }));
+  if (state === "written") body.append(el("span", { class: "imsg", text: "Done. Run the check to see if it's right." }));
+  if (state === "todo") body.append(el("span", { class: "imsg", text: kind === "exercises" ? "Not written yet" : "Not answered yet" }));
+  if (state === "fail" || state === "todo") body.append(el("span", { class: "ihint" }, miniCmd(it.hint)));
+  return el("li", { class: state, "aria-label": state }, el("span", { class: "mark", text: mark }), body);
+}
+
+function stepProgress(st) {
+  if (st.kind === "train" && typeof st.value === "number") {
+    const v = /accuracy|rate|pct/.test(st.metric) && st.value <= 1 ? (st.value * 100).toFixed(1) + "%" : fmt(st.value);
+    return `${st.progress}: ${st.metric.replace(/_/g, " ")} ${v}`;
+  }
+  return st.progress || "";
+}
+
+function renderGuide(s) {
+  lastState = s;
+  const box = $("guide");
+  const byId = new Map(s.modules.map((m) => [m.id, m]));
+  const m = byId.get(selectedId) || byId.get(s.next.module) || s.modules.find((x) => x.guide);
+  if (!m) {
+    box.hidden = true;
+    return;
+  }
+  box.hidden = false;
+  const head = el(
+    "div",
+    { class: "guide-head" },
+    el("h2", { id: "guide-h", text: `Steps for ${m.id.toUpperCase()} · ${m.title}` }),
+    m.guide ? el("span", { class: "count", text: `${m.guide.done} of ${m.guide.total} steps done` }) : null,
+  );
+  if (!m.guide) {
+    box.replaceChildren(head, el("p", { class: "empty-guide", text: "This module's lessons are still being written. Step-by-step guidance will appear here when they're ready." }));
+    return;
+  }
+  const current = m.guide.steps.findIndex((st) => st.status !== "done");
+  const list = el("ol", { class: "steps" });
+  m.guide.steps.forEach((st, i) => {
+    const key = `${m.id}:${i}`;
+    const det = el(
+      "details",
+      {},
+      el(
+        "summary",
+        {},
+        el("span", { class: "gnum", text: st.status === "done" ? "✔" : String(i + 1) }),
+        el("span", { class: "gtitle", text: st.title }),
+        el("span", { class: "gprog", text: stepProgress(st) }),
+      ),
+    );
+    det.open = stepOpen.has(key) ? stepOpen.get(key) : i === current;
+    det.addEventListener("toggle", () => stepOpen.set(key, det.open));
+    const body = el("div", { class: "gbody" }, el("p", { text: st.detail }));
+    if (st.note) body.append(el("p", { class: "gnote", text: st.note }));
+    if (st.items?.length) body.append(el("ul", { class: "items" }, ...st.items.map((it) => itemRow(st.kind, it))));
+    if (st.command) body.append(cmdBox(st.command));
+    det.append(body);
+    const classes = ["gstep", st.status, i === current ? "current" : ""].join(" ");
+    list.append(el("li", { class: classes }, det));
+  });
+  box.replaceChildren(head, list);
 }
 
 // ---------- route ----------
@@ -118,6 +223,9 @@ function statusBase(m) {
 
 function attemptsTable(m) {
   const wrap = el("div", { class: "attempts" }, el("p", { text: m.summary }));
+  const open = el("button", { type: "button", class: "mini open-guide", text: "Show the steps for this module" });
+  open.addEventListener("click", () => selectModule(m.id));
+  wrap.append(open);
   const note = revealNote(m.reveals);
   if (note) wrap.append(el("p", { text: `Help used: ${note}.` }));
   if (!m.attempts.length) {
@@ -378,6 +486,7 @@ async function tick() {
       prevDone = done;
       renderHeader(s);
       renderNext(s.next);
+      renderGuide(s);
       renderRoute(s, newly);
       renderResults(s);
       renderWarnings(s.warnings);
