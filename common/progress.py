@@ -170,3 +170,35 @@ def compute_state(root: Path) -> dict:
         "history": history,
         "warnings": warnings,
     }
+
+
+# --- terminal rendering (`make progress TEXT=1`) ---
+
+_ICON = {"done": "✔", "in_progress": "◐", "not_started": "○"}
+
+
+def render_text(state: dict) -> str:
+    c = state["course"]
+    total = c["total"] or 1
+    filled = round(20 * c["done"] / total)
+    lines = [
+        f"LLM Fine-Tuning · progress   {'█' * filled}{'░' * (20 - filled)}  "
+        f"{c['done']} / {c['total']} modules",
+        "",
+    ]
+    part = None
+    for m in state["modules"]:
+        if m["part"] != part:
+            part = m["part"]
+            lines.append(f" {part}")
+        lines.append(f"   {_ICON[m['status']]} {m['id'].upper()} {m['title']}")
+    n = state["next"]
+    lines += ["", " ┌ NEXT " + "─" * 50, f" │ {n['title']}", f" │ {n['instruction']}"]
+    if n["command"]:
+        lines.append(f" │ $ {n['command']}")
+    if n["why"]:
+        lines.append(f" │ Why: {n['why']}")
+    lines.append(" └" + "─" * 56)
+    for w in state["warnings"]:
+        lines.append(f" ! {w}")
+    return "\n".join(lines)
