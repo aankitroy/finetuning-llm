@@ -76,8 +76,6 @@ def _has_artifact(root: Path, patterns: list[str]) -> bool:
 
 
 def _next_step(modules: list[Module], status: dict[str, str], attempts: dict, any_activity: bool):
-    by_id = {m.id: m for m in modules}
-
     def step(kind, m, instruction, command):
         return {
             "kind": kind,
