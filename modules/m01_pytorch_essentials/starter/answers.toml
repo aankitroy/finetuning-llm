@@ -1,0 +1,31 @@
+# M1 understanding checks. Put your answer between the quotes, then run: make check M=01
+# Shapes like "32x4", numbers like "-4" or "1000", choices as a single letter like "b".
+# Work them out in lesson.ipynb if you're unsure. Stuck? make hint M=01 EX=q1
+
+[q1]
+question = "x has shape (32, 10), w has shape (10, 4) and b has shape (4,). What is the shape of x @ w + b?"
+answer = ""
+
+[q2]
+question = "How many bytes does a 1000 x 1000 tensor of float32 take?"
+answer = ""
+
+[q3]
+question = "w = torch.tensor(3.0, requires_grad=True); loss = (w - 5) ** 2; loss.backward(). What is w.grad?"
+answer = ""
+
+[q4]
+question = """Why do you reset gradients before each backward() call?
+  a) To free GPU memory
+  b) Because backward() adds to the existing .grad, so old gradients would mix into the new step
+  c) Because the optimizer refuses to run otherwise
+  d) To lower the learning rate over time"""
+answer = ""
+
+[q5]
+question = """Remove the ReLU from your MLP so it is Linear -> Linear. Can it still separate the two moons?
+  a) Yes, two layers are always more powerful than one
+  b) No: two linear layers compose into a single linear layer, so the boundary is still a straight line
+  c) Yes, if you train for more epochs
+  d) Only on the MPS device"""
+answer = ""

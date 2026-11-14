@@ -1,0 +1,5 @@
+# MNN understanding checks. Put your answer between the quotes, then run: make check M=NN
+
+[q1]
+question = "Ask about why something works, not just what it does."
+answer = ""

@@ -46,9 +46,33 @@ Keep the dashboard open beside your terminal. It updates on its own as you pass 
 
 ## How progress works
 
-Each module ends with a checkpoint you run with `make check M=NN`, for example `make check M=06`. Every run is saved to `.progress/history.jsonl` on your machine, so the dashboard can chart your results across attempts. Add `LABEL="r=8"` to tag an attempt.
+Each module has three parts, and you do all of them:
 
-A module counts as done only when its **whole** checkpoint suite ran and passed: no failures, no skipped tests, no filtering with `-k`. Failed attempts are kept and charted, but never mark a module done. Nothing is ever sent off your machine.
+1. **Lesson** (`lesson.ipynb`): run it cell by cell. Cells marked *Predict* ask you to guess before you run.
+2. **Exercises** (`exercises.py`): write the code yourself. It starts as empty stubs.
+3. **Understanding checks** (`answers.toml`): short questions about *why* things work, not just *whether* they do.
+
+Then run the checkpoint with `make check M=NN`, for example `make check M=01`. It checks your code, your training results and your answers. Every run is saved to `.progress/history.jsonl` on your machine, so the dashboard can chart your attempts. Add `LABEL="r=8"` to tag one.
+
+A module counts as done only when its **whole** checkpoint passed: no failures, no skipped tests, no filtering with `-k`, and nothing run against the reference solutions. Failed attempts are kept and charted, but never mark a module done. Nothing is ever sent off your machine.
+
+### When you're stuck
+
+```bash
+make hint M=01 EX=3       # a nudge for exercise 3 (or EX=q2 for a question)
+make solution M=01 EX=3   # the reference answer for just that exercise
+```
+
+Both are fine to use, and both are logged: the dashboard shows "2 hints, 1 solution viewed" next to the module, so you can see how much you did unaided.
+
+### Starting over
+
+```bash
+make reset          # the whole course
+make reset M=01     # one module
+```
+
+It lists exactly what will be deleted (your progress records, hint log, training outputs, and your `exercises.py` / `answers.toml`, which are restored to the empty starters) and does nothing until you type `reset`. Lesson notebooks and reference solutions are kept.
 
 ## Repo layout
 

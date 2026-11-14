@@ -1,0 +1,27 @@
+# M1 reference answers. Use `make solution M=01 EX=q1` instead of reading this file,
+# so the dashboard shows what you did unaided.
+
+[q1]
+kind = "shape"
+answer = "32x4"
+why = "Matrix multiply (32, 10) @ (10, 4) gives (32, 4); the (4,) bias broadcasts across the 32 rows."
+
+[q2]
+kind = "number"
+answer = "4000000"
+why = "1,000,000 numbers x 4 bytes each."
+
+[q3]
+kind = "number"
+answer = "-4"
+why = "d/dw (w - 5)^2 = 2(w - 5) = 2 x (3 - 5) = -4."
+
+[q4]
+kind = "choice"
+answer = "b"
+why = "Gradients accumulate: each backward() adds to .grad. Without a reset you'd step using the sum of every past gradient."
+
+[q5]
+kind = "choice"
+answer = "b"
+why = "W2(W1 x + b1) + b2 = (W2 W1) x + (W2 b1 + b2): still one linear map. The ReLU is what bends the boundary."

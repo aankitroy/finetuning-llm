@@ -89,7 +89,20 @@ function renderNext(n) {
 
 // ---------- route ----------
 
+function revealNote(r) {
+  const parts = [];
+  if (r?.hints) parts.push(`${r.hints} hint${r.hints === 1 ? "" : "s"}`);
+  if (r?.solutions) parts.push(`${r.solutions} solution${r.solutions === 1 ? "" : "s"} viewed`);
+  return parts.join(", ");
+}
+
 function statusText(m) {
+  const base = statusBase(m);
+  const note = revealNote(m.reveals);
+  return note ? (base ? `${base}, ${note}` : note) : base;
+}
+
+function statusBase(m) {
   if (m.status === "done") {
     const keys = m.metrics.map((x) => x.key).filter((k) => k in m.latest_metrics);
     if (keys.length) {
@@ -105,6 +118,8 @@ function statusText(m) {
 
 function attemptsTable(m) {
   const wrap = el("div", { class: "attempts" }, el("p", { text: m.summary }));
+  const note = revealNote(m.reveals);
+  if (note) wrap.append(el("p", { text: `Help used: ${note}.` }));
   if (!m.attempts.length) {
     wrap.append(el("p", { text: "No checkpoint runs yet." }));
     return wrap;
