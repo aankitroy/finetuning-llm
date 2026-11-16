@@ -214,7 +214,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"This resets {scope}. It will:")
         for line in plan:
             print(f"  - {line}")
-        print("This can't be undone. Lesson notebooks and reference solutions are kept.")
+        print("This can't be undone. Reference solutions are kept.")
         if input("Type 'reset' to continue: ").strip() != "reset":
             print("Cancelled. Nothing was changed.")
             return 1

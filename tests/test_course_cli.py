@@ -151,6 +151,23 @@ def test_main_reset_requires_typing_reset(root, monkeypatch, capsys):
     assert not (root / ".progress").exists()
 
 
+def test_reset_restores_a_starter_notebook(root):
+    d = root / "modules" / "m05_x"
+    (d / "starter" / "lesson.ipynb").write_text('{"cells": []}')
+    (d / "lesson.ipynb").write_text('{"cells": [{"execution_count": 3}]}')
+    assert any("modules/m05_x/lesson.ipynb" in line for line in course.reset_plan(root, "05"))
+    course.do_reset(root, "05")
+    assert (d / "lesson.ipynb").read_text() == '{"cells": []}'
+
+
+def test_main_reset_says_notebooks_are_reset_too(root, monkeypatch, capsys):
+    monkeypatch.setattr("builtins.input", lambda prompt="": "no")
+    course.main(["--root", str(root), "reset"])
+    out = capsys.readouterr().out
+    assert "Lesson notebooks" not in out
+    assert "Reference solutions are kept." in out
+
+
 def test_main_hint_unknown_exercise_exits_2(root, capsys):
     assert course.main(["--root", str(root), "hint", "05", "9"]) == 2
     assert "1, q1" in capsys.readouterr().err
