@@ -4,37 +4,37 @@
 id = "1"
 test = "test_linear_forward"
 name = "linear_forward"
-hint = "One line. `@` is matrix multiply, and the bias broadcasts across rows."
+hint = "One line does all three steps: x @ w gives (batch, out), and + b broadcasts the bias across the rows. Compare with `pred = X @ w + b` in lesson section 3."
 
 [[exercise]]
 id = "2"
 test = "test_mse_loss"
 name = "mse_loss"
-hint = "Subtract, square (** 2), then take .mean(). The result should be a 0-d tensor."
+hint = "Steps 1-3 fit on one line: (pred - target), then ** 2, then .mean(). .mean() with no arguments already gives a single-number (0-d) tensor."
 
 [[exercise]]
 id = "3"
 test = "test_sgd_step_updates_and_zeroes_grads"
 name = "sgd_step"
-hint = "Loop over params inside `with torch.no_grad():`. Use an in-place update (p -= ...) so p stays the same tensor, then set p.grad = None."
+hint = "Step 1 is `with torch.no_grad():`. For step 3 use `p -= lr * p.grad`: the -= form changes p in place, so it stays the same tensor the model holds. Step 4 is `p.grad = None`. It's the inner part of the loop in lesson section 2."
 
 [[exercise]]
 id = "4"
 test = "test_mlp_shapes_and_layers"
 name = "MLP"
-hint = "In __init__, create two nn.Linear layers and store them on self. In forward, apply the first, then torch.relu (or F.relu), then the second."
+hint = "In __init__, `self.fc1 = nn.Linear(in_features, hidden)` and the same for the second layer: storing them on self is what registers their parameters. In forward, call self.fc1(x), then F.relu(...), then self.fc2(...). SineNet in section 7 has the same shape."
 
 [[exercise]]
 id = "5"
 test = "test_train_one_epoch_reduces_loss"
 name = "train_one_epoch"
-hint = "Shuffle indices with torch.randperm(len(X), device=X.device), step through them in slices of batch_size, use F.cross_entropy(logits, labels), and collect loss.item() to average."
+hint = "Step 1: torch.randperm(len(X), device=X.device). Step 3: `for i in range(0, len(X), batch_size):` and `idx = order[i : i + batch_size]` (section 6). Step 5: F.cross_entropy(logits, y[idx]). Step 9: loss.item(). Steps 6-8 are the three optimizer/backward lines from section 7."
 
 [[exercise]]
 id = "6"
 test = "test_accuracy"
 name = "accuracy"
-hint = "model(X).argmax(dim=1) gives predicted classes. Compare with y, convert to float, take the mean, and return .item()."
+hint = "model(X).argmax(dim=1) gives the predicted class for every row. (preds == y) is True/False; .float().mean() turns that into a fraction, and .item() makes it a Python float."
 
 [[exercise]]
 id = "q1"

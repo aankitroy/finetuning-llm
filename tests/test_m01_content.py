@@ -78,7 +78,9 @@ def test_lesson_sections_in_order():
         if line.startswith("## ")
     ]
     found = [next((h for h in headings if h.startswith(s)), None) for s in SECTIONS]
-    assert None not in found, f"missing: {[s for s, f in zip(SECTIONS, found) if f is None]}"
+    assert None not in found, (
+        f"missing: {[s for s, f in zip(SECTIONS, found, strict=True) if f is None]}"
+    )
     assert [headings.index(f) for f in found] == sorted(headings.index(f) for f in found)
 
 
@@ -121,3 +123,62 @@ def test_lesson_matches_starter():
     mine = [_src(c) for c in json.loads((M / "lesson.ipynb").read_text())["cells"]]
     assert mine == [_src(c) for c in _cells()]
 
+
+# --- the exercises ---
+
+EXERCISES = ["linear_forward", "mse_loss", "sgd_step", "MLP", "train_one_epoch", "accuracy"]
+
+
+def _starter_defs():
+    import ast
+
+    source = (M / "starter" / "exercises.py").read_text()
+    tree = ast.parse(source)
+    defs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef | ast.ClassDef)}
+    return source.splitlines(), defs
+
+
+def _stub_bodies(name):
+    """Source lines of each function that makes up exercise `name`."""
+    import ast
+
+    lines, defs = _starter_defs()
+    node = defs[name]
+    funcs = (
+        [n for n in node.body if isinstance(n, ast.FunctionDef)]
+        if isinstance(node, ast.ClassDef)
+        else [node]
+    )
+    return [lines[f.lineno - 1 : f.end_lineno] for f in funcs]
+
+
+@pytest.mark.parametrize("name", EXERCISES)
+def test_each_exercise_has_step_comments(name):
+    import re
+
+    for body in _stub_bodies(name):
+        assert any(re.match(r"^\s+# 1\. ", line) for line in body), f"{name}: no '# 1. ' step"
+        assert any("raise NotImplementedError" in line for line in body)
+
+
+@pytest.mark.parametrize("name", EXERCISES)
+def test_each_exercise_says_what_it_is(name):
+    import ast
+
+    _, defs = _starter_defs()
+    assert "In plain words:" in (ast.get_docstring(defs[name]) or "")
+
+
+def test_step_comments_dont_count_as_written():
+    from common.guide import _written
+
+    _, defs = _starter_defs()
+    assert not any(_written(defs, name) for name in EXERCISES)
+
+
+@pytest.mark.parametrize("name", ["MLP", "train_one_epoch"])
+def test_harder_exercises_point_to_the_lesson(name):
+    import ast
+
+    _, defs = _starter_defs()
+    assert "section 7" in (ast.get_docstring(defs[name]) or "")
