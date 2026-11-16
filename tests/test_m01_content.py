@@ -200,3 +200,51 @@ def test_question_ids_line_up():
     hashes = set(json.loads((M / "tests" / "answer_hashes.json").read_text()))
     expected = {f"q{i}" for i in range(1, 7)}
     assert starter == solutions == hints == hashes == expected
+
+
+# --- the README ---
+
+SYNTAX = [
+    "`requires_grad=True`",
+    "`.backward()`",
+    "`.grad`",
+    "`torch.no_grad()`",
+    "`nn.Module`",
+    "`nn.Linear`",
+    "`optimizer.zero_grad()`",
+    "`optimizer.step()`",
+    "`F.cross_entropy`",
+    "`.argmax(dim=1)`",
+    "`.to(device)`",
+    "`.item()`",
+]
+
+
+def _readme_section(title):
+    text = (M / "README.md").read_text()
+    assert f"## {title}" in text, f"README has no '## {title}' section"
+    return text.split(f"## {title}", 1)[1].split("\n## ", 1)[0]
+
+
+def test_readme_glossary_covers_terms():
+    rows = [
+        line.lower() for line in _readme_section("Glossary").splitlines() if line.startswith("|")
+    ]
+    terms = TERMS + ["MSE", "layer", "parameter", "nn.Module", "MPS"]
+    missing = [t for t in terms if not any(r.startswith(f"| **{t.lower()}**") for r in rows)]
+    assert not missing, f"glossary is missing: {missing}"
+
+
+def test_readme_syntax_table():
+    rows = [
+        line for line in _readme_section("Syntax at a glance").splitlines() if line.startswith("|")
+    ]
+    missing = [s for s in SYNTAX if not any(r.startswith(f"| {s} ") for r in rows)]
+    assert not missing, f"syntax table is missing: {missing}"
+
+
+def test_m01_estimate():
+    from common.course import load_modules
+
+    m01 = next(m for m in load_modules(REPO_ROOT)[0] if m.id == "m01")
+    assert m01.est_minutes == 240
