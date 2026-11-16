@@ -21,7 +21,7 @@
    | 2 | Gradients and autograd | which way is downhill, and how PyTorch works it out |
    | 3 | Linear regression, by hand | a whole model and training loop in ten lines |
    | 4 | nn.Module, layers and optimizers | PyTorch's ready-made pieces |
-   | 5 | Classification | logits, softmax, cross-entropy, argmax, ReLU |
+   | 5 | Classification | logits, softmax, cross-entropy, argmax, accuracy, ReLU |
    | 6 | Batches and epochs | training on a little data at a time |
    | 7 | A worked example | a small network end to end: the pattern for exercises 4 and 5 |
    | 8 | The Mac's GPU | MPS and `.to(device)` |
@@ -57,6 +57,7 @@
 |---|---|---|
 | **model** | A function with adjustable numbers inside it. Given an input, it produces a prediction. | 0 |
 | **parameter** | One of a model's adjustable numbers (also called a *weight*). Training changes these. | 0 |
+| **bias** | A number a layer adds on after multiplying by the weights (the `b` in `x @ w + b`). | 0, 1 |
 | **training** | Repeating guess → measure → find the direction → nudge until the predictions are good. | 0 |
 | **loss** | One number saying how wrong the model's guesses are. Training tries to make it smaller. | 0, 3 |
 | **tensor** | A grid of numbers: one number, a list, a table, or more dimensions. Everything in PyTorch is a tensor. | 1 |
@@ -100,6 +101,8 @@
 | `optimizer.zero_grad()` | Resets every parameter's gradient. | Before each `.backward()`. |
 | `optimizer.step()` | Nudges every parameter using its gradient. | After each `.backward()`. |
 | `F.cross_entropy` | Cross-entropy loss from logits and the correct class numbers. | Training a classifier. |
+| `a == b` | Compares two tensors position by position, giving True/False for each. | Checking predictions against labels. |
+| `.float()` | Turns a tensor into decimal numbers; True/False become 1.0/0.0. | Averaging True/False to get accuracy. |
 | `.argmax(dim=1)` | The position of the biggest value in each row. | Turning logits into predicted classes. |
 | `torch.randperm(n)` | The numbers 0 to n−1 in random order. | Shuffling the data each epoch. |
 | `.to(device)` | Moves a model or tensor to a device (`"mps"` or `"cpu"`). | Using the Mac's GPU. |

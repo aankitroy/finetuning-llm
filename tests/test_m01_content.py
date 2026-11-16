@@ -5,6 +5,7 @@ exercises doesn't break `make test`.
 """
 
 import json
+import re
 import shutil
 import subprocess
 
@@ -47,6 +48,9 @@ TERMS = [
     "epoch",
     "learning rate",
     "optimizer",
+    "nn.Module",
+    "layer",
+    "bias",
 ]
 
 
@@ -86,9 +90,8 @@ def test_lesson_sections_in_order():
 
 def test_every_code_cell_is_explained():
     cells = _cells()
-    last_code = max(i for i, c in enumerate(cells) if c["cell_type"] == "code")
     for i, c in enumerate(cells):
-        if c["cell_type"] != "code" or i == last_code:
+        if c["cell_type"] != "code":
             continue
         nxt = cells[i + 1] if i + 1 < len(cells) else None
         assert nxt and nxt["cell_type"] == "markdown", f"cell {i} has no explanation after it"
@@ -112,6 +115,12 @@ def test_lesson_runs_top_to_bottom(tmp_path):
         nb, timeout=180, kernel_name="python3", resources={"metadata": {"path": str(work)}}
     )
     client.execute()
+    out = "".join(
+        o.get("text", "") for c in nb.cells if c.cell_type == "code" for o in c.get("outputs", [])
+    )
+    by_hand = re.search(r"cross-entropy by hand: (\S+)", out).group(1)
+    pytorch = re.search(r"F.cross_entropy: +(\S+)", out).group(1)
+    assert by_hand == pytorch, "print both losses the same way so they visibly match"
 
 
 def test_lesson_matches_starter():
@@ -154,8 +163,6 @@ def _stub_bodies(name):
 
 @pytest.mark.parametrize("name", EXERCISES)
 def test_each_exercise_has_step_comments(name):
-    import re
-
     for body in _stub_bodies(name):
         assert any(re.match(r"^\s+# 1\. ", line) for line in body), f"{name}: no '# 1. ' step"
         assert any("raise NotImplementedError" in line for line in body)
@@ -248,3 +255,34 @@ def test_m01_estimate():
 
     m01 = next(m for m in load_modules(REPO_ROOT)[0] if m.id == "m01")
     assert m01.est_minutes == 240
+
+
+def _markdown():
+    return "\n".join(_src(c) for c in _cells() if c["cell_type"] == "markdown")
+
+
+def test_accuracy_pieces_are_taught():
+    """Exercise 6 needs ==, .float() and argmax(dim=1): the lesson must show all three."""
+    code = "\n".join(_src(c) for c in _cells() if c["cell_type"] == "code")
+    assert "argmax(dim=1)" in code
+    assert ".float()" in code
+    assert re.search(r"\w+ == \w+", code), "show comparing two tensors with =="
+    rows = _readme_section("Syntax at a glance")
+    assert "| `.float()` " in rows
+
+
+@pytest.mark.parametrize("term", ["layer", "bias", "batch"])
+def test_terms_are_not_used_before_they_are_explained(term):
+    text = _markdown()
+    first = re.search(rf"\b{term}", text, re.IGNORECASE).start()
+    defined = text.lower().find(f"**{term}**")
+    explained_here = text[first - 2 : first] == "**"
+    points_ahead = "section" in text[first : first + 80]
+    assert explained_here or points_ahead or first > defined, (
+        f"'{term}' is used before it's explained: {text[first - 60 : first + 40]!r}"
+    )
+
+
+def test_gpu_maths_is_right():
+    text = _markdown() + "\n".join(_src(c) for c in _cells())
+    assert "137 billion multiply-adds" not in text
