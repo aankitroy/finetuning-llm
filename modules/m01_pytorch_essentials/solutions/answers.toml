@@ -25,3 +25,8 @@ why = "Gradients accumulate: each backward() adds to .grad. Without a reset you'
 kind = "choice"
 answer = "b"
 why = "W2(W1 x + b1) + b2 = (W2 W1) x + (W2 b1 + b2): still one linear map. The ReLU is what bends the boundary."
+
+[q6]
+kind = "number"
+answer = "0"
+why = "The predicted class is the argmax: the position of the biggest logit, which is 2.0 at position 0. Softmax would turn the logits into probabilities (about 0.79, 0.18, 0.04) but never changes which one is biggest."

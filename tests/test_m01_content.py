@@ -182,3 +182,21 @@ def test_harder_exercises_point_to_the_lesson(name):
 
     _, defs = _starter_defs()
     assert "section 7" in (ast.get_docstring(defs[name]) or "")
+
+
+# --- the understanding checks ---
+
+
+def test_question_ids_line_up():
+    import tomllib
+
+    starter = set(tomllib.loads((M / "starter" / "answers.toml").read_text()))
+    solutions = set(tomllib.loads((M / "solutions" / "answers.toml").read_text()))
+    hints = {
+        str(e["id"])
+        for e in tomllib.loads((M / "hints.toml").read_text())["exercise"]
+        if str(e["id"]).startswith("q")
+    }
+    hashes = set(json.loads((M / "tests" / "answer_hashes.json").read_text()))
+    expected = {f"q{i}" for i in range(1, 7)}
+    assert starter == solutions == hints == hashes == expected

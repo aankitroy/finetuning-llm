@@ -60,3 +60,8 @@ hint = "In the lesson, try calling backward() twice without resetting and print 
 id = "q5"
 test = "test_understanding[q5]"
 hint = "Write out W2 (W1 x + b1) + b2 and simplify. What kind of function is left?"
+
+[[exercise]]
+id = "q6"
+test = "test_understanding[q6]"
+hint = "Logits are scores: bigger means more likely. The predicted class is the position of the biggest one (argmax), counting from 0. See lesson section 5."

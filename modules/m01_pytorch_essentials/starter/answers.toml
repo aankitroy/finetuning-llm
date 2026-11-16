@@ -1,5 +1,5 @@
 # M1 understanding checks. Put your answer between the quotes, then run: make check M=01
-# Shapes like "32x4", numbers like "-4" or "1000", choices as a single letter like "b".
+# There are six questions. Shapes like "32x4", numbers like "-4" or "1000", choices as a single letter like "b".
 # Work them out in lesson.ipynb if you're unsure. Stuck? make hint M=01 EX=q1
 
 [q1]
@@ -23,9 +23,13 @@ question = """Why do you reset gradients before each backward() call?
 answer = ""
 
 [q5]
-question = """Remove the ReLU from your MLP so it is Linear -> Linear. Can it still separate the two moons?
+question = """Remove the ReLU from your MLP so it is Linear -> Linear. Can it still separate the two moons? (See the ReLU part of lesson section 5.)
   a) Yes, two layers are always more powerful than one
   b) No: two linear layers compose into a single linear layer, so the boundary is still a straight line
   c) Yes, if you train for more epochs
   d) Only on the MPS device"""
+answer = ""
+
+[q6]
+question = "A model outputs the logits [2.0, 0.5, -1.0] for classes 0, 1 and 2. Which class does it predict? Answer with the class number."
 answer = ""
