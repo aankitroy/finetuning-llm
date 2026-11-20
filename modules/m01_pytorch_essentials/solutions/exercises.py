@@ -31,7 +31,6 @@ class MLP(nn.Module):
 
 
 def train_one_epoch(model, X, y, optimizer, batch_size: int) -> float:
-    model.train()
     perm = torch.randperm(len(X), device=X.device)
     losses = []
     for i in range(0, len(X), batch_size):
