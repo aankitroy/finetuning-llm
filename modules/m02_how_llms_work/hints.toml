@@ -1,0 +1,37 @@
+# Hints for `make hint M=02 EX=<id>`. `make solution` shows the reference answer.
+
+[[exercise]]
+id = "1"
+test = "test_next_token_logits"
+name = "next_token_logits"
+hint = "Calling the model returns an object; its .logits has shape (1, seq, vocab). Index it like a grid: first prompt, last position. Negative indexes count from the end (section 4)."
+
+[[exercise]]
+id = "2"
+test = "test_greedy"
+name = "greedy"
+hint = "It's the argmax from M1 section 5, then int(...) to make it a plain number."
+
+[[exercise]]
+id = "3"
+test = "test_softmax_with_temperature"
+name = "softmax_with_temperature"
+hint = "One line: divide first, then softmax over the last dimension (dim=-1). Section 6 does exactly this in a cell."
+
+[[exercise]]
+id = "4"
+test = "test_top_p_filter"
+name = "top_p_filter"
+hint = "torch.sort(probs, descending=True) gives (values, positions). torch.cumsum gives the running total; subtract each value from it to get the total *before* it. Use the positions to mark the kept tokens back in the original order, then torch.where to zero the rest."
+
+[[exercise]]
+id = "5"
+test = "test_causal_attention"
+name = "causal_attention"
+hint = "k.T turns k on its side. torch.triu(torch.ones(n, n, dtype=torch.bool), diagonal=1) is True above the diagonal. .masked_fill(mask, float('-inf')) hides the future. Section 3 walks through every step with a 3-token example."
+
+[[exercise]]
+id = "6"
+test = "test_generate_greedy_matches_library"
+name = "generate"
+hint = "Section 5's loop is the greedy half. For the sampling half, torch.multinomial(probs, 1, generator=generator) draws one token. torch.tensor([[token]], device=input_ids.device) makes the (1, 1) tensor to append."
