@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+- M1 rewritten for complete beginners: concept-first lesson with a "What each line does" box after every code cell, a worked example, step-by-step comments in every exercise, a sixth question on logits, and a glossary and syntax table in the README.
+- `make reset` now also restores lesson notebooks to their unrun state.
+
 ### Added
 - Step-by-step module guide on the dashboard (and in `make progress TEXT=1`): each step's state is detected from your files and your last check, with per-exercise results, failure messages and hint commands.
 - Checkpoint runs record which tests failed and why.

@@ -3,7 +3,7 @@ title = "Tensors, autograd & PyTorch essentials"
 part = "A · Foundations"
 order = 1
 summary = "Learn just enough PyTorch to read and write training code."
-est_minutes = 180
+est_minutes = 240
 
 [next]
 start = "Read modules/m01_pytorch_essentials/README.md, then open lesson.ipynb"
