@@ -1,0 +1,32 @@
+# M2 reference answers. Use `make solution M=02 EX=q1` instead of reading this file,
+# so the dashboard shows what you did unaided.
+
+[q1]
+kind = "choice"
+answer = "b"
+why = "The model never outputs words directly. It gives a score to every token in its vocabulary (49,152 of them for SmolLM2); you choose the next token from those scores."
+
+[q2]
+kind = "shape"
+answer = "5x5"
+why = "Every one of the 5 queries is compared with every one of the 5 keys: a (5, d) @ (d, 5) matrix multiply gives (5, 5). The causal mask then hides the top-right half."
+
+[q3]
+kind = "choice"
+answer = "b"
+why = "Dividing by 0.5 doubles the gaps between logits, and softmax turns bigger gaps into more lopsided probabilities. The order never changes, so the top token stays the top token."
+
+[q4]
+kind = "choice"
+answer = "c"
+why = "Top-p keeps a variable number of tokens: few when the model is confident, more when it isn't. Everything outside that set gets probability 0."
+
+[q5]
+kind = "choice"
+answer = "b"
+why = "When generating, token 6 doesn't exist while token 5 is being chosen. Training with the mask makes the model learn to predict using only what came before."
+
+[q6]
+kind = "choice"
+answer = "a"
+why = "Earlier tokens' keys and values never change, so generate() keeps them instead of recomputing the whole prompt every step. Your loop recomputes everything, which is why it's slower but gives the same tokens."

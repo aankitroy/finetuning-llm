@@ -12,3 +12,43 @@ why = "Your generation loop matches model.generate() token for token"
 
 [artifacts]
 any = ["outputs/m02/*"]
+
+[[metrics]]
+key = "tokens_per_sec"
+label = "Your loop's speed (tokens/s)"
+better = "higher"
+
+[[steps]]
+kind = "lesson"
+title = "Run the lesson"
+detail = "Open the notebook and run every cell, top to bottom. The first cell downloads SmolLM2-135M (about 270 MB) once. When a cell says Predict, write your guess down before running it. Save the notebook (Cmd-S) so your progress shows here."
+command = "uv run jupyter lab modules/m02_how_llms_work/lesson.ipynb"
+file = "lesson.ipynb"
+
+[[steps]]
+kind = "exercises"
+title = "Write the exercises"
+detail = "Open exercises.py and replace each `raise NotImplementedError` with your code, following the numbered steps. Run make check M=02 as often as you like; this panel shows which exercises pass."
+command = "make check M=02"
+file = "exercises.py"
+
+[[steps]]
+kind = "answers"
+title = "Answer the understanding checks"
+detail = "Open answers.toml and put your answer between the quotes for each question. Work them out in the notebook if you're unsure."
+command = "make check M=02"
+file = "answers.toml"
+
+[[steps]]
+kind = "train"
+title = "Run your generation loop"
+detail = "Runs your generate() on the real model next to model.generate() and checks they write the same 20 tokens. Takes a few seconds."
+command = "uv run python modules/m02_how_llms_work/generate.py"
+file = "outputs/m02/run_summary.json"
+metric = "your_tokens_per_sec"
+
+[[steps]]
+kind = "checkpoint"
+title = "Pass the checkpoint"
+detail = "Checks your exercises, your answers and your run together. M2 turns green when everything passes."
+command = "make check M=02"

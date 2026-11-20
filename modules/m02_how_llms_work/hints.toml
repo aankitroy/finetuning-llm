@@ -35,3 +35,33 @@ id = "6"
 test = "test_generate_greedy_matches_library"
 name = "generate"
 hint = "Section 5's loop is the greedy half. For the sampling half, torch.multinomial(probs, 1, generator=generator) draws one token. torch.tensor([[token]], device=input_ids.device) makes the (1, 1) tensor to append."
+
+[[exercise]]
+id = "q1"
+test = "test_understanding[q1]"
+hint = "In lesson section 4, print the shape of outputs.logits. What is its last dimension?"
+
+[[exercise]]
+id = "q2"
+test = "test_understanding[q2]"
+hint = "(tokens, d) @ (d, tokens). Use the shape rule from M1 section 1."
+
+[[exercise]]
+id = "q3"
+test = "test_understanding[q3]"
+hint = "Run the temperature cell in lesson section 6 with 0.5 and compare the top probability with temperature 1."
+
+[[exercise]]
+id = "q4"
+test = "test_understanding[q4]"
+hint = "Section 6 prints how many tokens top-p keeps. Is it a fixed number, or does it depend on the probabilities?"
+
+[[exercise]]
+id = "q5"
+test = "test_understanding[q5]"
+hint = "Think about generation: when the model chooses token 5, does token 6 exist yet? Section 3 explains the mask."
+
+[[exercise]]
+id = "q6"
+test = "test_understanding[q6]"
+hint = "Section 7 times your loop against generate(). Which work is repeated at every step of your loop?"

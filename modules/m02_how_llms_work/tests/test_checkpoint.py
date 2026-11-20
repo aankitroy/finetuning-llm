@@ -56,9 +56,9 @@ def test_top_p_filter(ex):
         f"Got {kept.tolist()}"
     )
     shuffled = torch.tensor([0.05, 0.3, 0.5, 0.15])
-    assert torch.allclose(ex.top_p_filter(shuffled, 0.75), torch.tensor([0.0, 0.375, 0.625, 0.0])), (
-        "Sort by probability first: the input isn't always in order"
-    )
+    assert torch.allclose(
+        ex.top_p_filter(shuffled, 0.75), torch.tensor([0.0, 0.375, 0.625, 0.0])
+    ), "Sort by probability first: the input isn't always in order"
     only_top = ex.top_p_filter(probs, 0.1)
     assert torch.allclose(only_top, torch.tensor([1.0, 0.0, 0.0, 0.0])), (
         "Always keep at least the most likely token"
@@ -118,7 +118,11 @@ def test_generate_sampling_respects_top_p(ex, tiny):
         assert allowed[token], "With top_p, every sampled token must come from the top-p set"
         ids = torch.cat([ids, torch.tensor([[token]])], dim=1)
     again = ex.generate(
-        tiny, PROMPT, max_new_tokens=10, temperature=0.8, top_p=0.5,
+        tiny,
+        PROMPT,
+        max_new_tokens=10,
+        temperature=0.8,
+        top_p=0.5,
         generator=torch.Generator().manual_seed(1),
     )
     assert again == mine, (
