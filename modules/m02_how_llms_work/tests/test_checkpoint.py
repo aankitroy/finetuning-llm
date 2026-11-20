@@ -59,6 +59,11 @@ def test_top_p_filter(ex):
     assert torch.allclose(
         ex.top_p_filter(shuffled, 0.75), torch.tensor([0.0, 0.375, 0.625, 0.0])
     ), "Sort by probability first: the input isn't always in order"
+    tie = ex.top_p_filter(torch.tensor([0.5, 0.25, 0.25]), 0.75)
+    assert torch.allclose(tie, torch.tensor([2 / 3, 1 / 3, 0.0])), (
+        "Keep the smallest set that reaches p: once the total before a token is already p, "
+        f"stop (use <, not <=). Got {tie.tolist()}"
+    )
     only_top = ex.top_p_filter(probs, 0.1)
     assert torch.allclose(only_top, torch.tensor([1.0, 0.0, 0.0, 0.0])), (
         "Always keep at least the most likely token"
@@ -89,44 +94,52 @@ def _library_greedy(model, n, eos=None):
     return out[0, PROMPT.shape[1] :].tolist()
 
 
-def test_generate_greedy_matches_library(ex, tiny):
+def _reference_sample(model, n, temperature, top_p, seed):
+    """What sampling must produce: temperature, top-p, then one multinomial draw per step."""
+    g = torch.Generator().manual_seed(seed)
+    ids, out = PROMPT, []
+    for _ in range(n):
+        with torch.no_grad():
+            probs = torch.softmax(model(ids).logits[0, -1] / temperature, dim=-1)
+        sorted_probs, order = torch.sort(probs, descending=True)
+        keep = torch.zeros_like(probs, dtype=torch.bool)
+        keep[order[(torch.cumsum(sorted_probs, dim=-1) - sorted_probs) < top_p]] = True
+        probs = torch.where(keep, probs, torch.zeros_like(probs))
+        token = int(torch.multinomial(probs / probs.sum(), 1, generator=g))
+        out.append(token)
+        ids = torch.cat([ids, torch.tensor([[token]])], dim=1)
+    return out
+
+
+def test_generate(ex, tiny):
+    """Exercise 6, all of it: greedy, stopping at end-of-text, and sampling."""
     mine = ex.generate(tiny, PROMPT, max_new_tokens=20)
     assert isinstance(mine, list), "Return a list of the new token ids (plain ints)"
     assert mine == _library_greedy(tiny, 20), (
-        "In greedy mode (temperature 0) your tokens must equal model.generate()'s. "
+        "Greedy mode (temperature 0): your tokens must equal model.generate()'s. "
         "Each step: logits for the last position, pick the biggest, append it, repeat."
     )
 
-
-def test_generate_stops_at_eos(ex, tiny):
     third = _library_greedy(tiny, 3)[2]
-    mine = ex.generate(tiny, PROMPT, max_new_tokens=20, eos_token_id=third)
-    assert mine == _library_greedy(tiny, 20, eos=third), (
-        "Stop as soon as you produce eos_token_id, and include that token in the result"
+    stopped = ex.generate(tiny, PROMPT, max_new_tokens=20, eos_token_id=third)
+    assert stopped == _library_greedy(tiny, 20, eos=third), (
+        "Stop as soon as you produce eos_token_id, and include that token in the result "
+        "(add it to your list first, then check)"
     )
 
-
-def test_generate_sampling_respects_top_p(ex, tiny):
-    g = torch.Generator().manual_seed(1)
-    mine = ex.generate(tiny, PROMPT, max_new_tokens=10, temperature=0.8, top_p=0.5, generator=g)
-    assert len(mine) == 10
-    ids = PROMPT
-    for token in mine:
-        with torch.no_grad():
-            logits = tiny(ids).logits[0, -1]
-        allowed = ex.top_p_filter(torch.softmax(logits / 0.8, dim=-1), 0.5) > 0
-        assert allowed[token], "With top_p, every sampled token must come from the top-p set"
-        ids = torch.cat([ids, torch.tensor([[token]])], dim=1)
-    again = ex.generate(
+    sampled = ex.generate(
         tiny,
         PROMPT,
-        max_new_tokens=10,
-        temperature=0.8,
-        top_p=0.5,
+        max_new_tokens=20,
+        temperature=1.5,
+        top_p=0.3,
         generator=torch.Generator().manual_seed(1),
     )
-    assert again == mine, (
-        "Pass the generator to torch.multinomial so the same seed gives the same text"
+    expected = _reference_sample(tiny, 20, temperature=1.5, top_p=0.3, seed=1)
+    assert sampled == expected, (
+        "Sampling mode gave different tokens from the reference with the same seed. Each step: "
+        "softmax_with_temperature, then top_p_filter, then ONE draw with "
+        "torch.multinomial(probs, 1, generator=generator). Greedy picks don't count as sampling."
     )
 
 
@@ -142,6 +155,9 @@ def _summary(outputs):
 def test_run_matched_the_library(outputs):
     s = _summary(outputs)
     report_metric("tokens_per_sec", s["your_tokens_per_sec"])
+    assert s["tokens_compared"] >= 20, (
+        f"Only {s['tokens_compared']} tokens were compared. Run generate.py with at least 20."
+    )
     assert s["matched"], (
         "Your loop and model.generate() produced different tokens in your last run. "
         f"Yours: {s['your_text']!r}  Library: {s['library_text']!r}"

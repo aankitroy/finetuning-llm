@@ -92,17 +92,6 @@ def main() -> int:
         f"generate() {rate(len(library), lib_s)} tokens/s (it uses a KV cache, section 7)"
     )
 
-    sampled = ex.generate(
-        model,
-        input_ids,
-        args.tokens,
-        temperature=0.8,
-        top_p=0.9,
-        eos_token_id=eos,
-        generator=torch.Generator().manual_seed(0),
-    )
-    print(f"\nFor fun, sampled at temperature 0.8, top_p 0.9: {decode(sampled)!r}")
-
     summary = {
         "matched": matched,
         "model": name,
@@ -118,6 +107,19 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     (out / "run_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(f"\nSaved {out / 'run_summary.json'}. Next: make check M=02")
+    try:
+        sampled = ex.generate(
+            model,
+            input_ids,
+            args.tokens,
+            temperature=0.8,
+            top_p=0.9,
+            eos_token_id=eos,
+            generator=torch.Generator().manual_seed(0),
+        )
+        print(f"\nFor fun, sampled at temperature 0.8, top_p 0.9: {decode(sampled)!r}")
+    except NotImplementedError as e:
+        print(f"\n(Sampling demo skipped: {e}. Write exercises 3 and 4 to see it.)")
     return 0
 
 

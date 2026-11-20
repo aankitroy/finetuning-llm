@@ -4,10 +4,10 @@
 
 [q1]
 question = """Each time a language model runs on your text, what does it actually output?
-  a) The next word, as text
+  a) The next word, already written out as text and ready to print
   b) One score (logit) for every token in its vocabulary, for what comes next
-  c) A whole sentence
-  d) The probability that your text is true"""
+  c) A complete sentence that answers or continues whatever you typed
+  d) A single probability saying how likely it is that what you typed is actually true"""
 answer = ""
 
 [q2]
@@ -18,30 +18,30 @@ answer = ""
 question = """You divide the logits by a temperature of 0.5 before softmax. What happens?
   a) The probabilities get flatter, so unlikely tokens are picked more often
   b) The probabilities get sharper, so the top token becomes even more likely
-  c) A different token becomes the most likely
-  d) Nothing: softmax cancels it out"""
+  c) A different token becomes the most likely, because dividing changes the order
+  d) Nothing changes at all, because softmax cancels the division out"""
 answer = ""
 
 [q4]
 question = """What does top_p = 0.9 do?
-  a) Keeps the 90% of the vocabulary with the highest scores
-  b) Keeps only tokens whose own probability is above 0.9
-  c) Keeps the smallest set of most likely tokens whose probabilities add up to at least 0.9, and samples only from them
-  d) Lowers every probability by 10%"""
+  a) Keeps the 90% of the vocabulary with the highest scores and samples from those
+  b) Keeps only the tokens whose own probability is above 0.9, and drops the rest
+  c) Keeps the fewest top tokens whose probabilities add up to at least 0.9
+  d) Lowers every token's probability by 10%, so the model is a bit less confident"""
 answer = ""
 
 [q5]
 question = """Why does a language model use a causal mask in attention?
-  a) To make training use less memory
-  b) So each token can only look at itself and earlier tokens: when writing, the later tokens don't exist yet
-  c) To stop the model repeating itself
-  d) So the model ignores punctuation"""
+  a) To make training use less memory, so bigger models fit on a laptop
+  b) So each token only sees itself and earlier ones: later ones don't exist yet
+  c) To stop the model repeating the same words over and over when it writes long texts
+  d) So the model can ignore punctuation and focus on the words that carry the meaning"""
 answer = ""
 
 [q6]
 question = """What does the KV cache do?
-  a) Stores the keys and values of earlier tokens, so each new step only has to process the newest token: same output, much faster
-  b) Saves your past conversations to disk
-  c) Makes the model more accurate
-  d) Compresses the weights so the model uses less memory"""
+  a) Keeps earlier tokens' keys and values, so each step only processes the newest token
+  b) Saves your past conversations to disk, so the model can remember them next time
+  c) Makes the model more accurate by letting it look at more of the earlier text at once
+  d) Compresses the model's weights so it needs less memory and loads more quickly"""
 answer = ""

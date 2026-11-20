@@ -28,13 +28,13 @@ hint = "torch.sort(probs, descending=True) gives (values, positions). torch.cums
 id = "5"
 test = "test_causal_attention"
 name = "causal_attention"
-hint = "k.T turns k on its side. torch.triu(torch.ones(n, n, dtype=torch.bool), diagonal=1) is True above the diagonal. .masked_fill(mask, float('-inf')) hides the future. Section 3 walks through every step with a 3-token example."
+hint = "Follow section 3's two cells in order: score, mask, softmax, mix. The mask is the same upper-triangle grid as there, built for n = q.shape[0] tokens, and the scale is the square root of q.shape[-1]."
 
 [[exercise]]
 id = "6"
-test = "test_generate_greedy_matches_library"
+test = "test_generate"
 name = "generate"
-hint = "Section 5's loop is the greedy half. For the sampling half, torch.multinomial(probs, 1, generator=generator) draws one token. torch.tensor([[token]], device=input_ids.device) makes the (1, 1) tensor to append."
+hint = "The greedy half is section 5's loop, collecting the new ids in a list. For the sampling half, section 6's last cell shows the drawing function: here you want one draw per step, with the generator passed in. Build the new id as a (1, 1) tensor on input_ids' device before joining it on."
 
 [[exercise]]
 id = "q1"

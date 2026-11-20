@@ -20,6 +20,9 @@ def next_token_logits(model, input_ids: torch.Tensor) -> torch.Tensor:
     what comes *after the last token*. See lesson section 4.
 
     input_ids has shape (1, seq): one prompt, seq tokens. Return shape (vocab,).
+
+    The `@torch.no_grad()` line above the function switches off gradient recording for the
+    whole function, like a `with torch.no_grad():` block around its body (M1 section 2).
     """
     # 1. Run the model on input_ids and take the .logits from what it returns.
     #    Their shape is (1, seq, vocab): a score for every vocabulary token at every position.

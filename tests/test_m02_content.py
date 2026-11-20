@@ -219,3 +219,56 @@ def test_readme_syntax_table():
     ]
     missing = [s for s in SYNTAX if not any(r.startswith(f"| {s}") for r in rows)]
     assert not missing, f"syntax table is missing: {missing}"
+
+
+# --- review fixes ---
+
+
+def _code():
+    return "\n".join(_src(c) for c in _cells() if c["cell_type"] == "code")
+
+
+def test_top_p_tools_are_taught():
+    """Exercise 4 writes through an index and uses torch.where: the lesson shows both."""
+    code = _code()
+    assert re.search(r"\w+\[\w+\] = True", code), "show writing flags back through an index"
+    assert "torch.where(" in code and "torch.zeros_like(" in code
+
+
+def test_head_is_explained_before_use():
+    text = _markdown()
+    first = re.search(r"\bheads?\b", text, re.IGNORECASE).start()
+    explained_here = text[first - 2 : first] == "**"
+    points_ahead = "section" in text[first : first + 80]
+    assert explained_here or points_ahead, (
+        f"'head' used unexplained: {text[first - 60 : first + 40]!r}"
+    )
+
+
+def test_hints_are_nudges_not_solutions():
+    hints = {
+        str(e["id"]): e["hint"] for e in tomllib.loads((M / "hints.toml").read_text())["exercise"]
+    }
+    assert "masked_fill(mask, float" not in hints["5"]
+    assert "torch.triu(torch.ones" not in hints["5"]
+    assert "torch.multinomial(probs, 1, generator=generator)" not in hints["6"]
+    assert "torch.tensor([[token]]" not in hints["6"]
+
+
+def test_right_answer_is_not_just_the_longest():
+    starter = tomllib.loads((M / "starter" / "answers.toml").read_text())
+    solutions = tomllib.loads((M / "solutions" / "answers.toml").read_text())
+    longest_wins = 0
+    for qid, sol in solutions.items():
+        if sol["kind"] != "choice":
+            continue
+        options = dict(re.findall(r"^\s+([a-d])\) (.+)$", starter[qid]["question"], re.MULTILINE))
+        right = len(options[sol["answer"]])
+        if all(right > len(t) for k, t in options.items() if k != sol["answer"]):
+            longest_wins += 1
+    assert longest_wins <= 1, f"the longest option is the answer in {longest_wins} questions"
+
+
+def test_no_grad_decorator_is_explained():
+    _, defs = _starter_defs()
+    assert "@torch.no_grad()" in (ast.get_docstring(defs["next_token_logits"]) or "")
