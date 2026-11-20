@@ -49,9 +49,12 @@ Part D  Making it useful     M9 Data curation → M10 Instruction & chat tuning 
 Part E  Alignment            M12 Preference tuning (DPO/ORPO) → M13 RL with verifiable rewards (GRPO)
 Part F  Shipping             M14 Merge, quantize, export → M15 Serve & integrate
 Capstone                     M16 End-to-end domain specialist
+Part G  Beyond text          M17 Vision-language → M18 Speech-to-text → M19 Image generation   (optional)
 ```
 
-Estimated total time: **40–60 hours**. Each module takes about 2–4 hours.
+Estimated total time: **40–60 hours** for M0–M16, plus about **12–15 hours** for the optional Part G. Each module takes about 2–4 hours.
+
+Part G is optional: the core course is complete at the capstone. Do it after M8 at the earliest, since it reuses LoRA, QLoRA and the evaluation habits from Parts C and D.
 
 ---
 
@@ -184,6 +187,33 @@ Pick one track, or propose your own:
 
 **Deliverables:** dataset card, training config, eval report against the base model, exported GGUF, a short write-up of what worked and what didn't.
 
+### Part G — Beyond text (optional)
+
+The same ideas apply to models that see and hear: a training loop, LoRA, good data and honest evaluation. What changes is how the input becomes embeddings. Images are cut into patches and audio into short frames, and an *encoder* turns each one into a list of numbers, like a token embedding. Each module first shows that change on its own, then fine-tunes a real model on the Mac.
+
+These modules are planned, not yet built. Model choices and memory figures will be measured on the reference Mac before each module is written.
+
+#### M17 · Vision-language models
+- **Goal:** fine-tune a model that answers questions about images.
+- **You'll build:** look inside a small vision-language model (e.g. SmolVLM, or Qwen2.5-VL-3B) to see how an image becomes tokens; build a small image + question + answer dataset; train a LoRA adapter with `mlx-vlm` or `peft`.
+- **Concepts:** the vision encoder, image patches as tokens, the projector that joins vision to language, image tokens in chat templates, freezing the vision encoder vs training it, image resolution vs memory.
+- **Checkpoint:** the tuned model beats the base model on a held-out set of your images, scored with exact-match or an LLM judge (M11).
+- **Stretch:** compare LoRA on the language model only with LoRA on the projector too.
+
+#### M18 · Speech-to-text (Whisper)
+- **Goal:** improve transcription for a specific accent, vocabulary or domain.
+- **You'll build:** turn audio into a log-mel spectrogram and see what Whisper's encoder receives; prepare a small audio + transcript dataset; fine-tune Whisper small (full or LoRA) with `transformers` on MPS.
+- **Concepts:** sample rate, spectrograms, encoder-decoder models (vs the decoder-only LLMs of the main course), word error rate (WER), why domain words get misheard.
+- **Checkpoint:** the tuned model's WER on held-out clips is lower than the base model's by the target margin.
+- **Stretch:** export to `whisper.cpp` or MLX and transcribe live from the microphone.
+
+#### M19 · Image generation (diffusion LoRA)
+- **Goal:** teach an image model a new style or object from a handful of pictures.
+- **You'll build:** see how diffusion works by adding noise to an image and removing it step by step; train a LoRA on a small set of your own images with `diffusers`; generate with and without it.
+- **Concepts:** diffusion and denoising, the text encoder and the U-Net/transformer, trigger words, overfitting on a few images, why this is slow on a Mac and how to keep runs short.
+- **Checkpoint:** with the trigger word, generated images score clearly closer to your training images (CLIP similarity) than the base model's, while prompts without it are unaffected.
+- **Stretch:** try different LoRA ranks and step counts, and chart quality against training time.
+
 ---
 
 ## 5. How each module is laid out
@@ -225,6 +255,9 @@ finetuning-llm/
     m01_pytorch_essentials/
     ...
     m16_capstone/
+    m17_vision_language/   # Part G (optional)
+    m18_speech_to_text/
+    m19_image_generation/
   scripts/
     doctor.py
     progress.py
@@ -241,6 +274,7 @@ finetuning-llm/
 4. **Advanced:** M12, M13.
 5. **Shipping:** M14, M15, then capstone templates.
 6. **Polish:** M1 and M3 deep dives, stretch goals, diagrams, troubleshooting FAQ.
+7. **Beyond text (optional):** M17, M18, M19, after the core course. Each one starts by measuring memory and speed on the reference Mac.
 
 ---
 
