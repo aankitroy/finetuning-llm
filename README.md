@@ -19,6 +19,7 @@ You'll work in the terminal: read a lesson, run the code, pass the checkpoint. A
 | E · Alignment | Preference tuning (DPO/ORPO), RL with verifiable rewards (GRPO) |
 | F · Shipping | Merge, quantize & export to GGUF, serve locally |
 | Capstone | Build a domain specialist end to end |
+| G · Beyond text (optional) | Vision-language models, speech-to-text (Whisper), image generation (diffusion LoRA) |
 
 The full syllabus is in [COURSE.md](COURSE.md).
 
