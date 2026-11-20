@@ -1,0 +1,67 @@
+# Hints for `make hint M=02 EX=<id>`. `make solution` shows the reference answer.
+
+[[exercise]]
+id = "1"
+test = "test_next_token_logits"
+name = "next_token_logits"
+hint = "Calling the model returns an object; its .logits has shape (1, seq, vocab). Index it like a grid: first prompt, last position. Negative indexes count from the end (section 4)."
+
+[[exercise]]
+id = "2"
+test = "test_greedy"
+name = "greedy"
+hint = "It's the argmax from M1 section 5, then int(...) to make it a plain number."
+
+[[exercise]]
+id = "3"
+test = "test_softmax_with_temperature"
+name = "softmax_with_temperature"
+hint = "One line: divide first, then softmax over the last dimension (dim=-1). Section 6 does exactly this in a cell."
+
+[[exercise]]
+id = "4"
+test = "test_top_p_filter"
+name = "top_p_filter"
+hint = "torch.sort(probs, descending=True) gives (values, positions). torch.cumsum gives the running total; subtract each value from it to get the total *before* it. Use the positions to mark the kept tokens back in the original order, then torch.where to zero the rest."
+
+[[exercise]]
+id = "5"
+test = "test_causal_attention"
+name = "causal_attention"
+hint = "Follow section 3's two cells in order: score, mask, softmax, mix. The mask is the same upper-triangle grid as there, built for n = q.shape[0] tokens, and the scale is the square root of q.shape[-1]."
+
+[[exercise]]
+id = "6"
+test = "test_generate"
+name = "generate"
+hint = "The greedy half is section 5's loop, collecting the new ids in a list. For the sampling half, section 6's last cell shows the drawing function: here you want one draw per step, with the generator passed in. Build the new id as a (1, 1) tensor on input_ids' device before joining it on."
+
+[[exercise]]
+id = "q1"
+test = "test_understanding[q1]"
+hint = "In lesson section 4, print the shape of outputs.logits. What is its last dimension?"
+
+[[exercise]]
+id = "q2"
+test = "test_understanding[q2]"
+hint = "(tokens, d) @ (d, tokens). Use the shape rule from M1 section 1."
+
+[[exercise]]
+id = "q3"
+test = "test_understanding[q3]"
+hint = "Run the temperature cell in lesson section 6 with 0.5 and compare the top probability with temperature 1."
+
+[[exercise]]
+id = "q4"
+test = "test_understanding[q4]"
+hint = "Section 6 prints how many tokens top-p keeps. Is it a fixed number, or does it depend on the probabilities?"
+
+[[exercise]]
+id = "q5"
+test = "test_understanding[q5]"
+hint = "Think about generation: when the model chooses token 5, does token 6 exist yet? Section 3 explains the mask."
+
+[[exercise]]
+id = "q6"
+test = "test_understanding[q6]"
+hint = "Section 7 times your loop against generate(). Which work is repeated at every step of your loop?"

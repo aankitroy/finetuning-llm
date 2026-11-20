@@ -127,7 +127,7 @@ def test_lesson_matches_starter():
     changed = subprocess.run(
         ["git", "diff", "--quiet", "--", str(M / "lesson.ipynb")], cwd=REPO_ROOT
     ).returncode
-    if changed:
+    if changed == 1:  # 1 = differs; other codes mean no git checkout
         pytest.skip("you've run or edited the lesson")
     mine = [_src(c) for c in json.loads((M / "lesson.ipynb").read_text())["cells"]]
     assert mine == [_src(c) for c in _cells()]
@@ -286,3 +286,14 @@ def test_terms_are_not_used_before_they_are_explained(term):
 def test_gpu_maths_is_right():
     text = _markdown() + "\n".join(_src(c) for c in _cells())
     assert "137 billion multiply-adds" not in text
+
+
+def test_hints_are_nudges_not_solutions():
+    import tomllib
+
+    hints = {
+        str(e["id"]): e["hint"] for e in tomllib.loads((M / "hints.toml").read_text())["exercise"]
+    }
+    assert "p -= lr * p.grad" not in hints["3"]
+    assert "torch.randperm(len(X), device=X.device)" not in hints["5"]
+    assert "section 5" in hints["q5"]

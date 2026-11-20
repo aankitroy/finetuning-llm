@@ -12,7 +12,10 @@ import pytest
 
 from tests.conftest import REPO_ROOT
 
-MODULES = [("m01_pytorch_essentials", ["train.py", "--tiny"])]
+MODULES = [
+    ("m01_pytorch_essentials", ["train.py", "--tiny"]),
+    ("m02_how_llms_work", ["generate.py", "--tiny"]),
+]
 
 
 @pytest.mark.parametrize("slug,train", MODULES)

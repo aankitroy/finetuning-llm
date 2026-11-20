@@ -1,0 +1,26 @@
+{
+  "q1": {
+    "kind": "choice",
+    "sha256": "c7591db3647942603f6c4d54211d20e2d86d1b8b82e9427403b406302b75343b"
+  },
+  "q2": {
+    "kind": "shape",
+    "sha256": "8d5593d1eedab5f45c14e8597d69ba03723644e7e81f92a04a827da0bbbc713b"
+  },
+  "q3": {
+    "kind": "choice",
+    "sha256": "df0646301def1c391727591441784871d74092aaba630926fa00fb7347a7573f"
+  },
+  "q4": {
+    "kind": "choice",
+    "sha256": "23fac62d29ff1906653e7f5eccce66297d852ac26820c928cfdea9a26214d778"
+  },
+  "q5": {
+    "kind": "choice",
+    "sha256": "7ad2553defc3ebf8d54daab3090e0199eca35790154f41ffcd90c14744fad9b4"
+  },
+  "q6": {
+    "kind": "choice",
+    "sha256": "8c2593dbf6a848e0147d888851b35527be75babc649b89134c390ea2ecd009a6"
+  }
+}

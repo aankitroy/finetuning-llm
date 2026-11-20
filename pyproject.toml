@@ -14,6 +14,7 @@ course = [
     "matplotlib>=3.11.2",
     "numpy>=2.4.6",
     "torch>=2.15.0",
+    "transformers>=5.23.0",
 ]
 dev = [
     "pre-commit>=4.7.0",

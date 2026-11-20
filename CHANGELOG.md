@@ -4,11 +4,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-### Changed
-- M1 rewritten for complete beginners: concept-first lesson with a "What each line does" box after every code cell, a worked example, step-by-step comments in every exercise, a sixth question on logits, and a glossary and syntax table in the README.
-- `make reset` now also restores lesson notebooks to their unrun state.
-
 ### Added
+- M2 · How an LLM actually works: load SmolLM2-135M, look inside it, attention by hand, and a hand-written generation loop (greedy, temperature, top-p) that must match `model.generate()` token for token. Tests use a tiny random model, so they need no download.
+- `transformers` in the `course` dependency group.
 - Step-by-step module guide on the dashboard (and in `make progress TEXT=1`): each step's state is detected from your files and your last check, with per-exercise results, failure messages and hint commands.
 - Checkpoint runs record which tests failed and why.
 - Understanding checks: each module's `answers.toml` is checked against stored hashes.
@@ -22,3 +20,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Strict checkpoint recording through `make check M=NN`. Runs against the reference solutions never count.
 - M0 · Environment & Apple Silicon setup (`make doctor`).
 - Open-source project setup: licences, contributing guide, code of conduct, issue and PR templates, and CI.
+
+### Changed
+- M1 rewritten for complete beginners: concept-first lesson with a "What each line does" box after every code cell, a worked example, step-by-step comments in every exercise, a sixth question on logits, and a glossary and syntax table in the README.
+- `make reset` now also restores a module's lesson notebook to its unrun state, for modules that ship `starter/lesson.ipynb` (M1 and M2).

@@ -16,7 +16,7 @@ hint = "Steps 1-3 fit on one line: (pred - target), then ** 2, then .mean(). .me
 id = "3"
 test = "test_sgd_step_updates_and_zeroes_grads"
 name = "sgd_step"
-hint = "Step 1 is `with torch.no_grad():`. For step 3 use `p -= lr * p.grad`: the -= form changes p in place, so it stays the same tensor the model holds. Step 4 is `p.grad = None`. It's the inner part of the loop in lesson section 2."
+hint = "Step 1 is a `with` block that switches off gradient recording (section 2). For step 3, use the in-place form of subtraction (-=) so p stays the same tensor the model holds. Step 4 is the same reset line you saw in the section 2 loop."
 
 [[exercise]]
 id = "4"
@@ -28,7 +28,7 @@ hint = "In __init__, `self.fc1 = nn.Linear(in_features, hidden)` and the same fo
 id = "5"
 test = "test_train_one_epoch_reduces_loss"
 name = "train_one_epoch"
-hint = "Step 1: torch.randperm(len(X), device=X.device). Step 3: `for i in range(0, len(X), batch_size):` and `idx = order[i : i + batch_size]` (section 6). Step 5: F.cross_entropy(logits, y[idx]). Step 9: loss.item(). Steps 6-8 are the three optimizer/backward lines from section 7."
+hint = "Step 1: the shuffling function from section 6, given len(X) and device=X.device. Step 3: a for loop over range(0, len(X), batch_size), slicing the shuffled order (section 6). Step 5: F.cross_entropy, logits first. Step 9: .item(). Steps 6-8 are the three lines from section 7's loop."
 
 [[exercise]]
 id = "6"
@@ -59,7 +59,7 @@ hint = "In the lesson, try calling backward() twice without resetting and print 
 [[exercise]]
 id = "q5"
 test = "test_understanding[q5]"
-hint = "Write out W2 (W1 x + b1) + b2 and simplify. What kind of function is left?"
+hint = "Lesson section 5 says it in one sentence: look at the ReLU part, about what a stack of linear layers really is. Then ask what kind of boundary that can draw."
 
 [[exercise]]
 id = "q6"
