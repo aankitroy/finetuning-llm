@@ -1,0 +1,32 @@
+# M3 reference answers. Use `make solution M=03 EX=q1` instead of reading this file,
+# so the dashboard shows what you did unaided.
+
+[q1]
+kind = "number"
+answer = "5"
+why = "SmolLM2 splits numbers into single digits, so \"12345\" is five tokens: 1, 2, 3, 4, 5. That keeps arithmetic consistent but makes long numbers cost many tokens."
+
+[q2]
+kind = "choice"
+answer = "c"
+why = "Most tokens carry their leading space: \" hello\" is token 33662 and \"hello\" is token 28120. So the same word at the start of a text and in the middle of a sentence is a different token."
+
+[q3]
+kind = "number"
+answer = "1"
+why = "<|im_start|> is a special token: the tokenizer matches the whole string first and gives it one id (1), instead of splitting it into <, |, im and so on."
+
+[q4]
+kind = "choice"
+answer = "b"
+why = "SmolLM2-Instruct's template adds \"You are a helpful AI assistant named SmolLM, trained by Hugging Face\" as a system message whenever the first message isn't one. Templates can add text you never wrote."
+
+[q5]
+kind = "choice"
+answer = "d"
+why = "It adds \"<|im_start|>assistant\\n\": the opening of an assistant turn. Without it the model may continue the user's message instead of replying."
+
+[q6]
+kind = "choice"
+answer = "a"
+why = "Generation adds new tokens at the end of each row. With left padding every prompt ends at the last position, so the model continues straight from the real text. With right padding it would continue from pad tokens."

@@ -1,0 +1,43 @@
+# M3 understanding checks. Put your answer between the quotes, then run: make check M=03
+# There are six questions. Numbers like "7", choices as a single letter like "b".
+# Predict first, then check yourself in lesson.ipynb. Stuck? make hint M=03 EX=q1
+
+[q1]
+question = "How many tokens does the SmolLM2 tokenizer turn the text \"12345\" into?"
+answer = ""
+
+[q2]
+question = """With the SmolLM2 tokenizer, how do "hello" and " hello" (with a space in front) compare?
+  a) They are the same token, because the tokenizer strips spaces off before it looks
+  b) " hello" is two tokens: one for the space and then the same token as "hello"
+  c) They are two different single tokens: the space is part of the " hello" token
+  d) " hello" can't be encoded, because tokens are not allowed to start with a space"""
+answer = ""
+
+[q3]
+question = "How many tokens does the SmolLM2-Instruct tokenizer turn the text \"<|im_start|>\" into?"
+answer = ""
+
+[q4]
+question = """You format [{"role": "user", "content": "Hi"}] with SmolLM2-Instruct's chat template. What comes first in the result?
+  a) <|im_start|>user, because the template only formats the messages you gave it
+  b) A system message saying it's a helpful assistant named SmolLM, which the template adds
+  c) The word Hi on its own, because a single message is passed through unchanged
+  d) An empty assistant turn, so the model can see where its reply will go"""
+answer = ""
+
+[q5]
+question = """What does add_generation_prompt=True add to the end of the formatted chat?
+  a) A copy of the system message, to remind the model how it should behave
+  b) An <|im_end|> token, so the model knows the conversation has finished
+  c) A short hidden instruction that tells the model to answer the last question
+  d) <|im_start|>assistant and a newline, the opening of the model's own turn"""
+answer = ""
+
+[q6]
+question = """You batch two prompts of different lengths to *generate* replies. Where should the padding go?
+  a) On the left, so every prompt ends right where the new tokens will be added
+  b) On the right, because that's the default and generation always uses it
+  c) Anywhere: the attention mask hides the padding, so its position never matters
+  d) In the middle, between the prompt and the place where the reply will start"""
+answer = ""

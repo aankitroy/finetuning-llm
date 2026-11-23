@@ -8,7 +8,47 @@ est_minutes = 150
 [next]
 start = "Read modules/m03_tokenizers/README.md, then open lesson.ipynb"
 finish = "make check M=03"
-why = "You predict token counts and template output for tricky inputs"
+why = "Your tokenizer round-trips text and your chat formatting matches the real template"
 
 [artifacts]
 any = ["outputs/m03/*"]
+
+[[metrics]]
+key = "bytes_per_token"
+label = "Your BPE's compression (bytes/token)"
+better = "higher"
+
+[[steps]]
+kind = "lesson"
+title = "Run the lesson"
+detail = "Open the notebook and run every cell, top to bottom. Section 4 downloads the SmolLM2-Instruct tokenizer (about 3 MB, no model weights) once. When a cell says Predict, write your guess down before running it. Save the notebook (Cmd-S) so your progress shows here."
+command = "uv run jupyter lab modules/m03_tokenizers/lesson.ipynb"
+file = "lesson.ipynb"
+
+[[steps]]
+kind = "exercises"
+title = "Write the exercises"
+detail = "Open exercises.py and replace each `raise NotImplementedError` with your code, following the numbered steps. Run make check M=03 as often as you like; this panel shows which exercises pass."
+command = "make check M=03"
+file = "exercises.py"
+
+[[steps]]
+kind = "answers"
+title = "Answer the understanding checks"
+detail = "Open answers.toml and put your answer between the quotes for each question. Predict first, then check yourself in the notebook."
+command = "make check M=03"
+file = "answers.toml"
+
+[[steps]]
+kind = "train"
+title = "Check your tokenizer and chat formatting"
+detail = "Trains your BPE on a small text, checks that text survives encode then decode, and compares your chat formatting with the real template on 5 tricky conversations. Takes a few seconds."
+command = "uv run python modules/m03_tokenizers/tokenize_check.py"
+file = "outputs/m03/run_summary.json"
+metric = "your_bytes_per_token"
+
+[[steps]]
+kind = "checkpoint"
+title = "Pass the checkpoint"
+detail = "Checks your exercises, your answers and your run together. M3 turns green when everything passes."
+command = "make check M=03"
