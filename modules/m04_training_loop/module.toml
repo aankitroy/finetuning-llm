@@ -3,12 +3,12 @@ title = "The training loop, from scratch"
 part = "B · Training from zero"
 order = 4
 summary = "Train a tiny character-level GPT from zero."
-est_minutes = 240
+est_minutes = 210
 
 [next]
 start = "Read modules/m04_training_loop/README.md, then open lesson.ipynb"
 finish = "make check M=04"
-why = "Validation loss drops below the target and samples look like text"
+why = "Your own training loop takes a tiny GPT from random guesses to Shakespeare-like text"
 
 [artifacts]
 any = ["outputs/m04/*"]
@@ -22,3 +22,38 @@ better = "lower"
 key = "peak_mem_gb"
 label = "Peak memory (GB)"
 better = "lower"
+
+[[steps]]
+kind = "lesson"
+title = "Run the lesson"
+detail = "Open the notebook and run every cell, top to bottom. It trains small models along the way, so a few cells take up to a minute. When a cell says Predict, write your guess down before running it. Save the notebook (Cmd-S) so your progress shows here."
+command = "uv run jupyter lab modules/m04_training_loop/lesson.ipynb"
+file = "lesson.ipynb"
+
+[[steps]]
+kind = "exercises"
+title = "Write the exercises"
+detail = "Open exercises.py and replace each `raise NotImplementedError` with your code, following the numbered steps. Run make check M=04 as often as you like; this panel shows which exercises pass."
+command = "make check M=04"
+file = "exercises.py"
+
+[[steps]]
+kind = "answers"
+title = "Answer the understanding checks"
+detail = "Open answers.toml and put your answer between the quotes for each question. Predict first, then check yourself in the notebook."
+command = "make check M=04"
+file = "answers.toml"
+
+[[steps]]
+kind = "train"
+title = "Train your tiny GPT"
+detail = "Trains a 4.8M-parameter GPT on Shakespeare with your six exercises, on your Mac's GPU. Takes about 2 minutes. It needs a validation loss below 1.70, and 80% of the words in its sample must be real words."
+command = "uv run python modules/m04_training_loop/train.py"
+file = "outputs/m04/run_summary.json"
+metric = "val_loss"
+
+[[steps]]
+kind = "checkpoint"
+title = "Pass the checkpoint"
+detail = "Checks your exercises, your answers and your run together. M4 turns green when everything passes."
+command = "make check M=04"
