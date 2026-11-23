@@ -114,7 +114,7 @@ def first_difference(a: str, b: str) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--offline", action="store_true", help="stored template copy, no download")
-    ap.add_argument("--merges", type=int, default=500, help="how many BPE merges to learn")
+    ap.add_argument("--merges", type=int, default=400, help="how many BPE merges to learn")
     args = ap.parse_args()
 
     ex = load_exercise(MODULE_DIR)
@@ -129,8 +129,17 @@ def main() -> int:
     except NotImplementedError as e:
         print(f"Not yet: {e} isn't written. Finish all six exercises, then run this again.")
         return 1
+    except Exception as e:  # a bug in an exercise: say so plainly, not with a traceback
+        print(f"One of your exercises raised {type(e).__name__}: {e}")
+        print("Run make check M=03 to see which one, and why.")
+        return 1
 
-    render, encode, source = stored_template() if args.offline else real_template()
+    try:
+        render, encode, source = stored_template() if args.offline else real_template()
+    except OSError as e:
+        print(f"Couldn't load the {TOKENIZER} tokenizer ({e}).")
+        print("Connect to the internet once so it can download (about 3 MB), or use --offline.")
+        return 1
 
     print(f"Your BPE: {len(merges)} merges learned from corpus.txt in {seconds:.1f}s")
     raw = len(HELD_OUT.encode("utf-8"))

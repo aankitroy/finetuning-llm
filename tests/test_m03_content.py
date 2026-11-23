@@ -276,3 +276,37 @@ def test_stored_template_matches_the_real_one():
 
     real = AutoTokenizer.from_pretrained(MODEL).chat_template
     assert (M / "chat_template.jinja").read_text() == real
+
+
+# --- review fixes ---
+
+
+def test_pre_commit_leaves_the_stored_template_alone():
+    """The copy must stay byte-identical to the real template, which has no final newline."""
+    config = (REPO_ROOT / ".pre-commit-config.yaml").read_text()
+    assert config.count("chat_template") >= 2, "exclude it from end-of-file-fixer and whitespace"
+
+
+def test_lesson_shows_the_syntax_the_steps_use():
+    code = _code()
+    for syntax in ["while True:", "break", "!=", "is not None", "len(", " and "]:
+        assert syntax in code, f"the lesson never shows {syntax!r}"
+
+
+def test_default_merges_still_learn_repeated_pairs():
+    """Past the point where every pair is seen once, merges just memorise the corpus."""
+    import importlib.util
+    import inspect
+
+    spec = importlib.util.spec_from_file_location("sol", M / "solutions" / "exercises.py")
+    sol = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sol)
+    check = (M / "tokenize_check.py").read_text()
+    default = int(re.search(r'"--merges", type=int, default=(\d+)', check).group(1))
+    ids = list((M / "corpus.txt").read_text().encode("utf-8"))
+    for new_id in range(256, 256 + default):
+        counts = sol.pair_counts(ids)
+        pair = max(counts, key=counts.get)
+        assert counts[pair] >= 2, f"merge {new_id - 255} of {default} is a pair seen only once"
+        ids = sol.merge(ids, pair, new_id)
+    assert inspect.isfunction(sol.train_bpe)

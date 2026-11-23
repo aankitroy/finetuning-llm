@@ -59,7 +59,7 @@ def render_chatml(
     default_system: str | None = None,
 ) -> str:
     pieces = []
-    if default_system is not None and (not messages or messages[0]["role"] != "system"):
+    if default_system is not None and len(messages) > 0 and messages[0]["role"] != "system":
         pieces.append(f"<|im_start|>system\n{default_system}<|im_end|>\n")
     for m in messages:
         pieces.append(f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>\n")

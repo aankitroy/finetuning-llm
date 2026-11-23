@@ -96,7 +96,7 @@
 
 ## Stretch
 
-- Run `tokenize_check.py --merges 2000` and watch your bytes per token go up. In the notebook, print your 20 longest tokens: they're the corpus's most common words.
+- Run `tokenize_check.py --merges 100`, then `200` and `400`, and watch your bytes per token go up. Then try `1000`: it stops improving, because past about 400 merges every pair in `corpus.txt` is seen only once, so new merges just memorise the text. That's why real tokenizers are trained on gigabytes.
 - Train your BPE on a page of text in another language and compare the bytes per token.
 
 ## Stuck?

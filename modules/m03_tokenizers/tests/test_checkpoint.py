@@ -107,6 +107,9 @@ def test_render_chatml(ex):
         "<|im_start|>user\n2+2?<|im_end|>\n<|im_start|>assistant\n4<|im_end|>\n"
         "<|im_start|>user\nAnd 3+3?<|im_end|>\n"
     ), "Render every message, in order"
+    assert ex.render_chatml([], default_system="Be brief.") == "", (
+        "Like the real template, an empty conversation gives an empty string"
+    )
 
 
 # --- your run of tokenize_check.py ---

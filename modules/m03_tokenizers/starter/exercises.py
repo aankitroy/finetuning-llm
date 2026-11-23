@@ -56,7 +56,7 @@ def train_bpe(text: str, num_merges: int) -> dict[tuple[int, int], int]:
     # 1. Turn the text into a list of byte values: list(text.encode("utf-8")).
     # 2. Make an empty dict for the merges.
     # 3. Repeat num_merges times, with the new id going 256, 257, ...:
-    # 4.   Count the pairs (exercise 1). If there are none, stop.
+    # 4.   Count the pairs (exercise 1). If len(counts) == 0 there are none: stop with break.
     # 5.   Pick the most frequent pair: max(counts, key=counts.get). On a tie, max keeps the
     #      one it met first, which is the rule this course uses.
     # 6.   Merge that pair everywhere (exercise 2) and remember merges[pair] = new_id.
@@ -72,11 +72,11 @@ def encode(text: str, merges: dict[tuple[int, int], int]) -> list[int]:
     pairs present, because that's the order training built them in. See lesson section 3.
     """
     # 1. Turn the text into a list of byte values.
-    # 2. Loop:
-    # 3.   Count the pairs (exercise 1). If there are none, stop.
+    # 2. Loop with while True: (it runs until a break, lesson section 3):
+    # 3.   Count the pairs (exercise 1). If len(counts) == 0 there are none: break.
     # 4.   Of those pairs, pick the one with the lowest merge id:
     #      min(counts, key=lambda p: merges.get(p, float("inf"))).
-    # 5.   If that pair isn't in merges at all, nothing more can merge: stop.
+    # 5.   If that pair isn't in merges at all (pair not in merges), nothing more can merge: break.
     # 6.   Merge it (exercise 2), using merges[pair] as the new id.
     # 7. Return the ids.
     raise NotImplementedError("Exercise 4: encode")
@@ -113,16 +113,18 @@ def render_chatml(
         CONTENT<|im_end|>
 
     followed by a newline. If default_system is given and the conversation doesn't
-    start with a system message, a system message with that text goes first. With
+    start with a system message, a system message with that text goes first. (An empty
+    conversation stays empty, as with the real template.) With
     add_generation_prompt, the string ends with the start of an assistant turn, so the
     model knows it's its turn to speak. See lesson section 6.
 
     messages look like [{"role": "user", "content": "Hi"}].
     """
     # 1. Make a list for the pieces of text.
-    # 2. If default_system is given and messages is empty or messages[0]["role"] isn't
-    #    "system": add the system message piece first.
-    # 3. For each message, add f"<|im_start|>{role}\n{content}<|im_end|>\n".
+    # 2. If default_system is not None and len(messages) > 0 and messages[0]["role"] != "system":
+    #    add the system message piece first, f"<|im_start|>system\n{default_system}<|im_end|>\n".
+    # 3. For each message: role = message["role"] and content = message["content"], then add
+    #    f"<|im_start|>{role}\n{content}<|im_end|>\n".
     # 4. If add_generation_prompt: add "<|im_start|>assistant\n".
     # 5. Join the pieces into one string ("".join) and return it.
     raise NotImplementedError("Exercise 6: render_chatml")

@@ -9,6 +9,8 @@ repos:
     rev: v5.0.0
     hooks:
       - id: end-of-file-fixer
-        exclude: ^dashboard/vendor/
+        # the stored chat template must stay byte-identical to the real one
+        exclude: ^(dashboard/vendor/|modules/m03_tokenizers/chat_template\.jinja$)
       - id: trailing-whitespace
-        exclude: ^dashboard/vendor/
+        # the stored chat template must stay byte-identical to the real one
+        exclude: ^(dashboard/vendor/|modules/m03_tokenizers/chat_template\.jinja$)
