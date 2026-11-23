@@ -24,7 +24,7 @@ why = "Accumulation adds up the gradients of 4 micro-batches of 16 before one st
 [q5]
 kind = "choice"
 answer = "b"
-why = "At the start the weights are random and the optimizer's running averages are empty, so early gradients are big and unreliable. Warmup keeps those first steps small until things settle."
+why = "At the start the weights are random, so the gradients point in rough directions, and AdamW has no history yet to size its updates sensibly. That makes the first updates unreliable. Warmup keeps them small until things settle."
 
 [q6]
 kind = "choice"

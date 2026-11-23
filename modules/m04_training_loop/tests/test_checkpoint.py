@@ -56,6 +56,17 @@ def test_get_batch(ex):
     assert torch.equal(a, b), "Pass generator=generator to torch.randint, so runs repeat exactly"
 
 
+@pytest.mark.skipif(not torch.backends.mps.is_available(), reason="no Apple GPU here")
+def test_get_batch_on_the_gpu(ex):
+    """train.py keeps the text on the GPU and the generator on the CPU."""
+    data = torch.arange(100, 200, device="mps")
+    x, y = ex.get_batch(data, 8, 4, torch.Generator().manual_seed(0))
+    assert x.device.type == "mps" and torch.equal((y - x).cpu(), torch.ones(4, 8, dtype=x.dtype)), (
+        "With data on the GPU, x and y should be on the GPU too, y one step along from x. "
+        "Leave device= off torch.randint: the generator is on the CPU, so the starts must be too."
+    )
+
+
 def test_causal_lm_loss(ex):
     torch.manual_seed(0)
     logits = torch.randn(2, 3, 5)
@@ -178,6 +189,18 @@ def test_train_step(ex):
 
     model = _tiny_model()
     before = [p.detach().clone() for p in model.parameters()]
+    opt = torch.optim.SGD(model.parameters(), lr=1.0)
+    ex.train_step(model, _batches(3, 2, 4), opt, max_norm=0.01)
+    moved = torch.sqrt(
+        sum(((a - b) ** 2).sum() for a, b in zip(before, model.parameters(), strict=True))
+    ).item()
+    assert moved <= 0.01 + 1e-5, (
+        "The step used gradients that weren't clipped yet. Clip first, then optimizer.step(): "
+        "the step uses whatever is in .grad at that moment."
+    )
+
+    model = _tiny_model()
+    before = [p.detach().clone() for p in model.parameters()]
     opt = torch.optim.SGD(model.parameters(), lr=0.1)
     ex.train_step(model, _batches(2, 1, 4), opt, max_norm=1.0)
     assert any(not torch.equal(a, b) for a, b in zip(before, model.parameters(), strict=True)), (
@@ -188,25 +211,28 @@ def test_train_step(ex):
 def test_estimate_loss(ex):
     model = _tiny_model(dropout=0.5)
     data = torch.randint(0, 11, (200,), generator=torch.Generator().manual_seed(0))
+    grad_modes = []
+    hook = model.register_forward_hook(lambda *_: grad_modes.append(torch.is_grad_enabled()))
     got = ex.estimate_loss(model, data, 8, 4, iters=3, generator=torch.Generator().manual_seed(5))
-    assert isinstance(got, float), "Return a plain float"
+    hook.remove()
+    assert isinstance(got, float), "Return a plain float (use .item())"
     assert model.training, "Put the model back in training mode (model.train()) at the end"
-    assert all(p.grad is None for p in model.parameters()), (
-        "Measuring the loss must not compute gradients: wrap it in torch.no_grad()"
+    assert grad_modes and not any(grad_modes), (
+        "Measuring the loss must not record anything for gradients: wrap it in torch.no_grad()"
     )
+    # The same batches, from your own get_batch (exercise 1), measured in eval mode.
     g = torch.Generator().manual_seed(5)
+    batches = [ex.get_batch(data, 8, 4, g) for _ in range(3)]
     model.eval()
-    want = []
     with torch.no_grad():
-        for _ in range(3):
-            ix = torch.randint(len(data) - 8, (4,), generator=g)
-            x = torch.stack([data[i : i + 8] for i in ix])
-            y = torch.stack([data[i + 1 : i + 9] for i in ix])
-            want.append(nn.functional.cross_entropy(model(x).reshape(-1, 11), y.reshape(-1)).item())
+        want = [
+            nn.functional.cross_entropy(model(x).reshape(-1, 11), y.reshape(-1)).item()
+            for x, y in batches
+        ]
     model.train()
     assert math.isclose(got, sum(want) / 3, rel_tol=1e-4), (
-        "Average the loss over `iters` batches from get_batch, in eval mode (dropout off). "
-        f"Expected {sum(want) / 3:.4f}, got {got:.4f}"
+        "Average the loss over `iters` batches from get_batch, in eval mode (dropout off), "
+        f"passing the generator along. Expected {sum(want) / 3:.4f}, got {got:.4f}"
     )
 
 

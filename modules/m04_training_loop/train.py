@@ -18,6 +18,7 @@ import re
 import resource
 import sys
 import time
+import traceback
 from pathlib import Path
 
 import torch
@@ -120,7 +121,7 @@ def main() -> int:
     peak = memory_gb(device)
     start = time.perf_counter()
     try:
-        initial = ex.estimate_loss(model, val_data, block, args.batch, eval_iters, gen)
+        initial = float(ex.estimate_loss(model, val_data, block, args.batch, eval_iters, gen))
         print(f"  step     0  val loss {initial:.3f}  (before any training)")
         for step in range(steps):
             lr = ex.lr_at(step, args.lr, args.min_lr, warmup, steps)
@@ -131,8 +132,12 @@ def main() -> int:
                 ex.train_step(model, batches, opt, args.clip)
             if (step + 1) % eval_every == 0 or step + 1 == steps:
                 with autocast:
-                    tr = ex.estimate_loss(model, train_data, block, args.batch, eval_iters, gen)
-                    va = ex.estimate_loss(model, val_data, block, args.batch, eval_iters, gen)
+                    tr = float(
+                        ex.estimate_loss(model, train_data, block, args.batch, eval_iters, gen)
+                    )
+                    va = float(
+                        ex.estimate_loss(model, val_data, block, args.batch, eval_iters, gen)
+                    )
                 peak = max(peak, memory_gb(device))
                 history.append({"step": step + 1, "lr": lr, "train_loss": tr, "val_loss": va})
                 took = time.perf_counter() - start
@@ -140,13 +145,18 @@ def main() -> int:
                     f"  step {step + 1:5d}  train loss {tr:.3f}  val loss {va:.3f}  "
                     f"lr {lr:.1e}  {took:5.0f}s"
                 )
-        final_val = ex.estimate_loss(model, val_data, block, args.batch, eval_iters * 5, gen)
+        final_val = float(ex.estimate_loss(model, val_data, block, args.batch, eval_iters * 5, gen))
     except NotImplementedError as e:
         print(f"Not yet: {e} isn't written. Finish all six exercises, then run this again.")
         return 1
     except Exception as e:  # a bug in an exercise: say so plainly, not with a traceback
         print(f"One of your exercises raised {type(e).__name__}: {e}")
-        print("Run make check M=04 to see which one, and why.")
+        yours = [
+            f for f in traceback.extract_tb(e.__traceback__) if f.filename.endswith("exercises.py")
+        ]
+        if yours:
+            print(f"It happened in {yours[-1].name}, line {yours[-1].lineno} of exercises.py.")
+        print("Run make check M=04 to see which test fails, and why.")
         return 1
     seconds = time.perf_counter() - start
 
@@ -182,7 +192,7 @@ def main() -> int:
             f"Validation loss {final_val:.3f}, real words {words:.0%} (a --tiny run has no target)"
         )
     else:
-        print(f"Validation loss {final_val:.3f} (need below {TARGET_VAL_LOSS})")
+        print(f"Validation loss {final_val:.3f} (need below {TARGET_VAL_LOSS:.2f})")
         print(f"Real words in the sample: {words:.0%} (need {TARGET_REAL_WORDS:.0%})")
     print(f"Peak memory {peak:.2f} GB, {seconds:.0f}s")
     print(f"Saved {out}/run_summary.json, loss_curve.png and samples.txt. Next: make check M=04")

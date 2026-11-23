@@ -6,7 +6,7 @@
 
 **Time:** about 3.5 hours.
 
-**Data:** [`shakespeare.txt`](shakespeare.txt) is Tiny Shakespeare (1.1 MB, about 40 of Shakespeare's plays, which are in the public domain), from [karpathy/char-rnn](https://github.com/karpathy/char-rnn). It's already in this folder; nothing to download.
+**Data:** [`shakespeare.txt`](shakespeare.txt) is Tiny Shakespeare (1.1 MB: 40,000 lines from several of Shakespeare's plays, which are in the public domain), from [karpathy/char-rnn](https://github.com/karpathy/char-rnn). It's already in this folder; nothing to download.
 
 **The model** is in [`model.py`](model.py): a 4.8M-parameter GPT that reads one character at a time, built from the parts you met in M2. It's given to you. This module is about training it.
 

@@ -27,7 +27,7 @@ question = """You raise the learning rate from 1e-3 to 1e-1 and train again. Wha
 answer = ""
 
 [q4]
-question = "train.py uses micro-batches of 16 windows and accumulates 4 of them before each optimizer step. How many windows does each optimizer step learn from?"
+question = "You run train.py with --accum 4: micro-batches of 16 windows, and 4 of them accumulated before each optimizer step. How many windows does each optimizer step learn from?"
 answer = ""
 
 [q5]
