@@ -83,7 +83,7 @@ def train_step(model, batches, optimizer, max_norm):
     In plain words: clear the old gradients. For each (x, y) in batches, work out the loss,
     divide it by how many batches there are, and call .backward(), which adds to the
     gradients. Then clip the gradients and take one optimizer step. Return the average loss.
-    See lesson sections 4 and 7.
+    See lesson section 4 (the step) and section 7 (accumulation).
     """
     # 1. optimizer.zero_grad() to clear the gradients from the last step.
     # 2. Start a running total at 0.0.
