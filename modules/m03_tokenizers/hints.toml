@@ -1,0 +1,67 @@
+# Hints for `make hint M=03 EX=<id>`. `make solution` shows the reference answer.
+
+[[exercise]]
+id = "1"
+test = "test_pair_counts"
+name = "pair_counts"
+hint = "zip(ids, ids[1:]) pairs each id with the one after it. A dict with .get(pair, 0) + 1 counts them (section 2)."
+
+[[exercise]]
+id = "2"
+test = "test_merge"
+name = "merge"
+hint = "Use a while loop with your own position counter, not a for loop: when you merge you need to jump ahead by two. Check i + 1 < len(ids) before you look at ids[i + 1]."
+
+[[exercise]]
+id = "3"
+test = "test_train_bpe"
+name = "train_bpe"
+hint = "Section 2 does exactly one round of this by hand. Your function does that round num_merges times, with the new id counting up from 256."
+
+[[exercise]]
+id = "4"
+test = "test_encode"
+name = "encode"
+hint = "Don't merge the leftmost pair first. Among the pairs you see, pick the one whose merge id is smallest; pairs that aren't in merges count as infinitely large. Stop when even the best pair isn't in merges."
+
+[[exercise]]
+id = "5"
+test = "test_decode"
+name = "decode"
+hint = "Build the vocabulary in the same order the merges were learned, so both parts of each pair already exist when you need them. Then join the bytes and decode with errors=\"replace\"."
+
+[[exercise]]
+id = "6"
+test = "test_render_chatml"
+name = "render_chatml"
+hint = "Print the real template's output in section 6 and copy its shape exactly, newlines included. The default system message only goes in when the first message isn't already a system one."
+
+[[exercise]]
+id = "q1"
+test = "test_understanding[q1]"
+hint = "Section 4 shows how SmolLM2 splits numbers. Try tokenizer.tokenize(\"12345\") to see."
+
+[[exercise]]
+id = "q2"
+test = "test_understanding[q2]"
+hint = "Encode both in the notebook and compare the ids. Look for the Ġ in the token names (section 4)."
+
+[[exercise]]
+id = "q3"
+test = "test_understanding[q3]"
+hint = "Special tokens are matched as whole strings before normal splitting (section 5)."
+
+[[exercise]]
+id = "q4"
+test = "test_understanding[q4]"
+hint = "Run apply_chat_template with tokenize=False on a single user message and print it (section 6)."
+
+[[exercise]]
+id = "q5"
+test = "test_understanding[q5]"
+hint = "Section 6 prints the same chat with and without add_generation_prompt. Compare the last line."
+
+[[exercise]]
+id = "q6"
+test = "test_understanding[q6]"
+hint = "The model continues from the last position of each row. What sits there with each padding side? (section 5)"
