@@ -1,0 +1,47 @@
+# M4 understanding checks. Put your answer between the quotes, then run: make check M=04
+# There are six questions. Numbers like "7", choices as a single letter like "b".
+# Predict first, then check yourself in lesson.ipynb. Stuck? make hint M=04 EX=q1
+
+[q1]
+question = """Before any training, the tiny GPT's guesses are close to even across all 65 characters. Roughly what loss does it start at?
+  a) About 0, because nothing has gone wrong yet
+  b) About 1, because each guess is either right or wrong
+  c) About 4.2, the natural log of 65
+  d) About 65, one point for each character it might pick"""
+answer = ""
+
+[q2]
+question = """Halfway through a long run, the training loss keeps falling but the validation loss starts to rise. What is happening?
+  a) The learning rate has dropped too low for the model to learn anything new
+  b) The model is memorising the training text instead of learning patterns that carry over
+  c) The validation text is harder, so its loss is always higher and that's nothing to worry about
+  d) The gradients are being clipped too much"""
+answer = ""
+
+[q3]
+question = """You raise the learning rate from 1e-3 to 1e-1 and train again. What do you expect to see?
+  a) The same final loss, reached about a hundred times sooner
+  b) The loss falls more smoothly, because big steps average out the noise
+  c) The loss jumps around or shoots up, maybe to nan, because each step overshoots
+  d) Nothing changes, because AdamW ignores the learning rate you set"""
+answer = ""
+
+[q4]
+question = "You run train.py with --accum 4: micro-batches of 16 windows, and 4 of them accumulated before each optimizer step. How many windows does each optimizer step learn from?"
+answer = ""
+
+[q5]
+question = """Why does the learning rate start small and climb during warmup?
+  a) To save memory during the first steps
+  b) Early gradients come from random weights and can be wild; small steps stop one bad update wrecking the model
+  c) A small rate at the start makes the model learn the most common characters first, which it needs before it can learn the rarer ones
+  d) PyTorch refuses to start with a large learning rate"""
+answer = ""
+
+[q6]
+question = """The gradients' total norm is 5 and max_norm is 1. What does clipping do?
+  a) Sets every gradient value above 1 to exactly 1, and leaves all the smaller ones alone
+  b) Skips this step completely
+  c) Multiplies every gradient by 1/5: same direction, a fifth of the length
+  d) Divides the learning rate by 5 for the rest of training"""
+answer = ""

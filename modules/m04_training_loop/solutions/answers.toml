@@ -1,0 +1,32 @@
+# M4 reference answers. Use `make solution M=04 EX=q1` instead of reading this file,
+# so the dashboard shows what you did unaided.
+
+[q1]
+kind = "choice"
+answer = "c"
+why = "Cross-entropy is -ln(probability of the right answer). An even guess gives each of 65 characters 1/65, and -ln(1/65) = ln(65) ≈ 4.17. If your first loss is far from that, something is off before training even starts."
+
+[q2]
+kind = "choice"
+answer = "b"
+why = "That gap is overfitting: the model gets better at the exact text it trains on and worse at text it hasn't seen. Stop around where the validation loss was lowest, or use more data or more dropout."
+
+[q3]
+kind = "choice"
+answer = "c"
+why = "Each step moves the weights by learning rate times gradient. Too big a step jumps past the low point and lands somewhere worse, again and again, so the loss bounces or explodes."
+
+[q4]
+kind = "number"
+answer = "64"
+why = "Accumulation adds up the gradients of 4 micro-batches of 16 before one step, so each step learns from 4 x 16 = 64 windows: the same as one batch of 64, using the memory of a batch of 16."
+
+[q5]
+kind = "choice"
+answer = "b"
+why = "At the start the weights are random, so the gradients point in rough directions, and AdamW has no history yet to size its updates sensibly. That makes the first updates unreliable. Warmup keeps them small until things settle."
+
+[q6]
+kind = "choice"
+answer = "c"
+why = "Clipping by norm scales all gradients by the same factor, max_norm / total = 1/5. The direction stays the same; only the step's size shrinks. Option a is a different method (clipping by value)."

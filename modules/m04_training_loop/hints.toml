@@ -1,0 +1,67 @@
+# Hints for `make hint M=04 EX=<id>`. `make solution` shows the reference answer.
+
+[[exercise]]
+id = "1"
+test = "test_get_batch"
+name = "get_batch"
+hint = "Section 2 cuts one window by hand. Do it for each random start, and put the rows together with torch.stack. y uses the same starts as x, one further along."
+
+[[exercise]]
+id = "2"
+test = "test_causal_lm_loss"
+name = "causal_lm_loss"
+hint = "F.cross_entropy wants 2-D scores and 1-D answers. Section 3 shows the shapes before and after .reshape."
+
+[[exercise]]
+id = "3"
+test = "test_lr_at"
+name = "lr_at"
+hint = "Three cases, checked in order: still warming up, already past the end, or somewhere in between. Section 5 plots all three."
+
+[[exercise]]
+id = "4"
+test = "test_clip_grad_norm"
+name = "clip_grad_norm"
+hint = "One norm for all the gradients together, not one per parameter. Only scale when it's too big: clipping never makes gradients bigger (section 6)."
+
+[[exercise]]
+id = "5"
+test = "test_train_step"
+name = "train_step"
+hint = "Section 4 has the four beats of one step; section 7 shows why each micro-batch's loss is divided before .backward(). Clear the gradients once, at the start, not inside the loop."
+
+[[exercise]]
+id = "6"
+test = "test_estimate_loss"
+name = "estimate_loss"
+hint = "Three things to switch: eval mode at the start, no gradients while measuring, and training mode again at the end (section 8)."
+
+[[exercise]]
+id = "q1"
+test = "test_understanding[q1]"
+hint = "Section 3 works out the loss of an even guess. What's -ln(1/65)?"
+
+[[exercise]]
+id = "q2"
+test = "test_understanding[q2]"
+hint = "Section 8 trains on a tiny slice of text until the two curves split. What is the model getting good at?"
+
+[[exercise]]
+id = "q3"
+test = "test_understanding[q3]"
+hint = "Section 5 tries a few learning rates on the same model. Look at the largest one."
+
+[[exercise]]
+id = "q4"
+test = "test_understanding[q4]"
+hint = "Section 7: gradients from every micro-batch are added together before the one optimizer step."
+
+[[exercise]]
+id = "q5"
+test = "test_understanding[q5]"
+hint = "Think about what the weights look like at step 0, and how trustworthy their gradients are (section 5)."
+
+[[exercise]]
+id = "q6"
+test = "test_understanding[q6]"
+hint = "Section 6 clips a gradient by hand and prints its direction before and after."

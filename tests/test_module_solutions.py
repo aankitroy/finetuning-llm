@@ -16,6 +16,7 @@ MODULES = [
     ("m01_pytorch_essentials", ["train.py", "--tiny"]),
     ("m02_how_llms_work", ["generate.py", "--tiny"]),
     ("m03_tokenizers", ["tokenize_check.py", "--offline"]),
+    ("m04_training_loop", ["train.py", "--tiny"]),
 ]
 
 

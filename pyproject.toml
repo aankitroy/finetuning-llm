@@ -42,3 +42,5 @@ select = ["E", "F", "I", "UP", "B"]
 "tests/*" = ["E501"]  # inline fixtures read better unwrapped
 # M3 teaches bytes: .encode("utf-8") spelled out, and zip(ids, ids[1:]) for neighbouring pairs
 "modules/m03_tokenizers/**" = ["UP012", "B905"]
+# M4 pairs up matching lists with plain zip(...), as M1-M3 taught it
+"modules/m04_training_loop/**" = ["B905"]
