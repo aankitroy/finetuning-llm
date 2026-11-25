@@ -1,0 +1,54 @@
+# The M4 video: narration (spoken by Kokoro, shown as captions) and which drawing goes with it.
+# After editing a narration, run: make narration M=04
+
+title = "M4 · The training loop, from scratch"
+
+[[scene]]
+id = "s01"
+visual = "intro"
+narration = "In this module, you train a model yourself, from random numbers to something that writes like Shakespeare. Training is four beats, repeated. Make a guess. Measure how wrong it was. Work out which way to nudge each weight. Then nudge them all a little. Each repeat is one step. Before training, our tiny model writes gibberish. After two thousand steps, it writes this."
+
+[[scene]]
+id = "s02"
+visual = "chars_split"
+narration = "Here, one character is one token. Shakespeare's text uses sixty-five different characters, so the model only ever has sixty-five choices. Then we split the text. The first ninety percent is the training set, which the model learns from. The last ten percent is the validation set. The model never trains on it, so it's the honest exam."
+
+[[scene]]
+id = "s03"
+visual = "windows"
+narration = "The model reads a window of text at a time. Take nine characters in a row. The input is the first eight. The target is the same eight, moved along by one. So one window holds eight guessing exercises: after F comes i, after F i comes r, and so on. A batch is several windows, each from a random place in the text."
+
+[[scene]]
+id = "s04"
+visual = "loss"
+narration = "At every position, the model scores all sixty-five characters. Softmax turns the scores into probabilities, and the loss is minus the log of the probability it gave the right one. Averaged over every position, that's the causal LM loss. Sure and right: zero. An even guess over all sixty-five: about four point one seven. So an untrained model should start near there. If yours starts at ten, something is wrong."
+
+[[scene]]
+id = "s05"
+visual = "step"
+narration = "One training step is the four beats in code. Clear the old gradients. Run the batch, and measure the loss. Call backward, to work out every gradient. Then the optimizer nudges every weight. The size of each nudge is set by the learning rate. In the lesson, two hundred steps take a small model's loss down to about two point four."
+
+[[scene]]
+id = "s06"
+visual = "schedule"
+narration = "The learning rate matters most. Too small, and the model learns slowly. Too big, and each step jumps past the low point. So real runs follow a schedule. Warmup climbs in a straight line for the first hundred steps, so the first rough steps stay small. Then cosine decay glides down along half a cosine wave, and the last steps settle in."
+
+[[scene]]
+id = "s07"
+visual = "clipping"
+narration = "Now and then one batch gives huge gradients, and one giant step can undo hours of training. So we measure the length of all the gradients together, the gradient norm, and if it's over a limit, shrink them all by the same factor. Take the gradient three, four. Its norm is five. With a limit of one, it becomes zero point six, zero point eight. Shorter, but pointing the same way."
+
+[[scene]]
+id = "s08"
+visual = "accumulation"
+narration = "Bigger batches give steadier gradients, but they need more memory. Gradient accumulation gets a big batch's gradients with a small batch's memory. Split the batch into micro-batches. Call backward on each one without clearing, and PyTorch adds the gradients up. Divide each loss by the number of micro-batches, then take one step. The real run uses two micro-batches of sixteen, so each step learns from thirty-two windows."
+
+[[scene]]
+id = "s09"
+visual = "curves"
+narration = "A loss curve plots the loss against the step, for both sets. In the lesson, a model trains on only five thousand characters. Its training loss keeps falling. But its validation loss falls, then turns and climbs. The model is memorising the page. That's overfitting. The real run reads far more text, and its validation loss keeps falling, to about one point five three."
+
+[[scene]]
+id = "s10"
+visual = "your_turn"
+narration = "Now it's your turn. The lesson walks through every piece with real code. Then you'll write the six pieces yourself: get batch, the loss, the learning rate, clipping, a training step, and an honest loss estimate. Finally, train the full model for two thousand steps, in about two minutes. To pass, its validation loss must be below one point seven, and eighty percent of its words must be real."

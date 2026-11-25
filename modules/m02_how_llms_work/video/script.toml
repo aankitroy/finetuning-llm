@@ -1,0 +1,54 @@
+# The M2 video: narration (spoken by Kokoro, shown as captions) and which drawing goes with it.
+# After editing a narration, run: make narration M=02
+
+title = "M2 · How an LLM actually works"
+
+[[scene]]
+id = "s01"
+visual = "intro_loop"
+narration = "In M1, you trained a tiny network that picked one of two classes. A language model is the same idea, much bigger. Given some text, it predicts what comes next. Text is cut into small pieces called tokens. The full list a model knows is its vocabulary. To write, the model repeats one step. Look at the tokens so far, score every token in the vocabulary, then pick one and stick it on the end. Here it is with a toy model, just a lookup table. The, cat, sat, on, the, cat, sat."
+
+[[scene]]
+id = "s02"
+visual = "real_model"
+narration = "Now a real model: SmolLM2, with about one hundred and thirty-five million parameters. Tiny next to ChatGPT, but built the same way. Its tokenizer turns text into token ids, and back. The capital of France is, becomes five tokens, each with its own number. A space usually belongs to the word after it. The vocabulary has forty-nine thousand, one hundred and fifty-two tokens."
+
+[[scene]]
+id = "s03"
+visual = "inside"
+narration = "Inside, it's a transformer. First, each token id becomes its embedding: a list of five hundred and seventy-six numbers. Then those numbers pass through thirty identical blocks. Each block does two things. Attention: each token gathers information from the tokens before it. And a small network, like the one you built in M1. Finally, one last layer turns each token's numbers into a score for every token in the vocabulary. Those scores are the logits."
+
+[[scene]]
+id = "s04"
+visual = "attention_idea"
+narration = "Why attention? The word, it, means different things in: the cat drank because it was thirsty, and: the cat drank the milk because it was there. To understand a token, the model has to look at the others. Think of a library search. Each token makes three lists of numbers. A query: what am I looking for? A key: what do I contain? And a value: the information I'll hand over, if someone attends to me."
+
+[[scene]]
+id = "s05"
+visual = "attention_by_hand"
+narration = "Here's attention with three tokens, so you can follow every number. First, score each query against every key. Next, hide the future: a token may only look at itself and earlier tokens. That's the causal mask. Softmax turns each row into weights that add up to one. Then mix: each output is a weighted average of the values. The first token sees only itself, so its output is just its own value. SmolLM2 runs nine of these heads side by side, in each of its thirty blocks."
+
+[[scene]]
+id = "s06"
+visual = "next_token"
+narration = "Run the whole model on the prompt, and it gives logits for every position. The ones at the last position are its guess for what comes next. Softmax turns them into probabilities. Here are the top five. The word, the, at about twenty-six percent. Paris, at about nine percent. Then located, called, and a. Greedy decoding simply takes the most likely one. So the next token is: the."
+
+[[scene]]
+id = "s07"
+visual = "gen_loop"
+narration = "Now repeat: predict, append, predict again. It's the toy loop, with the real model in place of the lookup table. After eight steps, greedy writes: The capital of France is the capital of the country, then two line breaks. Not very helpful, but it's exactly what the library's own generate function writes. Matching it token for token is this module's checkpoint. If the model picks the special end-of-text token, the loop stops early."
+
+[[scene]]
+id = "s08"
+visual = "sampling"
+narration = "Greedy always writes the same thing, and often repeats itself. Chatbots usually sample instead: pick at random, weighted by probability. Temperature divides the logits before softmax. At zero point five, the top token jumps to seventy-seven percent: safer. At two, it falls to about one percent: more surprising. Top-p cuts the long tail. Here, the top four hundred and five tokens add up to zero point nine. All the rest are dropped."
+
+[[scene]]
+id = "s09"
+visual = "kv_cache"
+narration = "Your loop runs the model on the whole sequence, every step. By step twenty, it reprocesses about twenty-five tokens to get one new one. But earlier tokens' keys and values never change, because the causal mask stops them seeing new tokens. So the library keeps them in memory: the KV cache. Each step then processes only the newest token. Same output, much faster."
+
+[[scene]]
+id = "s10"
+visual = "your_turn"
+narration = "Now it's your turn. Start with the lesson: it runs every step on the real model. Then write six pieces yourself: the next-token logits, greedy, softmax with temperature, the top-p filter, one causal attention head, and the generation loop. Answer six short questions. Finally, run your loop on the real model, and check it writes the same twenty tokens as the library."

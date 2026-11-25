@@ -1,0 +1,54 @@
+# The M3 video: narration (spoken by Kokoro, shown as captions) and which drawing goes with it.
+# After editing a narration, run: make narration M=03
+
+title = "M3 · Tokenizers & chat templates"
+
+[[scene]]
+id = "s01"
+visual = "intro"
+narration = "A model never sees your words. It sees numbers called token ids. A token is a small piece of text, and its id is its place in the vocabulary, the list of every token the model knows. One token per character makes texts very long. One per word needs millions, and new words get none. Real tokenizers sit in between."
+
+[[scene]]
+id = "s02"
+visual = "bytes"
+narration = "It starts with bytes. A byte is a number from zero to two hundred and fifty-five. UTF-8 is the standard way to turn text into bytes. The letter A takes one byte, an accented e takes two, a Hindi letter three, and an emoji four. There are only two hundred and fifty-six bytes, so a tokenizer built on bytes can handle any text."
+
+[[scene]]
+id = "s03"
+visual = "pairs"
+narration = "BPE, or byte pair encoding, learns its tokens from text. Take this tiny example: eleven letters, so eleven ids. Count every pair of neighbours. The most common pair is two a's in a row, seen four times. Give it a new id, two hundred and fifty-six, and replace it everywhere. That's one merge. Eleven ids become nine."
+
+[[scene]]
+id = "s04"
+visual = "rounds"
+narration = "Then repeat, with the next new id each time. Round two makes three a's into one token. Round three adds the b. Eleven ids, then nine, seven and five. These three merges are the whole tokenizer. Real models learn tens of thousands of them, from huge amounts of text."
+
+[[scene]]
+id = "s05"
+visual = "encode_decode"
+narration = "To decode, turn each id back into its bytes. A merged id is just the bytes of its two parts, joined, so the five tokens give back the exact text. To encode new text, order matters: always apply the merge that was learned first. If b c was learned before a b, then a b c becomes a, plus b c."
+
+[[scene]]
+id = "s06"
+visual = "real"
+narration = "Now a real tokenizer, from SmolLM2. It's a byte-level BPE like yours, with forty-nine thousand, one hundred and fifty-two tokens. Most tokens carry the space before a word, and capitals make a different token. Numbers split into single digits. Rare words are built from pieces. English gets about four bytes per token, Hindi about two, so Hindi costs more tokens."
+
+[[scene]]
+id = "s07"
+visual = "special"
+narration = "Special tokens are markers with their own id, never split. SmolLM2's start-of-message marker is id one. Its end-of-message marker, id two, also ends a sequence and stops generation. In a batch, short texts get padding, and the attention mask marks real tokens with one and padding with zero. For generation, pad on the left, so every row ends with real text."
+
+[[scene]]
+id = "s08"
+visual = "chat"
+narration = "A chat model receives one long string, not a list of messages. The chat template builds it. SmolLM2 uses ChatML: each message sits between a start marker and an end marker, with its role first. Send just hi, and the template adds a system message, the instruction that sets how the model behaves. The generation prompt opens the assistant's turn. Thirty-two tokens in all."
+
+[[scene]]
+id = "s09"
+visual = "wrong"
+narration = "Nothing checks your format, so mistakes are silent. One: the wrong format. Turns labelled with hash marks are just ordinary text, with no special tokens. Two: no generation prompt, so the model isn't told to reply. Three: a user who types the end-of-message marker can end their message early, unless you split special tokens. The rule: train with exactly the template you'll run with."
+
+[[scene]]
+id = "s10"
+visual = "your_turn"
+narration = "Your turn. Start with the lesson: it runs every step with real code. Then write six pieces yourself: counting pairs, merging, training, encoding, decoding, and formatting a chat. Answer six short questions. Then run the check: it trains your tokenizer, makes sure tricky text survives the round trip, and compares your chat formatting with the real template on five conversations."
