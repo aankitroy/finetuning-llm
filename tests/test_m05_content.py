@@ -288,6 +288,7 @@ def test_the_data_is_clean():
     """The splits are the right size, never overlap, and the plain side is buzzword-free."""
     import importlib.util
 
+    pytest.importorskip("torch")  # the reference counter lives next to torch code
     spec = importlib.util.spec_from_file_location("sol", M / "solutions" / "exercises.py")
     sol = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(sol)
