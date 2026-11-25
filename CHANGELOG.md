@@ -5,6 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- Module videos: a narrated, animated explainer as a module's first step, played from the dashboard (`/video/<module>/`) with captions, scene-by-scene scrubbing and links to a moment (`#scene=3&t=10`). The voice is Kokoro-82M, made once by course authors with `make narration M=NN` (new `media` dependency group); learners need nothing extra. M5 has the first one (3:44).
 - M5 · Your first real fine-tune: a full fine-tune of Qwen2.5-0.5B-Instruct (every weight) on 500 original jargon → plain English pairs, with your own loop and with HF `Trainer`. The learner writes loss masking, padding/collation, the shifted masked loss, an optimizer-memory meter, chrF and a buzzword counter. The checkpoint needs the held-out loss to fall by 0.4 without losing meaning (chrF) or adding jargon; a forgetting check on 10 ordinary questions is reported. Peaks at about 24 GB.
 - `accelerate` in the `course` dependency group (needed by `Trainer`).
 - M4 · The training loop, from scratch: a 4.8M-parameter character-level GPT trained from random weights on Tiny Shakespeare (bundled, public domain). The learner writes the loop: batches, the causal LM loss, warmup + cosine schedule, gradient clipping, gradient accumulation and evaluation. The checkpoint needs validation loss below 1.70 and a sample that is at least 80% real words; the run takes about 2 minutes on Apple Silicon. Tests use a tiny model on the CPU.

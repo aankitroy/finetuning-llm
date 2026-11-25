@@ -481,6 +481,10 @@ def main() -> int:
         "used_solutions": bool(os.environ.get("FTCOURSE_SOLUTIONS")),
         "exercises_sha256": exercises_sha256,
         "history": run["history"],
+        "general": [
+            {"question": g["question"], "original": b, "fine_tuned": f}
+            for g, b, f in zip(general, base_general, tuned_general, strict=True)
+        ],
         "examples": [
             {"jargon": t["jargon"], "original": b, "fine_tuned": f, "reference": t["plain"]}
             for t, b, f in zip(test_rows, base_rewrites, tuned_rewrites, strict=True)

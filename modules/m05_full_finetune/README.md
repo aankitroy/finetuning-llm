@@ -14,6 +14,8 @@
 
 ## Steps
 
+0. **Watch the video first.** Open the dashboard (`make progress`) and press **Play the video** on M5's first step: a 4-minute narrated animation of the whole module, with captions.
+
 1. **Read and run the lesson.**
    ```bash
    uv run jupyter lab modules/m05_full_finetune/lesson.ipynb

@@ -1,0 +1,54 @@
+# The M5 video: narration (spoken by Kokoro, shown as captions) and which drawing goes with it.
+# After editing a narration, run: make narration M=05
+
+title = "M5 · Your first real fine-tune"
+
+[[scene]]
+id = "s01"
+visual = "intro"
+narration = "In M4, you trained a model from random numbers, and it took two thousand steps just to learn to spell. Real projects almost never start there. They start from a model that someone has already trained on trillions of words. Fine-tuning means taking that model and training it a little more, on your own examples, so it does one job your way. In this module, the job is rewriting jargon in plain English."
+
+[[scene]]
+id = "s02"
+visual = "base_try"
+narration = "Our model is Qwen 2.5, with half a billion parameters, already trained to follow instructions. Ask it to rewrite a sentence in plain English, and it does try. But it keeps the formal words, like objective and implement. It follows the instruction its own way. Fine-tuning will teach it your house style, from four hundred examples."
+
+[[scene]]
+id = "s03"
+visual = "sequence"
+narration = "Each example is a pair: a jargon sentence, and its plain rewrite. For training, both go into one sequence of tokens. First the prompt: the system message and the user's jargon, formatted with the chat template you met in M3. Then the answer, ending with the token that closes the assistant's turn, so the model learns when to stop."
+
+[[scene]]
+id = "s04"
+visual = "masking"
+narration = "Now, which tokens should the model be graded on? Not the prompt. The model will always be given it, and never asked to write it. So in the labels, every prompt token becomes minus one hundred, which means: don't grade this one. Only the answer counts. In this example, sixty-six tokens go in, and just eighteen are graded."
+
+[[scene]]
+id = "s05"
+visual = "padding"
+narration = "Examples come in different lengths, but a batch has to be a rectangle. So the shorter rows get padding at the end. The attention mask marks real tokens with a one, and padding with a zero, so the model never looks at it. And the labels for padding are minus one hundred too, so padding is never graded either."
+
+[[scene]]
+id = "s06"
+visual = "memory"
+narration = "A full fine-tune trains every single weight, and that costs memory. For each of the four hundred and ninety-four million weights, we keep the weight, its gradient, and two running averages for the optimizer. That's sixteen bytes per weight: about eight gigabytes, before anything else. The real run peaks at about twenty-four. A seven billion parameter model would need over a hundred gigabytes, which is why the next part of the course trains far fewer weights."
+
+[[scene]]
+id = "s07"
+visual = "training"
+narration = "Then it's the loop you wrote in M4: a batch, the loss, backward, and a step. Two passes over the examples take about forty seconds on this Mac. The number to watch is the loss on rewrites the model has never seen. It falls from about one point five five, to about zero point nine four. The model now finds plain English far more likely."
+
+[[scene]]
+id = "s08"
+visual = "before_after"
+narration = "And you can see it. Here's the same sentence, before and after. Before: residents should place recycling bins at curb-side locations by seven a.m. on collection days. After: please put recycling bins at the curb before seven a.m. on collection days. Shorter, plainer, and in the voice of the training examples."
+
+[[scene]]
+id = "s09"
+visual = "forgetting"
+narration = "But there's a cost. Fine-tuning changed every weight to get better at one thing, and that can wear away other skills. So we ask the model ten ordinary questions, before and after. Train too hard, with three epochs at a higher learning rate, and it gets three of them wrong. That's called catastrophic forgetting, and you'll measure it in every run."
+
+[[scene]]
+id = "s10"
+visual = "your_turn"
+narration = "Now it's your turn. The lesson walks through every step with real code. Then you'll write six pieces yourself: building an example, padding a batch, the masked loss, measuring the optimizer's memory, and two scores for the rewrites. Finally, you'll fine-tune twice, with your own loop and with Hugging Face's Trainer, and watch your model write plain English."

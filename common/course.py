@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 _BETTER = {"lower", "higher"}
-STEP_KINDS = {"lesson", "exercises", "answers", "train", "checkpoint"}
+STEP_KINDS = {"video", "lesson", "exercises", "answers", "train", "checkpoint"}
 
 
 @dataclass(frozen=True)

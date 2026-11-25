@@ -1,0 +1,131 @@
+/* Module video player. Uses the dashboard's colour tokens from style.css. */
+
+.video-page { min-height: 100vh; }
+
+.player {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.player-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+.player-head h1 { font-size: 1.375rem; }
+.back { color: var(--cobalt); font-size: 0.9375rem; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+
+.stage-wrap {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.stage { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+.stage text { font-family: var(--font); }
+
+.big-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--cobalt);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  font: 600 1rem var(--font);
+  box-shadow: 0 0 0 10px color-mix(in srgb, var(--cobalt) 18%, transparent);
+}
+.big-play svg { width: 56px; height: 56px; fill: currentColor; margin-left: 6px; }
+.big-play:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+
+.end-card {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  padding: 24px;
+}
+.end-card p { margin: 0; }
+.end-title { font-size: 1.5rem; font-weight: 600; }
+.end-card code {
+  font: 0.9375rem var(--mono);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+.end-actions { display: flex; gap: 8px; margin-top: 6px; }
+.end-actions a { text-decoration: none; }
+
+.caption {
+  min-height: 3.2em;
+  margin: 14px 4px 10px;
+  font-size: 1.1875rem;
+  line-height: 1.55;
+  max-width: 70ch;
+}
+
+.controls { display: flex; align-items: center; gap: 8px; }
+
+.ctl {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font: 600 0.8125rem var(--font);
+}
+.ctl svg { width: 20px; height: 20px; fill: currentColor; }
+.ctl:hover { border-color: var(--cobalt); }
+.ctl:focus-visible, .scrub:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; }
+#cc[aria-pressed="false"] { color: var(--muted); text-decoration: line-through; }
+
+.scrub {
+  flex: 1;
+  display: flex;
+  gap: 3px;
+  height: 40px;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+}
+.seg {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--line);
+  overflow: hidden;
+  transition: height 0.15s;
+}
+.seg.now { height: 12px; }
+.seg i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--cobalt); }
+
+.clock { flex: none; font: 0.875rem var(--mono); color: var(--muted); min-width: 92px; text-align: right; }
+.scene-name { margin: 6px 4px 0; color: var(--muted); font-size: 0.875rem; }
+.problems { margin-top: 16px; color: var(--amber); font-size: 0.875rem; }
+
+@media (max-width: 560px) {
+  .clock { min-width: 0; font-size: 0.75rem; }
+  .ctl { width: 36px; height: 36px; }
+  .caption { font-size: 1.0625rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seg { transition: none; }
+}
