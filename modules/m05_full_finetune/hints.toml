@@ -44,7 +44,7 @@ hint = "Multiply, then divide by a billion. Section 4 does this sum for the real
 [[exercise]]
 id = "q2"
 test = "test_understanding[q2]"
-hint = "Section 3 trains with and without the mask. What does the model learn to write when the prompt is graded too?"
+hint = "Section 3 counts how many positions are graded with and without the mask. If the prompt were graded too, what would the model be trained to write?"
 
 [[exercise]]
 id = "q3"

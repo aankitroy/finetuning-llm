@@ -60,7 +60,7 @@ title = "Fine-tune with your own loop"
 detail = "Fine-tunes all 494M weights with your exercises in your own training loop, then scores the original and the fine-tuned model on 50 held-out rewrites. About 3 minutes, up to 24 GB of memory."
 command = "uv run python modules/m05_full_finetune/train.py --loop"
 file = "outputs/m05/run_loop.json"
-metric = "val_loss"
+metric = "heldout_after"
 
 [[steps]]
 kind = "train"
@@ -68,7 +68,7 @@ title = "Fine-tune with Hugging Face's Trainer"
 detail = "The same fine-tune, with Trainer running the loop and your collate() building the batches. Compare its numbers with your loop's."
 command = "uv run python modules/m05_full_finetune/train.py --trainer"
 file = "outputs/m05/run_trainer.json"
-metric = "val_loss"
+metric = "heldout_after"
 
 [[steps]]
 kind = "checkpoint"

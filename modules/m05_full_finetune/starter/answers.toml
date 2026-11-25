@@ -3,7 +3,7 @@
 # Predict first, then check yourself in lesson.ipynb. Stuck? make hint M=05 EX=q1
 
 [q1]
-question = "Qwen2.5-0.5B has about 494 million parameters. A full fine-tune in float32 with AdamW stores 4 bytes per parameter for the weights, 4 for the gradients and 8 for AdamW's two running averages. To the nearest whole GB, how much is that before activations?"
+question = "Qwen2.5-0.5B has about 494 million parameters. A full fine-tune in float32 with AdamW stores 4 bytes per parameter for the weights, 4 for the gradients and 8 for AdamW's two running averages. To the nearest whole GB (1 GB = 1,000,000,000 bytes), how much is that before activations?"
 answer = ""
 
 [q2]

@@ -135,7 +135,7 @@ def base_outputs(args, device, text_tools, test_prompts, general_prompts, max_ne
     """The original model's replies. Cached, since they don't depend on your code."""
     out_dir = Path(os.environ.get("FTCOURSE_OUTPUTS") or ROOT / "outputs") / "m05"
     key = hashlib.sha256(
-        json.dumps([args.tiny, max_new, test_prompts, general_prompts]).encode()
+        json.dumps([args.tiny, device, MODEL, max_new, test_prompts, general_prompts]).encode()
     ).hexdigest()[:16]
     cache = out_dir / "base_outputs.json"
     if cache.exists():
@@ -152,6 +152,60 @@ def base_outputs(args, device, text_tools, test_prompts, general_prompts, max_ne
     return rewrites, general
 
 
+class ExerciseError(Exception):
+    """An exercise returned the wrong kind of thing."""
+
+
+def checked_batch(ex, rows, pad_id):
+    batch = ex.collate(rows, pad_id)
+    if not isinstance(batch, dict) or not all(
+        torch.is_tensor(batch.get(k)) for k in ("input_ids", "attention_mask", "labels")
+    ):
+        raise ExerciseError(
+            "collate should return a dict with input_ids, attention_mask and labels, each a "
+            "tensor. Run make check M=05: test_collate shows what's wrong."
+        )
+    return batch
+
+
+def checked_loss(ex, logits, labels):
+    loss = ex.masked_lm_loss(logits, labels)
+    if not torch.is_tensor(loss) or loss.dim() != 0:
+        raise ExerciseError(
+            "masked_lm_loss should return a one-number tensor (no .item()). Run make check M=05: "
+            "test_masked_lm_loss shows what's wrong."
+        )
+    return loss
+
+
+@torch.no_grad()
+def heldout_loss(model, text_tools, rows, device) -> float:
+    """The loss on the held-out reference rewrites, measured with the course's own masking.
+
+    This is the number the checkpoint grades, so a bug in your exercises can't change it.
+    """
+    model.eval()
+    total, count = 0.0, 0
+    for i in range(0, len(rows), 8):
+        seqs = []
+        for r in rows[i : i + 8]:
+            p, a = text_tools.prompt_ids(r["jargon"]), text_tools.answer_ids(r["plain"])
+            seqs.append((p + a, [-100] * len(p) + a))
+        longest = max(len(s) for s, _ in seqs)
+        ids = [s + [text_tools.pad_id] * (longest - len(s)) for s, _ in seqs]
+        mask = [[1] * len(s) + [0] * (longest - len(s)) for s, _ in seqs]
+        labels = [lab + [-100] * (longest - len(lab)) for _, lab in seqs]
+        out = model(
+            input_ids=torch.tensor(ids, device=device),
+            attention_mask=torch.tensor(mask, device=device),
+            labels=torch.tensor(labels, device=device),
+        )
+        total += out.loss.item() * len(seqs)
+        count += len(seqs)
+    model.train()
+    return total / count
+
+
 def lr_at(step, max_lr, warmup, total):
     if step < warmup:
         return max_lr * (step + 1) / warmup
@@ -166,7 +220,7 @@ def val_loss_loop(ex, model, val_batches, device):
         for batch in val_batches:
             batch = {k: v.to(device) for k, v in batch.items()}
             logits = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
-            total += ex.masked_lm_loss(logits.logits, batch["labels"]).item()
+            total += checked_loss(ex, logits.logits, batch["labels"]).item()
     model.train()
     return total / len(val_batches)
 
@@ -177,7 +231,7 @@ def train_loop(ex, args, model, train, val, pad_id, device):
     steps_per_epoch = math.ceil(len(train) / args.batch)
     total = steps_per_epoch * args.epochs
     val_batches = [
-        ex.collate(val[i : i + args.batch], pad_id) for i in range(0, len(val), args.batch)
+        checked_batch(ex, val[i : i + args.batch], pad_id) for i in range(0, len(val), args.batch)
     ]
     initial = val_loss_loop(ex, model, val_batches, device)
     print(f"  before training  val loss {initial:.3f}")
@@ -186,12 +240,12 @@ def train_loop(ex, args, model, train, val, pad_id, device):
     for epoch in range(args.epochs):
         order = torch.randperm(len(train), generator=g).tolist()
         for i in range(0, len(train), args.batch):
-            batch = ex.collate([train[j] for j in order[i : i + args.batch]], pad_id)
+            batch = checked_batch(ex, [train[j] for j in order[i : i + args.batch]], pad_id)
             batch = {k: v.to(device) for k, v in batch.items()}
             for group in opt.param_groups:
                 group["lr"] = lr_at(step, args.lr, max(1, total // 10), total)
             logits = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
-            loss = ex.masked_lm_loss(logits.logits, batch["labels"])
+            loss = checked_loss(ex, logits.logits, batch["labels"])
             opt.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -227,6 +281,8 @@ def train_trainer(ex, args, model, train, val, pad_id, device):
 
     def as_dicts(rows):
         return [{"input_ids": ids, "labels": labels} for ids, labels in rows]
+
+    checked_batch(ex, train[:2], pad_id)  # fail early, with a clear message
 
     def collator(features):
         return ex.collate([(f["input_ids"], f["labels"]) for f in features], pad_id)
@@ -298,17 +354,19 @@ def main() -> int:
     mode.add_argument("--loop", action="store_true", help="train with your own loop")
     mode.add_argument("--trainer", action="store_true", help="train with Hugging Face's Trainer")
     ap.add_argument("--tiny", action="store_true", help="a tiny random model on the CPU, seconds")
-    ap.add_argument("--epochs", type=int, default=2)
+    ap.add_argument("--epochs", type=int, default=2, choices=range(1, 11), metavar="1-10")
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--lr", type=float, default=1e-5)
     ap.add_argument("--max-len", type=int, default=160)
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
     name = "loop" if args.loop else "trainer"
-    if args.tiny:
-        args.lr = 3e-3
+    if args.tiny and args.lr == ap.get_default("lr"):
+        args.lr = 3e-3  # a tiny random model needs a much bigger step
 
     ex = load_exercise(MODULE_DIR)
+    exercises_file = MODULE_DIR / ("solutions" if os.environ.get("FTCOURSE_SOLUTIONS") else "")
+    exercises_sha256 = hashlib.sha256((exercises_file / "exercises.py").read_bytes()).hexdigest()
     torch.manual_seed(args.seed)
     device = "mps" if torch.backends.mps.is_available() and not args.tiny else "cpu"
     buzzwords = [w for w in (DATA / "buzzwords.txt").read_text().splitlines() if w.strip()]
@@ -349,15 +407,32 @@ def main() -> int:
         trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
         print(f"\nFine-tuning all {params:,} parameters with your {name}, on {device}")
         print(f"{len(train)} examples, {args.epochs} epochs, batches of {args.batch}\n")
+        heldout_before = heldout_loss(model, text_tools, val_rows, device)
         run = (train_loop if args.loop else train_trainer)(
             ex, args, model, train, val, text_tools.pad_id, device
         )
+        heldout_after = heldout_loss(model, text_tools, val_rows, device)
         tuned_rewrites = generate(model, text_tools, test_prompts, max_new, device)
         tuned_general = generate(model, text_tools, general_prompts, max_new, device)
         base = score(ex, base_rewrites, test_rows, base_general, general, buzzwords)
         tuned = score(ex, tuned_rewrites, test_rows, tuned_general, general, buzzwords)
     except NotImplementedError as e:
         print(f"Not yet: {e} isn't written. Finish all six exercises, then run this again.")
+        return 1
+    except ExerciseError as e:
+        print(f"Your exercises returned something unexpected: {e}")
+        return 1
+    except RuntimeError as e:
+        if "out of memory" not in str(e).lower():
+            if where(e):
+                print(f"One of your exercises raised RuntimeError: {e}.{where(e)}")
+                print("Run make check M=05 to see which test fails, and why.")
+                return 1
+            raise
+        print("Your Mac ran out of memory for this run (it needs about 24 GB with the defaults).")
+        print("Close other apps and the lesson notebook, then try again. With less memory, run")
+        print(f"  uv run python modules/m05_full_finetune/train.py --{name} --batch 4")
+        print("which needs about 17 GB.")
         return 1
     except OSError as e:
         print(f"Couldn't load {MODEL} ({e}).")
@@ -374,14 +449,20 @@ def main() -> int:
     for t, b, f in list(zip(test_rows, base_rewrites, tuned_rewrites, strict=True))[:3]:
         print(f"  jargon:     {t['jargon']}\n  original:   {b}")
         print(f"  fine-tuned: {f}\n  reference:  {t['plain']}\n")
-    print(f"{'':12}{'chrF':>8}{'buzzwords':>11}{'general':>9}")
-    for label, s in [("original", base), ("fine-tuned", tuned)]:
+    print(f"{'':12}{'held-out loss':>14}{'chrF':>7}{'buzzwords':>11}{'general':>9}")
+    for label, loss, s in [
+        ("original", heldout_before, base),
+        ("fine-tuned", heldout_after, tuned),
+    ]:
         print(
-            f"{label:12}{s['chrf']:8.1f}{s['buzzwords']:11.2f}{s['general_right']:6d}/{len(general)}"
+            f"{label:12}{loss:14.3f}{s['chrf']:7.1f}{s['buzzwords']:11.2f}"
+            f"{s['general_right']:6d}/{len(general)}"
         )
 
     summary = {
         "mode": name,
+        "heldout_before": round(heldout_before, 4),
+        "heldout_after": round(heldout_after, 4),
         "val_loss": round(run["val_loss"], 4),
         "initial_val_loss": round(run["initial_val_loss"], 4),
         "base": base,
@@ -398,6 +479,7 @@ def main() -> int:
         "seconds": round(run["seconds"], 1),
         "tiny": args.tiny,
         "used_solutions": bool(os.environ.get("FTCOURSE_SOLUTIONS")),
+        "exercises_sha256": exercises_sha256,
         "history": run["history"],
         "examples": [
             {"jargon": t["jargon"], "original": b, "fine_tuned": f, "reference": t["plain"]}

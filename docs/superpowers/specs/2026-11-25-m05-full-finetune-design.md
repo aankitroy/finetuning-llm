@@ -42,7 +42,7 @@ why full fine-tuning doesn't scale on a laptop (the motivation for Part C).
   3. `masked_lm_loss(logits, labels) -> Tensor`: shift by one, cross-entropy with
      `ignore_index=-100`; equals `model(input_ids, labels=labels).loss`.
   4. `optimizer_state_bytes(optimizer) -> int`: bytes in every tensor of `optimizer.state`.
-  5. `chrf(hypothesis, reference, max_n=6, beta=2.0) -> float` (0–100): whitespace removed;
+  5. `chrf(hypothesis, reference, max_n=6, beta=2.0) -> float` (0–100): spaces removed;
      for n = 1..max_n, n-gram precision and recall from clipped counts; average P and R over the
      orders where both texts have n-grams; F-beta. (Close to, not identical with, sacrebleu.)
   6. `count_buzzwords(text, buzzwords) -> int`: lowercase, non-letters → spaces, count each phrase
@@ -54,7 +54,9 @@ why full fine-tuning doesn't scale on a laptop (the motivation for Part C).
   Qwen2 model on the CPU, seconds, no download. Writes `outputs/m05/run_<loop|trainer>.json`.
 - **Checkpoint:** six exercise tests; six answers; for both runs: held-out loss on the reference
   rewrites falls by ≥ 0.4 from the base model's, buzzwords per rewrite ≤ base, and chrF ≥ base − 3;
-  full-size runs with own code. *Ruling after measuring (replaces "chrF ≥ base + 10, buzzwords ≤ half
+  full-size runs with own code. *Review fixes:* the graded held-out loss is measured by train.py
+  with course-owned masking (`heldout_before` / `heldout_after`), and each run stores a sha256 of
+  the exercises it used, which must match the current `exercises.py`. *Ruling after measuring (replaces "chrF ≥ base + 10, buzzwords ≤ half
   of base"):* with the rewrite system prompt the base model already scores chrF 54.4 and 0.16
   buzzwords per rewrite, and tuned runs score chrF 53–58 although their rewrites are clearly in the
   house style; chrF rewards one reference wording among many valid ones. The held-out loss

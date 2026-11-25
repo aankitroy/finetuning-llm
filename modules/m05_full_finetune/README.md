@@ -8,7 +8,7 @@
 
 **Download:** the lesson and `train.py` download [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) (about 1 GB, Apache-2.0 licence) once and cache it. The checkpoint's exercise tests use a tiny random model and need no download.
 
-**Memory:** a full fine-tune of this model peaks at about 24 GB. Close other big apps first, and close the lesson notebook (or restart its kernel) before you run `train.py`.
+**Memory:** a full fine-tune of this model peaks at about 24 GB. Close other big apps first, and close the lesson notebook (or restart its kernel) before you run `train.py`. With less memory, add `--batch 4`: it peaked at about 17 GB on the reference Mac and still passes, a little more slowly.
 
 **Data:** [`data/`](data) holds 500 original jargon → plain English pairs (400 to train on, 50 to validate, 50 to test), written for this course and shared under CC BY 4.0 like the rest of its content, plus [`buzzwords.txt`](data/buzzwords.txt) and 10 ordinary questions for the forgetting check.
 
@@ -52,12 +52,12 @@
    uv run python modules/m05_full_finetune/train.py --loop
    uv run python modules/m05_full_finetune/train.py --trainer
    ```
-   Each one trains all 494M weights for 2 epochs (about 40 seconds of training on the reference Mac), then generates rewrites of the 50 test sentences with the original and the fine-tuned model, and asks both the 10 ordinary questions. The first run also scores the original model, which is cached for later runs. Each takes about 3 minutes in all, and saves `outputs/m05/run_loop.json` or `run_trainer.json`, with every test rewrite in it.
+   In `--trainer` mode, `Trainer` uses the model's own loss, so your `collate` builds the batches but your `masked_lm_loss` isn't used. Each run trains all 494M weights for 2 epochs (about 40 seconds of training on the reference Mac), then generates rewrites of the 50 test sentences with the original and the fine-tuned model, and asks both the 10 ordinary questions. The first run also scores the original model, which is cached for later runs. Each takes about 3 minutes in all, and saves `outputs/m05/run_loop.json` or `run_trainer.json`, with every test rewrite in it.
 
-5. **Pass the checkpoint:** run `make check M=05`. M5 turns green when every exercise passes, your answers are right, and in both runs, with your own code:
-   - the loss on the held-out rewrites fell by at least **0.4** (about 1.55 → 0.94 in the reference run): the model has learned the style
+5. **Pass the checkpoint:** run `make check M=05`. M5 turns green when every exercise passes, your answers are right, and in both runs, with your current code (re-run `train.py` after you change `exercises.py`):
+   - the loss on the held-out rewrites, measured by `train.py` itself, fell by at least **0.4** (about 1.55 → 0.94 in the reference run): the model has learned the style
    - the buzzwords per rewrite didn't go up
-   - chrF stayed within **3** points of the original model's: the rewrites still say the same thing
+   - chrF stayed within **3** points of the original model's: a rough check that the rewrites haven't drifted into something else (copying the jargon unchanged would pass this one, but not the buzzword check)
 
    The forgetting check is reported, not graded.
 

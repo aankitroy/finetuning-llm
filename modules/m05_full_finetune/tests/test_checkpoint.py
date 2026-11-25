@@ -4,6 +4,7 @@ Run `uv run python modules/m05_full_finetune/train.py --loop` and `... --trainer
 then `make check M=05`.
 """
 
+import hashlib
 import json
 import math
 import os
@@ -26,12 +27,14 @@ CHRF_SLACK = 3.0  # the tuned model's chrF may be at most this far below the bas
 
 def test_build_example(ex):
     ids, labels = ex.build_example([5, 6, 7], [8, 9])
+    assert isinstance(ids, list) and isinstance(labels, list), (
+        f"Return two plain lists, not {type(ids).__name__} and {type(labels).__name__}"
+    )
     assert ids == [5, 6, 7, 8, 9], "input_ids is the prompt followed by the answer"
     assert labels == [-100, -100, -100, 8, 9], (
         "labels copies the answer and puts -100 on every prompt token, so the loss ignores "
         f"them. Got {labels}"
     )
-    assert isinstance(ids, list) and isinstance(labels, list), "Return two plain lists"
     ids, labels = ex.build_example([1, 2, 3], [4, 5, 6], max_len=4)
     assert ids == [1, 2, 3, 4] and labels == [-100, -100, -100, 4], (
         "With max_len, keep only the first max_len tokens of both lists"
@@ -148,18 +151,19 @@ def _summary(outputs, mode):
 def test_run_beat_the_base_model(outputs, mode):
     s = _summary(outputs, mode)
     if mode == "loop":
-        report_metric("final_loss", s["val_loss"])
+        report_metric("final_loss", s["heldout_after"])
         report_metric("peak_mem_gb", s["peak_mem_gb"])
         report_metric("tokens_per_sec", s["tokens_per_sec"])
         report_metric("trainable_pct", s["trainable_pct"])
     if s["tiny"]:
-        assert s["val_loss"] < s["initial_val_loss"], "The tiny run should still learn"
+        assert s["heldout_after"] < s["heldout_before"], "The tiny run should still learn"
         return
     base, tuned = s["base"], s["tuned"]
-    assert s["val_loss"] <= s["initial_val_loss"] - LOSS_DROP, (
-        f"Your {mode} run's loss on the held-out rewrites went from {s['initial_val_loss']:.3f} "
-        f"to {s['val_loss']:.3f}. It needs to fall by at least {LOSS_DROP}: that's the sign the "
-        "model has learned the plain style."
+    # train.py measures this loss with the course's own masking, not your exercises.
+    assert s["heldout_after"] <= s["heldout_before"] - LOSS_DROP, (
+        f"Your {mode} run's loss on the held-out rewrites went from {s['heldout_before']:.3f} "
+        f"to {s['heldout_after']:.3f}. It needs to fall by at least {LOSS_DROP}: that's the sign "
+        "the model has learned the plain style."
     )
     assert tuned["buzzwords"] <= base["buzzwords"], (
         f"Your {mode} run left {tuned['buzzwords']:.2f} buzzwords per rewrite; the original "
@@ -179,6 +183,11 @@ def test_run_was_full_size_with_your_code(outputs, mode):
     assert not s["tiny"], f"That was a --tiny run. Run train.py --{mode} without --tiny."
     assert not s.get("used_solutions"), (
         f"That run used the reference solutions. Re-run train.py --{mode} with your own code."
+    )
+    now = hashlib.sha256((MODULE_DIR / "exercises.py").read_bytes()).hexdigest()
+    assert s.get("exercises_sha256") == now, (
+        f"exercises.py has changed since your last --{mode} run. Run train.py --{mode} again, "
+        "so the run uses the code you're being checked on."
     )
 
 
