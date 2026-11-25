@@ -8,7 +8,7 @@ est_minutes = 240
 [next]
 start = "Read modules/m05_full_finetune/README.md, then open lesson.ipynb"
 finish = "make check M=05"
-why = "The fine-tuned model beats the base on held-out style tests"
+why = "Your fine-tune makes a real 0.5B model write in plain English, twice: with your loop and with Trainer"
 
 [artifacts]
 any = ["outputs/m05/*"]
@@ -32,3 +32,46 @@ better = "higher"
 key = "trainable_pct"
 label = "Trainable parameters (%)"
 better = "lower"
+
+[[steps]]
+kind = "lesson"
+title = "Run the lesson"
+detail = "Open the notebook and run every cell, top to bottom. The first cell downloads Qwen2.5-0.5B-Instruct (about 1 GB) once. Section 5 fine-tunes it for real, which takes about a minute and up to 24 GB of memory, so close other big apps first. When a cell says Predict, write your guess down before running it. Save the notebook (Cmd-S) so your progress shows here."
+command = "uv run jupyter lab modules/m05_full_finetune/lesson.ipynb"
+file = "lesson.ipynb"
+
+[[steps]]
+kind = "exercises"
+title = "Write the exercises"
+detail = "Open exercises.py and replace each `raise NotImplementedError` with your code, following the numbered steps. Run make check M=05 as often as you like; this panel shows which exercises pass."
+command = "make check M=05"
+file = "exercises.py"
+
+[[steps]]
+kind = "answers"
+title = "Answer the understanding checks"
+detail = "Open answers.toml and put your answer between the quotes for each question. Predict first, then check yourself in the notebook."
+command = "make check M=05"
+file = "answers.toml"
+
+[[steps]]
+kind = "train"
+title = "Fine-tune with your own loop"
+detail = "Fine-tunes all 494M weights with your exercises in your own training loop, then scores the original and the fine-tuned model on 50 held-out rewrites. About 3 minutes, up to 24 GB of memory."
+command = "uv run python modules/m05_full_finetune/train.py --loop"
+file = "outputs/m05/run_loop.json"
+metric = "val_loss"
+
+[[steps]]
+kind = "train"
+title = "Fine-tune with Hugging Face's Trainer"
+detail = "The same fine-tune, with Trainer running the loop and your collate() building the batches. Compare its numbers with your loop's."
+command = "uv run python modules/m05_full_finetune/train.py --trainer"
+file = "outputs/m05/run_trainer.json"
+metric = "val_loss"
+
+[[steps]]
+kind = "checkpoint"
+title = "Pass the checkpoint"
+detail = "Checks your exercises, your answers and both runs together. M5 turns green when everything passes."
+command = "make check M=05"

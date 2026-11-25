@@ -5,6 +5,8 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [Unreleased]
 
 ### Added
+- M5 · Your first real fine-tune: a full fine-tune of Qwen2.5-0.5B-Instruct (every weight) on 500 original jargon → plain English pairs, with your own loop and with HF `Trainer`. The learner writes loss masking, padding/collation, the shifted masked loss, an optimizer-memory meter, chrF and a buzzword counter. The checkpoint needs the held-out loss to fall by 0.4 without losing meaning (chrF) or adding jargon; a forgetting check on 10 ordinary questions is reported. Peaks at about 24 GB.
+- `accelerate` in the `course` dependency group (needed by `Trainer`).
 - M4 · The training loop, from scratch: a 4.8M-parameter character-level GPT trained from random weights on Tiny Shakespeare (bundled, public domain). The learner writes the loop: batches, the causal LM loss, warmup + cosine schedule, gradient clipping, gradient accumulation and evaluation. The checkpoint needs validation loss below 1.70 and a sample that is at least 80% real words; the run takes about 2 minutes on Apple Silicon. Tests use a tiny model on the CPU.
 - M3 · Tokenizers & chat templates: bytes and UTF-8, a byte-level BPE tokenizer built from scratch, a look inside SmolLM2-Instruct's tokenizer and special tokens, and a hand-written ChatML formatter that must match the real chat template on five tricky conversations. Tests are plain Python and need no download.
 - Optional Part G (beyond text: vision-language, speech-to-text, image generation) in the course plan.
@@ -26,4 +28,4 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 - M1 rewritten for complete beginners: concept-first lesson with a "What each line does" box after every code cell, a worked example, step-by-step comments in every exercise, a sixth question on logits, and a glossary and syntax table in the README.
-- `make reset` now also restores a module's lesson notebook to its unrun state, for modules that ship `starter/lesson.ipynb` (M1 to M4).
+- `make reset` now also restores a module's lesson notebook to its unrun state, for modules that ship `starter/lesson.ipynb` (M1 to M5).

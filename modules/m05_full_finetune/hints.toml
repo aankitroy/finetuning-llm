@@ -1,0 +1,67 @@
+# Hints for `make hint M=05 EX=<id>`. `make solution` shows the reference answer.
+
+[[exercise]]
+id = "1"
+test = "test_build_example"
+name = "build_example"
+hint = "Two lists the same length: the ids, and labels where the prompt part is replaced by -100. Section 3 builds one example by hand and prints them side by side."
+
+[[exercise]]
+id = "2"
+test = "test_collate"
+name = "collate"
+hint = "Find the longest row first, then work out how much padding each row needs. Padding goes at the end (the right). Section 2 pads two rows by hand."
+
+[[exercise]]
+id = "3"
+test = "test_masked_lm_loss"
+name = "masked_lm_loss"
+hint = "Each position guesses the next token, so line them up by trimming one position off each tensor, from opposite ends. Section 3 checks the result against model(..., labels=...).loss."
+
+[[exercise]]
+id = "4"
+test = "test_optimizer_state_bytes"
+name = "optimizer_state_bytes"
+hint = "optimizer.state is a dict of dicts. Section 4 prints what's inside one entry after a step: two tensors the size of the weight, and a step count."
+
+[[exercise]]
+id = "5"
+test = "test_chrf"
+name = "chrf"
+hint = "It's pair_counts from M3, for pieces of every size from 1 to max_n. Section 7 works through 'ab' against 'abc' by hand, including the clipped matches."
+
+[[exercise]]
+id = "6"
+test = "test_count_buzzwords"
+name = "count_buzzwords"
+hint = "Compare lists of words, not strings, so 'leveraged' never matches 'leverage'. Slide a window as long as the buzzword along the text's words (section 7)."
+
+[[exercise]]
+id = "q1"
+test = "test_understanding[q1]"
+hint = "Multiply, then divide by a billion. Section 4 does this sum for the real model."
+
+[[exercise]]
+id = "q2"
+test = "test_understanding[q2]"
+hint = "Section 3 trains with and without the mask. What does the model learn to write when the prompt is graded too?"
+
+[[exercise]]
+id = "q3"
+test = "test_understanding[q3]"
+hint = "The attention mask and the loss are two separate things. Which one decides what gets graded? (section 2)"
+
+[[exercise]]
+id = "q4"
+test = "test_understanding[q4]"
+hint = "M4 section 2: x and y were the same window, y one step along."
+
+[[exercise]]
+id = "q5"
+test = "test_understanding[q5]"
+hint = "Section 8 asks the model ordinary questions before and after fine-tuning."
+
+[[exercise]]
+id = "q6"
+test = "test_understanding[q6]"
+hint = "Same sum as q1, with 7 billion instead of 494 million."

@@ -1,0 +1,47 @@
+# M5 understanding checks. Put your answer between the quotes, then run: make check M=05
+# There are six questions. Numbers like "7", choices as a single letter like "b".
+# Predict first, then check yourself in lesson.ipynb. Stuck? make hint M=05 EX=q1
+
+[q1]
+question = "Qwen2.5-0.5B has about 494 million parameters. A full fine-tune in float32 with AdamW stores 4 bytes per parameter for the weights, 4 for the gradients and 8 for AdamW's two running averages. To the nearest whole GB, how much is that before activations?"
+answer = ""
+
+[q2]
+question = """Why does build_example put -100 in the labels for every prompt token?
+  a) -100 is the id of the padding token, so those positions are simply left empty in the batch
+  b) So the loss only grades the answer: the model isn't trained to write the user's text
+  c) To tell the model which tokens it should pay the most attention to while reading
+  d) It makes the prompt tokens count a hundred times less than the answer tokens"""
+answer = ""
+
+[q3]
+question = """collate pads input_ids with the pad token but pads labels with -100. What would go wrong if labels were padded with the pad token instead?
+  a) Nothing: the attention mask already hides padding from the loss as well
+  b) The batch would have rows of different lengths, so torch.tensor would refuse to build it
+  c) The loss would also grade the padding, teaching the model to keep writing pad tokens
+  d) The model would stop reading the prompt"""
+answer = ""
+
+[q4]
+question = """In masked_lm_loss, which label is compared with the logits at position t?
+  a) The label at position t, because each position is trained to predict its own token
+  b) The label at position t - 1, the token the model has just read
+  c) The label at position t + 1: each position guesses the next token
+  d) Every label in the row, averaged together"""
+answer = ""
+
+[q5]
+question = """After 3 epochs at learning rate 2e-5, the model writes perfect plain English but gets 3 of 10 ordinary questions wrong that it used to answer. What is this?
+  a) Overfitting to the validation set, which you fix by using a bigger validation set next time
+  b) A tokenizer mismatch between training and testing that changed what the model sees
+  c) Catastrophic forgetting: training only on rewrites has worn away some of what it knew
+  d) Loss masking hiding the questions from the model"""
+answer = ""
+
+[q6]
+question = """Using the same 16 bytes per parameter, roughly how much memory would a full fine-tune of a 7B model need, and does it fit on a 36 GB Mac?
+  a) About 7 GB, so it fits easily with room to spare
+  b) About 28 GB, so it just fits if you close every other app
+  c) About 112 GB before activations, so it doesn't fit at all
+  d) About 36 GB, exactly the size of the Mac's memory"""
+answer = ""
