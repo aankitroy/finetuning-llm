@@ -21,6 +21,7 @@ MODULES = [
         "m05_full_finetune",
         [["train.py", "--loop", "--tiny"], ["train.py", "--trainer", "--tiny"]],
     ),
+    ("m06_lora_from_scratch", ["train.py", "--tiny"]),
 ]
 
 

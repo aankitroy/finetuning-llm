@@ -6,7 +6,7 @@ summary = "Build a LoRA layer by hand and inject it into a real model."
 est_minutes = 180
 
 [next]
-start = "Read modules/m06_lora_from_scratch/README.md, then open lesson.ipynb"
+start = "Watch the video on the dashboard, then read modules/m06_lora_from_scratch/README.md and open lesson.ipynb"
 finish = "make check M=06"
 why = "Your LoRA layer matches the base at init and trains under 1% of parameters"
 
@@ -22,3 +22,43 @@ better = "lower"
 key = "trainable_pct"
 label = "Trainable parameters (%)"
 better = "lower"
+
+[[steps]]
+kind = "video"
+title = "Watch the video"
+detail = "A 4-minute narrated animation of the whole idea: why a small update is enough, the two matrices A and B, the scale, where LoRA goes in the model, and merging it back. Watch it first, with the sound on (captions too)."
+
+[[steps]]
+kind = "lesson"
+title = "Run the lesson"
+detail = "Open the notebook and run every cell, top to bottom. It uses the Qwen2.5-0.5B-Instruct model you downloaded in M5. Section 5 trains a LoRA adapter for real, which takes about a minute and up to 20 GB of memory, so close other big apps first. When a cell says Predict, write your guess down before running it. Save the notebook (Cmd-S) so your progress shows here."
+command = "uv run jupyter lab modules/m06_lora_from_scratch/lesson.ipynb"
+file = "lesson.ipynb"
+
+[[steps]]
+kind = "exercises"
+title = "Write the exercises"
+detail = "Open exercises.py and replace each `raise NotImplementedError` with your code, following the numbered steps. Run make check M=06 as often as you like; this panel shows which exercises pass."
+command = "make check M=06"
+file = "exercises.py"
+
+[[steps]]
+kind = "answers"
+title = "Answer the understanding checks"
+detail = "Open answers.toml and put your answer between the quotes for each question. Predict first, then check yourself in the notebook."
+command = "make check M=06"
+file = "answers.toml"
+
+[[steps]]
+kind = "train"
+title = "Train your LoRA adapter"
+detail = "Puts your LoRA layers in Qwen's attention, trains only them (0.22% of the weights), merges them back with your merge_lora and scores the result against your M5 full fine-tune. About 3 minutes, up to 20 GB of memory."
+command = "uv run python modules/m06_lora_from_scratch/train.py"
+file = "outputs/m06/run.json"
+metric = "heldout_after"
+
+[[steps]]
+kind = "checkpoint"
+title = "Pass the checkpoint"
+detail = "Checks your exercises, your answers and your run together. M6 turns green when everything passes."
+command = "make check M=06"
