@@ -1,0 +1,32 @@
+# M6 reference answers. Use `make solution M=06 EX=q1` instead of reading this file,
+# so the dashboard shows what you did unaided.
+
+[q1]
+kind = "number"
+answer = "14336"
+why = "A is 8 x 896 and B is 896 x 8: 8 x (896 + 896) = 14,336, under 2% of the layer's 802,816 weights. Section 1 counts it by hand."
+
+[q2]
+kind = "choice"
+answer = "b"
+why = "With B = 0 the update B @ A is zero, so the model starts exactly as it was (the checkpoint tests this). If A were zero too, B's gradient (which goes through A @ x) would be zero and nothing would ever train."
+
+[q3]
+kind = "choice"
+answer = "a"
+why = "The adapter's output is multiplied by alpha / r = 16 / 8 = 2 before it's added to the base layer's. Turn it up and the same A and B change the layer more. A common habit is alpha = 2r, so the scale stays 2 whatever rank you pick. Section 3 shows it."
+
+[q4]
+kind = "number"
+answer = "9"
+why = "1,081,344 x 8 bytes = 8.65 MB, which rounds to 9; train.py measured 8.7 MB. M5's full fine-tune needed 3.95 GB for the same thing, about 450 times as much."
+
+[q5]
+kind = "choice"
+answer = "c"
+why = "LoRA removes the optimizer state and the gradients of the frozen weights (about 2 GB more), but the 2 GB of frozen weights and the activations saved for the backward pass remain. Activations grow with batch size and sequence length: M8 and gradient checkpointing deal with them."
+
+[q6]
+kind = "choice"
+answer = "d"
+why = "A merged layer is an ordinary nn.Linear with the same outputs, so it runs exactly as fast as the original model. But the adapter is no longer separate: keep adapter.pt (4.4 MB) if you want to switch it off or swap in another one."

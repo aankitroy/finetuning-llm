@@ -1,0 +1,61 @@
+# Hints for `make hint M=06 EX=<id>`. `make solution` shows the reference answer.
+
+[[exercise]]
+id = "1"
+test = "test_lora_linear_starts_equal_to_the_base"
+name = "LoRALinear"
+hint = "Two small matrices whose product has the base weight's shape: A goes from the input size down to r, B from r up to the output size. One of them must start so the product is zero. Section 2 builds one by hand and checks it against the base layer."
+
+[[exercise]]
+id = "2"
+test = "test_lora_params"
+name = "lora_params"
+hint = "Count the numbers in A and in B separately and add them. Section 1 does it for q_proj."
+
+[[exercise]]
+id = "3"
+test = "test_inject_lora"
+name = "inject_lora"
+hint = "Freeze first, then swap. To swap a layer you need its parent module and its own short name: a dotted name like 'model.layers.0.self_attn.q_proj' splits into both. Section 4 swaps one layer by hand."
+
+[[exercise]]
+id = "4"
+test = "test_count_trainable"
+name = "count_trainable"
+hint = "Every parameter knows whether it trains (its requires_grad). Section 4 counts the model's parameters before and after injecting."
+
+[[exercise]]
+id = "5"
+test = "test_merge_lora"
+name = "merge_lora"
+hint = "The LoRA layer computes base(x) plus a scaled B @ A applied to x. Fold that update into one weight matrix, in a fresh nn.Linear, and keep the bias. Section 6 merges one layer by hand."
+
+[[exercise]]
+id = "q1"
+test = "test_understanding[q1]"
+hint = "A has r rows and 896 columns; B has 896 rows and r columns (section 1)."
+
+[[exercise]]
+id = "q2"
+test = "test_understanding[q2]"
+hint = "What is B @ A when B is zero? And what would B's gradient be if A were zero too? (section 2)"
+
+[[exercise]]
+id = "q3"
+test = "test_understanding[q3]"
+hint = "Section 3 changes alpha and measures how much the layer's output changes."
+
+[[exercise]]
+id = "q4"
+test = "test_understanding[q4]"
+hint = "Multiply, then divide by a million. train.py prints the measured number at the end of a run."
+
+[[exercise]]
+id = "q5"
+test = "test_understanding[q5]"
+hint = "M5 section 4 listed four things that use memory during training. Which of them does LoRA shrink, and which does it leave alone? (section 5)"
+
+[[exercise]]
+id = "q6"
+test = "test_understanding[q6]"
+hint = "Section 6 merges every layer, then looks at what kind of model is left and how big the adapter was on its own."

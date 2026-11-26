@@ -1,0 +1,59 @@
+# The M6 video: narration (spoken by Kokoro, shown as captions) and which drawing goes with it.
+# After editing a narration, run: make narration M=06
+
+title = "M6 · LoRA from scratch"
+
+[[scene]]
+id = "s01"
+visual = "recap"
+narration = "In M5, you fine-tuned all four hundred and ninety-four million of Qwen's weights. The run peaked at about twenty-four gigabytes of memory, and AdamW's notes alone took three point nine five gigabytes. A seven billion parameter model would need about a hundred and twelve. So here's the question for this module: do we really need to change every weight?"
+
+[[scene]]
+id = "s02"
+visual = "idea"
+narration = "Here's the idea behind LoRA, which is short for low-rank adaptation. Freeze a weight matrix, W, so it never changes. Instead, learn a small change, called delta W, and add it on top. The layer uses W plus delta W, and only the change is trained. As you'll see, the change can be made from far fewer numbers than W itself."
+
+[[scene]]
+id = "s03"
+visual = "low_rank"
+narration = "The trick is to build the change from two thin matrices, B times A. In the simplest case, one column times one row fills a whole grid. The rank is how many column and row pairs you use. Qwen's query projection is eight ninety-six by eight ninety-six: about eight hundred thousand numbers. At rank eight, A and B together hold fourteen thousand, three hundred and thirty-six. Under two percent."
+
+[[scene]]
+id = "s04"
+visual = "layer"
+narration = "So a LoRA layer runs the frozen base layer, just as before, and adds a small side path: through A, then B, times a scale. A starts out random, and B starts at zero. So at first, B times A is zero, and the layer gives exactly what the base layer gives. The checkpoint tests this. If both started at zero, neither would get a gradient, and nothing would ever train."
+
+[[scene]]
+id = "s05"
+visual = "scale"
+narration = "The scale is alpha divided by r, the rank. Alpha is a number you choose. With alpha sixteen and rank eight, the scale is two. Think of it as a volume knob on the update. Turn it up, and the same small matrices push the model harder. The base model itself is never touched."
+
+[[scene]]
+id = "s06"
+visual = "inject"
+narration = "Where do the LoRA layers go? Qwen has twenty-four layers, each with four attention projections: query, key, value, and output. Key and value are the smaller ones: eight ninety-six in, and one twenty-eight out. Swap all four for LoRA layers, in every layer: ninety-six in all. Freeze everything else. That leaves about one point oh eight million trainable weights, out of four hundred and ninety-five million. Just zero point two two percent."
+
+[[scene]]
+id = "s07"
+visual = "training"
+narration = "We train on the same task and data as M5: four hundred pairs of jargon and plain English. The held-out loss falls from about one point five five to zero point nine zero, a little lower than the full fine-tune's zero point nine four. AdamW's notes shrink from about four gigabytes to under nine megabytes. But peak memory only drops from twenty-four gigabytes to about twenty, because the frozen weights and the activations are still there. M8 tackles that. Training takes about twenty-two seconds."
+
+[[scene]]
+id = "s08"
+visual = "example"
+narration = "Here's a sentence it never saw. As a value-add, all orders over seventy-five dollars now qualify for free next-day delivery within the continental U.S. The LoRA model writes: all orders over seventy-five dollars get free next-day shipping within the U.S. And afterwards, it still answered all ten ordinary questions right. The original weights never changed."
+
+[[scene]]
+id = "s09"
+visual = "merge"
+narration = "When training is done, you can fold the change back in. The new weight, W prime, is W plus two times B times A: one plain layer again. The held-out loss stays at zero point nine zero, and the model runs just as fast as the original. Or save the adapter on its own. It's just four point four megabytes, next to about two gigabytes for the model. So one base model can carry many adapters, one for each job."
+
+[[scene]]
+id = "s10"
+visual = "choices"
+narration = "How big should the rank be? Rank two reaches zero point nine four, training just zero point zero five percent of the weights. Rank eight reaches zero point nine zero. Rank thirty-two, with four times the weights, gets zero point nine one. So does rank eight on attention plus the MLP layers, the other half of each block. Bigger isn't automatically better."
+
+[[scene]]
+id = "s11"
+visual = "your_turn"
+narration = "Now it's your turn. The lesson builds every piece with real code. Then you'll write five yourself: the LoRA layer, a count of its parameters, a function that puts it into the model, a count of what will train, and the merge that folds it back. Then you'll train your own adapter, and run the checkpoint. Next, in M7, you'll do all of this with the real tools."

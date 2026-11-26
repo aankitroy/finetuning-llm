@@ -1,0 +1,43 @@
+# M6 understanding checks. Put your answer between the quotes, then run: make check M=06
+# There are six questions. Numbers like "7", choices as a single letter like "b".
+# Predict first, then check yourself in lesson.ipynb. Stuck? make hint M=06 EX=q1
+
+[q1]
+question = "Qwen2.5-0.5B's q_proj layer is 896 inputs by 896 outputs (802,816 weights). How many trainable parameters does a rank-8 LoRA adapter add to it?"
+answer = ""
+
+[q2]
+question = """Why does LoRALinear start B as all zeros, but A as random numbers?
+  a) Zeros take up less memory than random numbers, so the adapter costs almost nothing until the first training step
+  b) So B @ A is zero and the layer starts exactly like the base; A is random so B gets useful gradients
+  c) B is never actually trained: only A learns, so B's starting value doesn't matter and zero is simply the tidiest choice
+  d) Random numbers in both would make the loss go to zero after one step"""
+answer = ""
+
+[q3]
+question = """You train with r = 8, alpha = 16. What does the scale alpha / r do?
+  a) It multiplies the update B @ A by 2: a volume knob for how much the adapter changes each layer
+  b) It sets how many layers in each block get an adapter: 16 / 8 = 2, so only two of the four attention projections are wrapped
+  c) It divides every frozen base weight by 2 before training starts, to make room in each layer for the update that gets added
+  d) It is the dropout rate the adapter uses during training"""
+answer = ""
+
+[q4]
+question = "Rank 8 on q, k, v and o in all 24 layers trains 1,081,344 parameters. AdamW keeps 8 bytes of notes for each one. To the nearest whole MB (1 MB = 1,000,000 bytes), how big is its state?"
+answer = ""
+
+[q5]
+question = """AdamW's state fell from 3.95 GB (M5) to under 10 MB, yet train.py's peak memory only fell from about 24 GB to about 20 GB. Why?
+  a) The adapter's A and B matrices take up the other 4 GB
+  b) LoRA keeps a second full copy of every one of the 494 million weights, so that it can merge the adapter into them at the end of training
+  c) The frozen weights and the activations are all still there: the backward pass still runs through every layer to reach the adapters
+  d) Memory on a Mac never goes down once a program has used it"""
+answer = ""
+
+[q6]
+question = """After training, merge_lora folds B @ A into W. What do you gain, and what do you give up?
+  a) You gain a much smaller model file on disk; you give up some quality, because merging has to round every weight to fewer digits
+  b) You gain speed during training; you give up the ability to train again
+  c) You gain nothing: merged and unmerged models are different, so you keep both
+  d) You gain a plain model with no extra layers to run; you give up switching the adapter off or swapping it"""
+answer = ""
