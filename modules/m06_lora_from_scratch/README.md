@@ -56,7 +56,7 @@
 5. **Pass the checkpoint:** run `make check M=06`. M6 turns green when every exercise passes, your answers are right, and your latest run, with your current code (re-run `train.py` after you change `exercises.py`):
    - trained under **1%** of the weights (0.22% with the defaults)
    - gave the same held-out loss after merging as before, within **0.01**
-   - reached a held-out loss within **5%** of your M5 loop run's (about 0.90 against 0.94 in the reference runs). If your M5 run did better than the reference 0.94, the reference is used instead, so a strong M5 run never makes M6 harder.
+   - reached a held-out loss within **5%** of your M5 loop run's (about 0.90 against 0.94 in the reference runs). If your M5 run did better than the reference 0.94, the reference is used instead, so a strong M5 run never makes M6 harder. If you have no M5 loop run, or it didn't pass M5's own bar, the reference is used too.
 
    The general-questions check from M5 is reported, not graded.
 

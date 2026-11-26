@@ -37,6 +37,8 @@ TARGETS = {
     "all": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
 }
 M5_REFERENCE_LOSS = 0.94  # the reference M5 loop run's held-out loss
+M5_PASS_DROP = 0.4  # M5's own bar: a run that didn't meet it isn't used for comparison
+M5_CEILING = 1.0  # never compare with a full fine-tune worse than this
 
 
 def load_m05_train():
@@ -58,13 +60,18 @@ def m05_loss() -> tuple[float, str]:
     so a strong M5 run never makes M6 harder to pass.
     """
     f = outputs_dir() / "m05" / "run_loop.json"
-    if f.exists():
+    try:
         s = json.loads(f.read_text())
-        if not s.get("tiny"):
-            if s["heldout_after"] >= M5_REFERENCE_LOSS:
-                return s["heldout_after"], "your M5 run"
-            return M5_REFERENCE_LOSS, "the reference M5 run (yours did even better)"
-    return M5_REFERENCE_LOSS, "the reference M5 run"
+        mine = float(s["heldout_after"])
+        passed = s["heldout_before"] - mine >= M5_PASS_DROP
+        usable = passed and not s.get("tiny") and not s.get("used_solutions")
+    except (OSError, ValueError, KeyError, TypeError):
+        usable = False
+    if not usable:
+        return M5_REFERENCE_LOSS, "the reference M5 run"
+    if mine < M5_REFERENCE_LOSS:
+        return M5_REFERENCE_LOSS, "the reference M5 run (yours did even better)"
+    return min(mine, M5_CEILING), "your M5 run"
 
 
 class ExerciseError(Exception):
@@ -76,12 +83,26 @@ def lora_layers(model):
 
 
 def check_injected(model, replaced, device):
-    if not isinstance(replaced, list) or not replaced:
+    if not isinstance(replaced, list):
         raise ExerciseError(
-            "inject_lora replaced no layers (it should return the list of names it replaced). "
-            "Run make check M=06: test_inject_lora shows what's wrong."
+            f"inject_lora returned {type(replaced).__name__}, not a list. Return the list of "
+            "names you replaced (exercise 3, step 8)."
+        )
+    if not replaced or not lora_layers(model):
+        raise ExerciseError(
+            "inject_lora replaced no layers. Run make check M=06: test_inject_lora shows what's "
+            "wrong."
         )
     for name, layer in lora_layers(model):
+        for part in ("A", "B"):
+            p = getattr(layer, part)
+            if not isinstance(p, nn.Parameter) or not p.requires_grad:
+                raise ExerciseError(
+                    f"{name}.{part} isn't a trainable parameter, so nothing would train. Make it "
+                    "with nn.Parameter(torch.randn(..., device=...)) (put device= inside, not "
+                    ".to() after: that returns a plain tensor), and in inject_lora freeze the "
+                    "model first, then swap in the LoRA layers (exercise 3, steps 1 and 7)."
+                )
         if layer.A.device.type != torch.device(device).type:
             raise ExerciseError(
                 f"{name}.A is on {layer.A.device.type} but the model is on {device}. Create A and "
@@ -106,6 +127,13 @@ def merge_all(ex, model) -> int:
             raise ExerciseError(
                 f"merge_lora should return an nn.Linear, not {type(merged).__name__}. "
                 "Run make check M=06: test_merge_lora shows what's wrong."
+            )
+        w = layer.base.weight
+        if merged.weight.device != w.device or merged.weight.dtype != w.dtype:
+            raise ExerciseError(
+                f"merge_lora made its layer on {merged.weight.device.type} in {merged.weight.dtype}"
+                f", but the model is on {w.device.type} in {w.dtype}. Pass device= and dtype= "
+                "when you make the nn.Linear (exercise 5, step 2)."
             )
         parent_name, _, child = name.rpartition(".")
         setattr(model.get_submodule(parent_name), child, merged)
@@ -183,6 +211,7 @@ def main() -> int:
         )
     max_new = 16 if args.tiny else 96
     targets = TARGETS[args.targets]
+    m5_loss, m5_source = m05_loss()
 
     try:
         text_tools = m5.TinyText() if args.tiny else m5.RealText()
@@ -207,6 +236,7 @@ def main() -> int:
         total = sum(p.numel() for p in model.parameters())
         heldout_before = m5.heldout_loss(model, text_tools, val_rows, device)
 
+        torch.manual_seed(args.seed)  # A's random start
         replaced = ex.inject_lora(model, targets, args.r, args.alpha)
         check_injected(model, replaced, device)
         heldout_injected = m5.heldout_loss(model, text_tools, val_rows, device)
@@ -218,7 +248,6 @@ def main() -> int:
             )
         trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
         total = sum(p.numel() for p in model.parameters())  # now with the adapters
-        yours = ex.count_trainable(model)
         print(f"\nYour LoRA layers replaced {len(replaced)} layers ({', '.join(targets)}).")
         print(
             f"Training {trainable:,} of {total:,} parameters ({100 * trainable / total:.2f}%), "
@@ -284,7 +313,6 @@ def main() -> int:
             f"{label:12}{loss:14.3f}{s['chrf']:7.1f}{s['buzzwords']:11.2f}"
             f"{s['general_right']:6d}/{len(general)}"
         )
-    m5_loss, m5_source = m05_loss()
     print(f"\nFull fine-tune ({m5_source}): held-out loss {m5_loss:.3f}")
     print(
         f"After merging {merged} layers into the weights: held-out loss {heldout_merged:.3f} "
@@ -306,7 +334,6 @@ def main() -> int:
         "targets": args.targets,
         "layers_replaced": len(replaced),
         "trainable": trainable,
-        "trainable_yours": list(yours) if isinstance(yours, tuple | list) else yours,
         "params": total,
         "trainable_pct": round(100 * trainable / total, 3),
         "adapter_mb": round(adapter_mb, 2),

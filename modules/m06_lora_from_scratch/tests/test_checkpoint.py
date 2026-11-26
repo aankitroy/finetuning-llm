@@ -79,6 +79,19 @@ def test_lora_linear_follows_the_base_dtype(ex):
     )
 
 
+def test_lora_linear_is_made_where_the_base_lives(ex):
+    # "meta" tensors have a shape but no numbers: a stand-in for the Mac's GPU in tests
+    layer = ex.LoRALinear(nn.Linear(16, 8, device="meta"), r=2, alpha=4.0)
+    assert isinstance(layer.A, nn.Parameter) and isinstance(layer.B, nn.Parameter), (
+        "A and B must still be nn.Parameters. Put device= inside torch.randn/torch.zeros: "
+        "calling .to(...) on an nn.Parameter returns a plain tensor, which never trains"
+    )
+    assert layer.A.device.type == "meta" and layer.B.device.type == "meta", (
+        "Make A and B on the base weight's device (device=base.weight.device), or they'll be "
+        "on the CPU while the model is on the GPU"
+    )
+
+
 def test_lora_params(ex):
     assert ex.lora_params(896, 896, 8) == 14336, "r * (in + out) = 8 * (896 + 896)"
     assert ex.lora_params(896, 128, 8) == 8192, "k_proj and v_proj are 896 -> 128 in Qwen2.5-0.5B"
@@ -114,7 +127,15 @@ def test_inject_lora(ex):
         n for n, p in model.named_parameters() if p.requires_grad and not n.endswith((".A", ".B"))
     ]
     assert not wrong, f"Freeze every original weight first (step 1). Still trainable: {wrong[:3]}"
-    again = ex.inject_lora(model, ATTN, r=2, alpha=4.0)
+    adapters = [p for n, p in model.named_parameters() if n.endswith((".A", ".B"))]
+    assert adapters and all(p.requires_grad for p in adapters), (
+        "The new A and B matrices must be trainable: freeze the model first (step 1), then swap "
+        "in the LoRA layers (step 7). Freezing afterwards freezes the adapters too."
+    )
+    try:
+        again = ex.inject_lora(model, ATTN, r=2, alpha=4.0)
+    except AttributeError:
+        again = None
     assert again == [], (
         "Calling inject_lora twice should replace nothing the second time: a LoRALinear isn't "
         "an nn.Linear (check isinstance(module, nn.Linear))"
@@ -141,7 +162,12 @@ def test_merge_lora(ex):
     layer = _layer(ex)
     with torch.no_grad():
         layer.B.copy_(torch.randn(8, 4))
+    before = layer.base.weight.clone()
     merged = ex.merge_lora(layer)
+    assert torch.equal(layer.base.weight, before), (
+        "Don't change layer.base: make a fresh nn.Linear and put the merged weight in that. "
+        "Changing the base in place makes the LoRA layer add the update twice."
+    )
     assert type(merged) is nn.Linear, f"Return a plain nn.Linear, not {type(merged).__name__}"
     x = torch.randn(5, 16)
     assert torch.allclose(merged(x), layer(x), atol=1e-5), (
@@ -154,7 +180,22 @@ def test_merge_lora(ex):
         "The merged layer should hold its own copy of the weight, not keep reading B and A"
     )
     no_bias = ex.LoRALinear(nn.Linear(16, 8, bias=False), r=2, alpha=2.0)
-    assert ex.merge_lora(no_bias).bias is None, "A base layer without a bias merges without one"
+    try:
+        merged_no_bias = ex.merge_lora(no_bias)
+    except AttributeError:
+        merged_no_bias = None
+    assert merged_no_bias is not None and merged_no_bias.bias is None, (
+        "A base layer without a bias (like Qwen's o_proj) merges without one: only copy the bias "
+        "if base.bias is not None (step 5)"
+    )
+    on_meta = ex.LoRALinear(nn.Linear(16, 8, device="meta"), r=2, alpha=4.0)
+    try:
+        device = ex.merge_lora(on_meta).weight.device.type
+    except (NotImplementedError, RuntimeError):  # copying between devices fails
+        device = None
+    assert device == "meta", (
+        "Make the merged layer on the base weight's device (device=base.weight.device, step 2)"
+    )
 
 
 # --- your run of train.py ---
