@@ -6,7 +6,7 @@ summary = "Learn just enough PyTorch to read and write training code."
 est_minutes = 240
 
 [next]
-start = "Read modules/m01_pytorch_essentials/README.md, then open lesson.ipynb"
+start = "Watch the video on the dashboard, then read modules/m01_pytorch_essentials/README.md and open lesson.ipynb"
 finish = "make check M=01"
 why = "Your hand-written MLP reaches at least 95% on the toy dataset"
 
@@ -17,6 +17,11 @@ any = ["outputs/m01/*"]
 key = "accuracy"
 label = "Accuracy"
 better = "higher"
+
+[[steps]]
+kind = "video"
+title = "Watch the video"
+detail = "A 4-minute narrated animation of the core ideas: what training is, tensors, matrix multiply, gradients, the five-beat training loop, classification and ReLU. Watch it first, with the sound on (captions too)."
 
 [[steps]]
 kind = "lesson"

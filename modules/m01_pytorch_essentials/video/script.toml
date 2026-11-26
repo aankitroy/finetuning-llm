@@ -1,0 +1,54 @@
+# The M1 video: narration (spoken by Kokoro, shown as captions) and which drawing goes with it.
+# After editing a narration, run: make narration M=01
+
+title = "M1 · Tensors, autograd & PyTorch essentials"
+
+[[scene]]
+id = "s01"
+visual = "model_loop"
+narration = "A model is just a function with some adjustable numbers inside it. To guess a house's price from its size, a tiny model is: price equals w times size, plus b. The numbers w and b are its parameters. Training finds good values for them, in four repeating steps. Guess. Measure how wrong you were. Find which way to move. Then nudge, and go again."
+
+[[scene]]
+id = "s02"
+visual = "tensors"
+narration = "PyTorch keeps every number in a tensor: a grid of numbers. This one has two rows and three columns, so its shape is two by three. Its dtype, the number format, is float thirty-two: four bytes per number, so these six numbers take twenty-four bytes. Its device is the chip that holds it: the CPU, or your Mac's GPU."
+
+[[scene]]
+id = "s03"
+visual = "matmul"
+narration = "The key operation in a neural network is the matrix multiply. Each result is one row times one column, added up. Row one times column one is one, plus zero, plus three: four. Do every pair and you get four, five, ten and eleven. Two by three, times three by two, gives two by two. The middle numbers must match, and they disappear."
+
+[[scene]]
+id = "s04"
+visual = "gradient"
+narration = "Which way should a parameter move? The gradient says which way is uphill on the loss, and how steeply. So you step the other way. Take the loss w minus five, squared. It's smallest at five. At w equals three, the gradient is minus four, so a bigger w lowers the loss. PyTorch's autograd works this out for you, when you call backward."
+
+[[scene]]
+id = "s05"
+visual = "descent"
+narration = "Each nudge subtracts the learning rate times the gradient. The learning rate is the step size: too small is slow, too big overshoots. At zero point one, twenty-five steps take w from three to about four point nine nine. One catch: gradients add up. Call backward twice without a reset, and minus four becomes minus eight. So clear them every step."
+
+[[scene]]
+id = "s06"
+visual = "five_beats"
+narration = "The lesson then fits a line to a hundred noisy points, and finds w close to two and b close to one, on its own. PyTorch's ready-made pieces take over: a linear layer keeps its own w and b, and an optimizer nudges every parameter at once. Every training loop now has five beats: forward, loss, zero the gradients, backward, step."
+
+[[scene]]
+id = "s07"
+visual = "classify"
+narration = "To pick a class, a model gives one raw score per class, called a logit. Softmax turns logits into probabilities that add up to one. Scores of two, one and minus one become about zero point seven one, zero point two six and zero point zero four. Argmax picks the biggest: class zero. The loss, cross-entropy, is small when the right class is likely. Here, about zero point three five."
+
+[[scene]]
+id = "s08"
+visual = "moons"
+narration = "Your task is the two moons: two classes of points shaped like interlocking half moons. No straight line separates them, and linear layers alone only draw straight lines. So between two linear layers you put a ReLU, which keeps positive numbers and turns negatives into zero. That small bend lets the network learn a curved boundary."
+
+[[scene]]
+id = "s09"
+visual = "batches"
+narration = "Each training step uses a batch, a small group of examples. Shuffle the order, then slice it. Ten examples in batches of four make four, four, and a last batch of two. One full pass through the data is an epoch. Your run does a hundred and fifty epochs, in batches of sixty-four, on your Mac's GPU, which PyTorch calls M P S."
+
+[[scene]]
+id = "s10"
+visual = "your_turn"
+narration = "Now it's your turn. Run the lesson first; its worked example, a network that learns a sine curve, shows the pattern. Then write six exercises: a linear layer, the mean squared error, a gradient step, the network, a training epoch, and accuracy. Answer six short questions. Finally, train on the two moons: about five seconds, to reach ninety-five percent accuracy."

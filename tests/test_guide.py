@@ -276,12 +276,13 @@ def test_hint_test_names_exist_in_checkpoints():
             assert e["test"].split("[")[0] in names, f"{hints}: {e['test']} not found"
 
 
-def test_real_m01_guide_has_five_steps():
+def test_real_m01_guide_steps():
     from tests.conftest import REPO_ROOT
 
     mods, _ = load_modules(REPO_ROOT)
     m01 = next(m for m in mods if m.id == "m01")
     assert [s["kind"] for s in m01.steps] == [
+        "video",
         "lesson",
         "exercises",
         "answers",

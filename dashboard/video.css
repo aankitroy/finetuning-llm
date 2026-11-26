@@ -22,7 +22,7 @@
 }
 
 .stage { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
-.stage text { font-family: var(--font); }
+.stage { font-family: var(--font); } /* inherited, so a text's own font-family (e.g. mono) wins */
 
 .big-play {
   position: absolute;

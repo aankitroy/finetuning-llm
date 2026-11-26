@@ -6,7 +6,7 @@ summary = "Train a tiny character-level GPT from zero."
 est_minutes = 210
 
 [next]
-start = "Read modules/m04_training_loop/README.md, then open lesson.ipynb"
+start = "Watch the video on the dashboard, then read modules/m04_training_loop/README.md and open lesson.ipynb"
 finish = "make check M=04"
 why = "Your own training loop takes a tiny GPT from random guesses to Shakespeare-like text"
 
@@ -22,6 +22,11 @@ better = "lower"
 key = "peak_mem_gb"
 label = "Peak memory (GB)"
 better = "lower"
+
+[[steps]]
+kind = "video"
+title = "Watch the video"
+detail = "A 4-minute narrated animation of the whole loop: characters as tokens, shifted windows, the loss, one training step, the learning-rate schedule, clipping, accumulation and loss curves. Watch it first, with the sound on (captions too)."
 
 [[steps]]
 kind = "lesson"

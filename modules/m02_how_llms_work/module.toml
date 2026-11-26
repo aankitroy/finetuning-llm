@@ -6,7 +6,7 @@ summary = "Build a mental model of a decoder-only transformer and write sampling
 est_minutes = 180
 
 [next]
-start = "Read modules/m02_how_llms_work/README.md, then open lesson.ipynb"
+start = "Watch the video on the dashboard, then read modules/m02_how_llms_work/README.md, then open lesson.ipynb"
 finish = "make check M=02"
 why = "Your generation loop matches model.generate() token for token"
 
@@ -17,6 +17,11 @@ any = ["outputs/m02/*"]
 key = "tokens_per_sec"
 label = "Your loop's speed (tokens/s)"
 better = "higher"
+
+[[steps]]
+kind = "video"
+title = "Watch the video"
+detail = "A 4-and-a-half-minute narrated animation of the whole idea: tokens, what is inside a transformer, attention worked by hand, picking the next token, temperature and top-p, and the KV cache. Watch it first, with the sound on (captions too)."
 
 [[steps]]
 kind = "lesson"
