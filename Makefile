@@ -3,7 +3,7 @@
 FTCOURSE_ROOT ?= $(CURDIR)
 MODULE_TESTS = $(wildcard modules/m$(M)_*/tests)
 
-.PHONY: help doctor check progress test lint fmt hint solution reset answer-hashes
+.PHONY: help doctor check progress test lint fmt hint solution reset answer-hashes narration
 
 help:
 	@echo "make doctor              Check your environment (completes M0)"
@@ -15,6 +15,7 @@ help:
 	@echo "make reset [M=NN]        Start the course (or one module) over; asks first"
 	@echo "make test                Run the project's own test suite"
 	@echo "make lint / make fmt     Check / fix code style"
+	@echo "make narration M=NN      (course authors) Make a module video's voice with Kokoro"
 
 doctor:
 	@uv run python scripts/doctor.py
@@ -53,3 +54,7 @@ reset:
 answer-hashes:
 	@if [ -z "$(M)" ]; then echo "usage: make answer-hashes M=NN"; exit 2; fi
 	@$(COURSE) answer-hashes $(M)
+
+narration:
+	@if [ -z "$(M)" ]; then echo "usage: make narration M=NN [FORCE=1]"; exit 2; fi
+	@uv run --group media python scripts/narrate.py $(M) $(if $(FORCE),--force,)

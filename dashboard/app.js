@@ -184,6 +184,7 @@ function renderGuide(s) {
     const body = el("div", { class: "gbody" }, el("p", { text: st.detail }));
     if (st.note) body.append(el("p", { class: "gnote", text: st.note }));
     if (st.items?.length) body.append(el("ul", { class: "items" }, ...st.items.map((it) => itemRow(st.kind, it))));
+    if (st.url) body.append(el("a", { class: "play-video", href: st.url, target: "_blank", rel: "noopener", text: st.status === "done" ? "Watch again" : "Play the video" }));
     if (st.command) body.append(cmdBox(st.command));
     det.append(body);
     const classes = ["gstep", st.status, i === current ? "current" : ""].join(" ");

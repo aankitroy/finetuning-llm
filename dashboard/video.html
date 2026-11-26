@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Module video</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/video.css">
+</head>
+<body class="video-page">
+  <main class="player" id="player">
+    <header class="player-head">
+      <a class="back" href="/">Back to your course</a>
+      <h1 id="title">Loading the video…</h1>
+    </header>
+
+    <div class="stage-wrap">
+      <svg class="stage" id="stage" viewBox="0 0 1280 720" role="img" aria-labelledby="caption"></svg>
+      <button type="button" class="big-play" id="big-play" aria-label="Play the video">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <span>Play</span>
+      </button>
+      <div class="end-card" id="end-card" hidden>
+        <p class="end-title">That's the idea. Now try it for real.</p>
+        <p>Next: run the lesson.</p>
+        <code id="next-cmd"></code>
+        <div class="end-actions">
+          <button type="button" class="mini" id="replay">Watch again</button>
+          <a class="mini" href="/">Back to your course</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="caption" id="caption" aria-live="polite"></p>
+
+    <div class="controls">
+      <button type="button" class="ctl" id="prev" aria-label="Previous scene">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zM9.5 12 18 6v12z"/></svg>
+      </button>
+      <button type="button" class="ctl" id="play" aria-label="Play">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path id="play-icon" d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button type="button" class="ctl" id="next" aria-label="Next scene">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
+      </button>
+      <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Position in the video"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+      <span class="clock" id="clock">0:00 / 0:00</span>
+      <button type="button" class="ctl" id="cc" aria-pressed="true" aria-label="Captions">CC</button>
+    </div>
+    <p class="scene-name" id="scene-name"></p>
+    <p class="problems" id="problems" hidden></p>
+  </main>
+
+  <script src="/static/video.js"></script>
+</body>
+</html>

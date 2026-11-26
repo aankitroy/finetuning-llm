@@ -1,0 +1,32 @@
+# M5 reference answers. Use `make solution M=05 EX=q1` instead of reading this file,
+# so the dashboard shows what you did unaided.
+
+[q1]
+kind = "number"
+answer = "8"
+why = "494 million x 16 bytes is about 7.9 GB. That's before activations, which is why the real run peaks at over 20 GB. Section 4 measures each part."
+
+[q2]
+kind = "choice"
+answer = "b"
+why = "-100 means 'ignore this position' in cross-entropy. The model still reads the prompt, but it's only graded, and so only trained, on writing the answer."
+
+[q3]
+kind = "choice"
+answer = "c"
+why = "The attention mask stops the model *looking at* padding, but the loss is a separate step: any label that isn't -100 gets graded, so padded labels would train the model to predict pad tokens."
+
+[q4]
+kind = "choice"
+answer = "c"
+why = "The model at position t has read tokens 0 to t and guesses token t + 1. So the logits drop their last position and the labels drop their first, which lines each guess up with the token that came next."
+
+[q5]
+kind = "choice"
+answer = "c"
+why = "Full fine-tuning changes every weight, and training only on one narrow task pulls them away from what they did before. Fewer epochs, a lower learning rate, or mixing in some general data all reduce it."
+
+[q6]
+kind = "choice"
+answer = "c"
+why = "7 billion x 16 bytes = 112 GB, three times the Mac's memory, before a single activation. That's why Part C trains only a small number of extra weights instead (LoRA)."

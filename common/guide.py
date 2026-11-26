@@ -73,6 +73,21 @@ def _written(defs: dict[str, ast.AST], name: str) -> bool:
 # --- one function per step kind; each returns extra fields for the step ---
 
 
+def _video(root: Path, module: Module, step: dict, attempts) -> dict:
+    from common.video import load_video, watched_modules
+
+    video, problems = load_video(module.path)
+    if video is None:
+        return {"status": "todo", "progress": "", "note": "This module's video isn't made yet."}
+    secs = round(video["total_seconds"])
+    return {
+        "status": "done" if module.id in watched_modules(root) else "todo",
+        "progress": f"{secs // 60}:{secs % 60:02d} long",
+        "note": "; ".join(problems),
+        "url": f"/video/{module.id}/",
+    }
+
+
 def _lesson(root: Path, module: Module, step: dict, attempts) -> dict:
     f = module.path / (step["file"] or "lesson.ipynb")
     if not f.exists():
@@ -216,6 +231,7 @@ def _checkpoint(root: Path, module: Module, step: dict, attempts) -> dict:
 
 
 _KINDS = {
+    "video": _video,
     "lesson": _lesson,
     "exercises": _exercises,
     "answers": _answers,

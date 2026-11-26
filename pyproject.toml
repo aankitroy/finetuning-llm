@@ -9,6 +9,7 @@ dependencies = []
 
 [dependency-groups]
 course = [
+    "accelerate>=1.16.0",
     "ipykernel>=7.4.0",
     "jupyterlab>=4.6.6",
     "matplotlib>=3.11.2",
@@ -20,6 +21,10 @@ dev = [
     "pre-commit>=4.7.0",
     "pytest>=8",
     "ruff>=0.6",
+]
+media = [
+    "misaki[en]>=0.9.4",
+    "mlx-audio>=0.6.8",
 ]
 
 [tool.uv]
@@ -44,3 +49,4 @@ select = ["E", "F", "I", "UP", "B"]
 "modules/m03_tokenizers/**" = ["UP012", "B905"]
 # M4 pairs up matching lists with plain zip(...), as M1-M3 taught it
 "modules/m04_training_loop/**" = ["B905"]
+"modules/m05_full_finetune/**" = ["B905"]

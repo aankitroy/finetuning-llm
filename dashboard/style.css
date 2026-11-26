@@ -218,3 +218,16 @@ h2 { font-size: 1.125rem; margin-bottom: 0.75rem; }
   .bar span { transition: none; }
   .flash { animation: none; }
 }
+
+.play-video {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--cobalt);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.play-video:hover { filter: brightness(1.08); }
+.play-video:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }

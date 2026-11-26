@@ -17,6 +17,10 @@ MODULES = [
     ("m02_how_llms_work", ["generate.py", "--tiny"]),
     ("m03_tokenizers", ["tokenize_check.py", "--offline"]),
     ("m04_training_loop", ["train.py", "--tiny"]),
+    (
+        "m05_full_finetune",
+        [["train.py", "--loop", "--tiny"], ["train.py", "--trainer", "--tiny"]],
+    ),
 ]
 
 
@@ -31,14 +35,16 @@ def test_checkpoint_passes_with_solutions(slug, train, tmp_path):
     }
     env.pop("FTCOURSE_RECORD", None)
     module_dir = REPO_ROOT / "modules" / slug
-    run = subprocess.run(
-        [sys.executable, str(module_dir / train[0]), *train[1:]],
-        env=env,
-        capture_output=True,
-        text=True,
-        timeout=120,
-    )
-    assert run.returncode == 0, run.stdout + run.stderr
+    runs = train if isinstance(train[0], list) else [train]  # some modules need several runs
+    for cmd in runs:
+        run = subprocess.run(
+            [sys.executable, str(module_dir / cmd[0]), *cmd[1:]],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        assert run.returncode == 0, run.stdout + run.stderr
     check = subprocess.run(
         [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", str(module_dir / "tests")],
         env=env,

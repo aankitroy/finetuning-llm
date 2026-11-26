@@ -1,0 +1,42 @@
+{
+  "s01": {
+    "seconds": 24.95,
+    "sha256": "37628fee3cb9447bcbb0ba1155f3d968a902480c17289a9920e2fac2b9b66a79"
+  },
+  "s02": {
+    "seconds": 21.75,
+    "sha256": "468a828ed3d0c75f9aa060f6af46f7aa13b05bb3e625f657cee34736a35d531d"
+  },
+  "s03": {
+    "seconds": 22.025,
+    "sha256": "602323979cc7204a3b35640016af9ec11819b843310762e83d219f9abd3e2ce7"
+  },
+  "s04": {
+    "seconds": 21.05,
+    "sha256": "6f11334f088fe2cbffda5dcdb32dd64964306894c90420b0f503162f95a57f9b"
+  },
+  "s05": {
+    "seconds": 19.8,
+    "sha256": "4cafaad70a23d0bc872b4a8cfad4067e7cefe2140005bb9e89ae1e656896ed7c"
+  },
+  "s06": {
+    "seconds": 26.775,
+    "sha256": "a040148e1a2cd355917485c8bc0e5f0285d0545b7c02b188fc0116ba009dfc8e"
+  },
+  "s07": {
+    "seconds": 23.125,
+    "sha256": "c8b1a23e9e493e08b41c7351ab64bfba343d46b9d777492650e7e15fd29ef13d"
+  },
+  "s08": {
+    "seconds": 21.275,
+    "sha256": "fa1f3af3e4d363faff5b0005b296032b13a9b72253d23d1958825a484248ed4b"
+  },
+  "s09": {
+    "seconds": 21.775,
+    "sha256": "f0627d074f625dc2ddea90a3ac977db7998cb4085cb5fdb5da3b7588926fced1"
+  },
+  "s10": {
+    "seconds": 21.925,
+    "sha256": "e41e21173604b535025a430308842cdf9295f11280553e41aaa01cd66fd2915c"
+  }
+}
