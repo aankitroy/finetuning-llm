@@ -1,0 +1,60 @@
+# The M7 video: narration (spoken by Kokoro, shown as captions) and which drawing goes with it.
+# After editing a narration, run: make narration M=07
+# Tool names are spelled for the voice: "M L X" for MLX (Kokoro spells PEFT out as letters).
+
+title = "M7 · LoRA with real tools: MLX & PEFT"
+
+[[scene]]
+id = "s01"
+visual = "recap"
+narration = "In M6, you built LoRA by hand: a frozen layer, plus a scale times B times A, at rank eight. Now real tools do that part for you. And they add what a real project needs: saving and loading, a speed you can trust, and a model three times bigger. Qwen two point five, one point five billion, about three gigabytes."
+
+[[scene]]
+id = "s02"
+visual = "tools"
+narration = "You'll use two tools. The first is M L X L M, from Apple. It's built on M L X, and runs on your Mac's GPU, which shares one pool of memory with the CPU. The second is PEFT, from Hugging Face. It's built on PyTorch, so it runs almost anywhere."
+
+[[scene]]
+id = "s03"
+visual = "chat_data"
+narration = "Both tools want the data as chat records. Each example becomes a list of messages: a system message that sets the job, the user's jargon, and the assistant's plain rewrite. One record goes on each line of a JSON lines file."
+
+[[scene]]
+id = "s04"
+visual = "mlx_config"
+narration = "Here's how M L X L M describes your adapter. Rank eight, and a scale of two. It wants the scale itself, so you work out alpha over r. The keys name the layers to change, like the query projection, in all twenty-eight blocks. Inside, its LoRA layer holds LoRA A and LoRA B: your A and B, just turned on their side. And LoRA B starts at zero, like yours."
+
+[[scene]]
+id = "s05"
+visual = "peft_config"
+narration = "PEFT describes the same adapter differently. You give it r equals eight, and LoRA alpha equals sixteen. PEFT wants alpha, and divides by r itself, so the scale is two again. The targets are the four attention projections. Here A is eight rows by fifteen thirty-six, the same way round as yours. And A and B are kept in full thirty-two-bit floats."
+
+[[scene]]
+id = "s06"
+visual = "same_adapter"
+narration = "So both tools train the same adapter. Twenty-eight blocks, each with four LoRA layers, add up to two million, one hundred seventy-nine thousand trainable numbers. That's zero point one four percent of the model's one point five five billion."
+
+[[scene]]
+id = "s07"
+visual = "race"
+narration = "To compare them fairly, both get the same batches, in the same order, with the same loss, for a hundred steps. The held-out loss falls from about one point one six to zero point six eight in both. M L X took ninety-four seconds, and PEFT took eighty-six. Against reference rewrites, both scores rise by seven to nine points. And both still answer all ten ordinary questions right."
+
+[[scene]]
+id = "s08"
+visual = "tokens"
+narration = "Now, speed. Count tokens per second, but count only the real tokens. In twenty sample batches, more than a quarter of the positions were padding. Counting them makes the speed look about a third higher, but the model learns nothing from padding. On the full M L X run, that's six hundred and five real tokens a second, not eight hundred and twenty-four."
+
+[[scene]]
+id = "s09"
+visual = "memory"
+narration = "Memory, measured the same way for both. M L X L M peaked at nine point three gigabytes, and PEFT at twelve point eight: the same adapter, in different frameworks. Sequence length matters even more. Each time it doubles, the memory above the weights roughly doubles too, from under one gigabyte at sixty-four tokens, to five at five hundred and twelve. Every layer keeps its in-between results for the backward pass."
+
+[[scene]]
+id = "s10"
+visual = "save_load"
+narration = "The saved adapter is just eight point seven megabytes, next to about three thousand for the model. A small config file sits beside it. Each tool loads it back onto the base model in one line, and the reloaded model gave the same reply on all sixty prompts. Keep adapters separate to swap many jobs on one base. Or merge one in, to ship a single model."
+
+[[scene]]
+id = "s11"
+visual = "your_turn"
+narration = "Now it's your turn. You'll write six small functions: a chat record, a config for each tool, an honest tokens per second, and a loader for each tool. Then answer six questions. The training script runs both tools, in about eight minutes. Then run the checkpoint. Next, in M8, you'll fit a seven billion parameter model, squeezed into four bits."
