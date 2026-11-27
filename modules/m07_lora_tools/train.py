@@ -40,7 +40,21 @@ MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
 SYSTEM = "Rewrite the user's text in plain English. Reply with the rewrite only."
 TARGETS = ["q_proj", "k_proj", "v_proj", "o_proj"]
 PAD_TO = 32  # pad every batch to a multiple of 32 tokens: fewer shapes for mlx to compile
-HAS_MLX = sys.platform == "darwin" and importlib.util.find_spec("mlx_lm") is not None
+
+
+def _mlx_works() -> bool:
+    """mlx-lm is installed and MLX can use a GPU (Apple-silicon Macs only)."""
+    if sys.platform != "darwin" or importlib.util.find_spec("mlx_lm") is None:
+        return False
+    try:
+        import mlx.core as mx
+
+        return bool(mx.metal.is_available())
+    except Exception:
+        return False
+
+
+HAS_MLX = _mlx_works()
 
 
 class ExerciseError(Exception):
@@ -279,6 +293,7 @@ def mlx_train(ex, args, model, batches, adapter_dir):
             f"scale itself: alpha / r = {args.alpha / args.r:g} (exercise 2)."
         )
     model.freeze()
+    mx.random.seed(args.seed)  # A's random start, so a run can be repeated
     linear_to_lora_layers(model, cfg["num_layers"], lora)
     adapter_dir.mkdir(parents=True, exist_ok=True)
     (adapter_dir / "adapter_config.json").write_text(

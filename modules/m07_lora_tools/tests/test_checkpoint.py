@@ -19,7 +19,20 @@ from common.progress import report_metric
 sys.path.insert(0, str(MODULE_DIR))
 from tiny_models import make_tiny_hf_model, save_tiny_mlx_model  # noqa: E402
 
-HAS_MLX = sys.platform == "darwin" and importlib.util.find_spec("mlx_lm") is not None
+
+def _mlx_works() -> bool:
+    """mlx-lm is installed and MLX can use a GPU (Apple-silicon Macs only)."""
+    if sys.platform != "darwin" or importlib.util.find_spec("mlx_lm") is None:
+        return False
+    try:
+        import mlx.core as mx
+
+        return bool(mx.metal.is_available())
+    except Exception:
+        return False
+
+
+HAS_MLX = _mlx_works()
 needs_mlx = pytest.mark.skipif(not HAS_MLX, reason="mlx-lm runs only on Apple-silicon Macs")
 ATTN = ["q_proj", "k_proj", "v_proj", "o_proj"]
 SYSTEM = "Rewrite the user's text in plain English."
