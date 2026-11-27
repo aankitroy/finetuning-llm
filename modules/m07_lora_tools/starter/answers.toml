@@ -11,7 +11,7 @@ question = "The adapter trains 2,179,072 numbers, and both tools save them as fl
 answer = ""
 
 [q3]
-question = """train.py reports two speeds for the same mlx-lm run: 605 tokens/sec counting real tokens, and 824 counting every position in the batches. Which should you use to compare runs, and why?
+question = """train.py reports two speeds for the same mlx-lm run: 2,810 tokens/sec counting real tokens, and 3,827 counting every position in the batches. Which should you use to compare runs, and why?
   a) The real-token number: padding costs compute but teaches nothing, so more padding can look faster while learning less
   b) The padded number, because the GPU really does process every position in the batch, so that is the true and only fair speed to quote
   c) Either one: they always differ by the same fixed ratio for every dataset, so the comparison between two runs comes out the same
@@ -27,7 +27,7 @@ question = """Section 7 doubles the longest allowed sequence, with the same batc
 answer = ""
 
 [q5]
-question = """Both tools trained the same adapter on the same batches, yet PEFT peaked at 12.8 GB and mlx-lm at 9.3 GB. What's the main reason?
+question = """Both tools trained the same adapter on the same batches, yet PEFT peaked at 12.8 GB and mlx-lm at 9.2 GB. What's the main reason?
   a) PEFT trains more of the weights than mlx-lm does, because it also puts an adapter on the MLP layers unless you tell it not to
   b) mlx-lm quietly squeezes the frozen weights down to 4 bits while it trains, which is why its number is smaller
   c) PEFT's adapter file is bigger than mlx-lm's, and the file is kept in memory the whole time the model trains

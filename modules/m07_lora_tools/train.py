@@ -20,6 +20,7 @@ import ctypes
 import gc
 import hashlib
 import importlib.util
+import inspect
 import json
 import os
 import subprocess
@@ -190,20 +191,33 @@ def peft_load_base(args, device):
     return model
 
 
+def peft_wrap(model, cfg, args):
+    """get_peft_model with your LoraConfig, with a plain message if it can't be used."""
+    from peft import LoraConfig, get_peft_model
+
+    if not isinstance(cfg, LoraConfig):
+        raise ExerciseError(
+            f"peft_lora_config should return a LoraConfig, not {type(cfg).__name__} (exercise 3)."
+        )
+    if cfg.lora_alpha != args.alpha:
+        raise ExerciseError(
+            f"peft_lora_config set lora_alpha={cfg.lora_alpha!r}, but PEFT wants alpha itself "
+            f"({args.alpha:g}): it works out the scale on its own (exercise 3)."
+        )
+    try:
+        return get_peft_model(model, cfg)
+    except ValueError as e:
+        raise ExerciseError(
+            f"PEFT couldn't use your LoraConfig: {str(e).splitlines()[0]} Its target_modules "
+            f"should be the plain layer names, {TARGETS} (exercise 3)."
+        ) from None
+
+
 def peft_train(ex, m5, args, model, batches, device):
     import torch
     import torch.nn.functional as F
-    from peft import LoraConfig, get_peft_model
 
-    cfg = ex.peft_lora_config(args.r, args.alpha, TARGETS)
-    if not isinstance(cfg, LoraConfig):
-        raise ExerciseError(f"peft_lora_config should return a LoraConfig, not {type(cfg)}.")
-    if cfg.lora_alpha != args.alpha:
-        raise ExerciseError(
-            f"peft_lora_config set lora_alpha={cfg.lora_alpha}, but PEFT wants alpha itself "
-            f"({args.alpha:g}): it works out the scale on its own (exercise 3)."
-        )
-    model = get_peft_model(model, cfg)
+    model = peft_wrap(model, ex.peft_lora_config(args.r, args.alpha, TARGETS), args)
     params = [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(params, lr=args.lr, weight_decay=0.0)
     warmup, total = lr_schedule(args, len(batches))
@@ -273,34 +287,42 @@ def mlx_loss(model, ids, labels):
     return ce.sum() / n, n
 
 
-def mlx_train(ex, args, model, batches, adapter_dir):
-    import mlx.core as mx
-    import mlx.optimizers as optim
-    from mlx.utils import tree_flatten
-    from mlx_lm.tuner import trainer
-    from mlx_lm.tuner.utils import linear_to_lora_layers
-
-    cfg = ex.mlx_lora_config(args.r, args.alpha, TARGETS, len(model.layers))
-    lora = cfg.get("lora_parameters", {}) if isinstance(cfg, dict) else {}
-    if not isinstance(cfg, dict) or "num_layers" not in cfg or "keys" not in lora:
+def check_mlx_config(cfg, args):
+    """Plain messages for the mistakes mlx-lm itself would only answer with a traceback."""
+    lora = cfg.get("lora_parameters") if isinstance(cfg, dict) else None
+    if not isinstance(lora, dict) or not isinstance(cfg.get("num_layers"), int):
         raise ExerciseError(
-            'mlx_lora_config should return {"num_layers": ..., "lora_parameters": {...}}. Run '
-            "make check M=07: test_mlx_lora_config shows what's wrong."
+            'mlx_lora_config should return {"num_layers": <a whole number>, "lora_parameters": '
+            "{...}} (exercise 2). Run make check M=07: test_mlx_lora_config shows what's wrong."
         )
-    if lora.get("scale") != args.alpha / args.r:
+    missing = {"rank", "scale", "dropout", "keys"} - set(lora)
+    if missing:
         raise ExerciseError(
-            f"mlx_lora_config set scale={lora.get('scale')}, but mlx-lm multiplies B @ A by the "
+            f"lora_parameters is missing {sorted(missing)}: mlx-lm needs rank, scale, dropout "
+            "and keys (exercise 2)."
+        )
+    keys = lora["keys"]
+    if (
+        not isinstance(keys, list)
+        or not keys
+        or not all(isinstance(k, str) and k.startswith("self_attn.") for k in keys)
+    ):
+        raise ExerciseError(
+            f"mlx-lm names layers from inside a block, like self_attn.q_proj, but your keys are "
+            f"{keys!r}, so it would wrap nothing (exercise 2)."
+        )
+    if lora["scale"] != args.alpha / args.r:
+        raise ExerciseError(
+            f"mlx_lora_config set scale={lora['scale']!r}, but mlx-lm multiplies B @ A by the "
             f"scale itself: alpha / r = {args.alpha / args.r:g} (exercise 2)."
         )
-    model.freeze()
-    mx.random.seed(args.seed)  # A's random start, so a run can be repeated
-    linear_to_lora_layers(model, cfg["num_layers"], lora)
-    adapter_dir.mkdir(parents=True, exist_ok=True)
-    (adapter_dir / "adapter_config.json").write_text(
-        json.dumps({"fine_tune_type": "lora", **cfg}, indent=2) + "\n"
-    )
 
-    warmup, total = lr_schedule(args, len(batches))
+
+def mlx_optimizer(args, steps):
+    """AdamW with the same schedule, clipping and bias correction as the PyTorch loop."""
+    import mlx.optimizers as optim
+
+    warmup, total = lr_schedule(args, steps)
     schedule = optim.join_schedules(  # the same numbers as M5's lr_at
         [
             optim.linear_schedule(args.lr / warmup, args.lr * (1 + 1 / warmup), warmup),
@@ -314,7 +336,34 @@ def mlx_train(ex, args, model, batches, adapter_dir):
             gradients, _ = optim.clip_grad_norm(gradients, 1.0)
             return super().apply_gradients(gradients, parameters)
 
-    opt = ClippedAdamW(learning_rate=schedule, weight_decay=0.0)
+    # MLX's AdamW skips Adam's bias correction unless asked; PyTorch's always does it. Without
+    # it, MLX's early steps are several times bigger at the same learning rate.
+    return ClippedAdamW(learning_rate=schedule, weight_decay=0.0, bias_correction=True)
+
+
+def mlx_train(ex, args, model, batches, adapter_dir):
+    import mlx.core as mx
+    from mlx.utils import tree_flatten
+    from mlx_lm.tuner import trainer
+    from mlx_lm.tuner.utils import linear_to_lora_layers
+
+    cfg = ex.mlx_lora_config(args.r, args.alpha, TARGETS, len(model.layers))
+    check_mlx_config(cfg, args)
+    lora = cfg["lora_parameters"]
+    model.freeze()
+    mx.random.seed(args.seed)  # A's random start, so a run can be repeated
+    linear_to_lora_layers(model, cfg["num_layers"], lora)
+    if not tree_flatten(model.trainable_parameters()):
+        raise ExerciseError(
+            f"mlx-lm found none of your keys {lora['keys']} in the model, so nothing would "
+            "train (exercise 2)."
+        )
+    adapter_dir.mkdir(parents=True, exist_ok=True)
+    (adapter_dir / "adapter_config.json").write_text(
+        json.dumps({"fine_tune_type": "lora", **cfg}, indent=2) + "\n"
+    )
+
+    opt = mlx_optimizer(args, len(batches))
     mlx_batches = [
         (mx.array(b["input_ids"].numpy()), mx.array(b["labels"].numpy())) for b in batches
     ]
@@ -427,6 +476,7 @@ def run_tool(tool, args) -> dict:
     m5 = load_m05_train()
     ex = load_exercise(MODULE_DIR)
     ex5 = load_exercise(M5_DIR)
+    preflight(ex)
     torch.manual_seed(args.seed)
     data = M5_DIR / "data"
     buzzwords = [w for w in (data / "buzzwords.txt").read_text().splitlines() if w.strip()]
@@ -510,9 +560,7 @@ def run_tool(tool, args) -> dict:
         heldout_reloaded = mlx_heldout_loss(loaded[0], val)
         adapter_file = adapter_dir / "adapters.safetensors"
 
-    tps = ex.tokens_per_sec([b["attention_mask"] for b in batches], seconds)
-    if not isinstance(tps, int | float):
-        raise ExerciseError(f"tokens_per_sec should return a number, not {type(tps).__name__}.")
+    tps = as_speed(ex.tokens_per_sec([b["attention_mask"] for b in batches], seconds))
     padded = sum(b["attention_mask"].numel() for b in batches) / seconds
     base = m5.score(ex5, base_out[:n_test], test_rows, base_out[n_test:], general, buzzwords)
     tuned = m5.score(ex5, tuned_out[:n_test], test_rows, tuned_out[n_test:], general, buzzwords)
@@ -571,6 +619,31 @@ def run_tool(tool, args) -> dict:
     return summary
 
 
+def as_speed(value) -> float:
+    """Your tokens_per_sec result as a plain number (a one-number tensor is fine too)."""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        raise ExerciseError(
+            f"tokens_per_sec should return a number, not {type(value).__name__} (exercise 4)."
+        ) from None
+
+
+def preflight(ex) -> None:
+    """Call every exercise once on something tiny, so an unwritten one stops the run now,
+    before minutes of training, not after."""
+    import torch
+
+    ex.to_chat_record({"jargon": "a", "plain": "b"}, SYSTEM)
+    ex.mlx_lora_config(8, 16.0, TARGETS, 1)
+    ex.peft_lora_config(8, 16.0, TARGETS)
+    ex.tokens_per_sec([torch.ones(1, 2)], 1.0)
+    for name in ("load_peft_adapter", "load_mlx_adapter"):  # these need a model: just look
+        source = inspect.getsource(getattr(ex, name))
+        if "raise NotImplementedError" in source:
+            raise NotImplementedError(f"Exercise {5 if 'peft' in name else 6}: {name}")
+
+
 def where(e: Exception) -> str:
     frames = [
         f for f in traceback.extract_tb(e.__traceback__) if f.filename.endswith("exercises.py")
@@ -579,6 +652,26 @@ def where(e: Exception) -> str:
         return ""
     module = "M5" if "m05_" in frames[-1].filename else "M7"
     return f" It happened in your {module} {frames[-1].name}, line {frames[-1].lineno}."
+
+
+def explain(e: Exception) -> int:
+    """A plain message for the usual problems; a real bug in the course code still raises."""
+    if type(e).__name__ == "ExerciseError":  # ours, or M5's (a different class, same idea)
+        print(f"Your exercises returned something unexpected: {e}")
+        return 1
+    if "out of memory" in str(e).lower():
+        print("Your Mac ran out of memory for this run. Close other apps and the lesson")
+        print("notebook, then try again.")
+        return 1
+    if where(e):  # a bug in an exercise: say so plainly, not with a traceback
+        print(f"One of your exercises raised {type(e).__name__}: {e}.{where(e)}")
+        print("Run make check M=07 (or M=05) to see which test fails, and why.")
+        return 1
+    if isinstance(e, OSError):
+        print(f"Couldn't load {MODEL} ({e}).")
+        print("Connect to the internet once so it can download (about 3 GB), or use --tiny.")
+        return 1
+    raise e
 
 
 def run_one(tool, args) -> int:
@@ -590,28 +683,10 @@ def run_one(tool, args) -> int:
             print(f"This run uses your M5 exercises too, and M5's {e} isn't written yet.")
             print("Finish M5 first (make check M=05), then run this again.")
         else:
-            print(f"Not yet: {e} isn't written. Finish all five exercises, then run this again.")
+            print(f"Not yet: {e} isn't written. Finish all six exercises, then run this again.")
         return 1
-    except ExerciseError as e:
-        print(f"Your exercises returned something unexpected: {e}")
-        return 1
-    except OSError as e:
-        if where(e):
-            print(f"One of your exercises raised {type(e).__name__}: {e}.{where(e)}")
-            return 1
-        print(f"Couldn't load {MODEL} ({e}).")
-        print("Connect to the internet once so it can download (about 3 GB), or use --tiny.")
-        return 1
-    except Exception as e:  # a bug in an exercise: say so plainly, not with a traceback
-        if "out of memory" in str(e).lower():
-            print("Your Mac ran out of memory for this run. Close other apps and the lesson")
-            print("notebook, then try again.")
-            return 1
-        if not where(e):
-            raise
-        print(f"One of your exercises raised {type(e).__name__}: {e}.{where(e)}")
-        print("Run make check M=07 (or M=05) to see which test fails, and why.")
-        return 1
+    except Exception as e:
+        return explain(e)
     print(
         f"\n{tool}: held-out loss {s['heldout_before']:.3f} -> {s['heldout_after']:.3f}, "
         f"{s['tokens_per_sec']:.0f} tokens/s, peak {s['peak_mem_gb']:.1f} GB, "

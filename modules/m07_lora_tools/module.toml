@@ -62,7 +62,7 @@ file = "answers.toml"
 [[steps]]
 kind = "train"
 title = "Train with both tools"
-detail = "Trains the same rank-8 adapter with mlx-lm and then with PEFT, on the same batches, saves each, loads it back with your code and prints them side by side. About 8 minutes, up to 13 GB of memory."
+detail = "Trains the same rank-8 adapter with mlx-lm and then with PEFT, on the same batches, saves each, loads it back with your code and prints them side by side. About 3 minutes, up to 13 GB of memory."
 command = "uv run python modules/m07_lora_tools/train.py"
 file = "outputs/m07/run.json"
 metric = "heldout_after"

@@ -55,11 +55,11 @@
    ```bash
    uv run python modules/m07_lora_tools/train.py
    ```
-   It turns the data into chat records with your exercise 1, builds the batches once with your M5 `build_example` and `collate`, and gives the same batches to both tools: rank 8, alpha 16, on `q_proj`, `k_proj`, `v_proj` and `o_proj` in all 28 blocks (0.141% of the weights), 2 epochs (100 steps) at learning rate 2e-4. Each tool trains in its own process (about 90 seconds of training each on the reference Mac), saves its adapter (about 8.7 MB), throws the model away, loads the adapter back onto a fresh model with your exercises 5 and 6, and checks it gives the same replies. Then it prints the two runs side by side. About 8 minutes in all. `--tool mlx` or `--tool peft` runs just one.
+   It turns the data into chat records with your exercise 1, builds the batches once with your M5 `build_example` and `collate`, and gives the same batches to both tools: rank 8, alpha 16, on `q_proj`, `k_proj`, `v_proj` and `o_proj` in all 28 blocks (0.141% of the weights), 2 epochs (100 steps) at learning rate 2e-4. Each tool trains in its own process (about 20 to 25 seconds of training each on the reference Mac, with nothing else running), saves its adapter (about 8.7 MB), throws the model away, loads the adapter back onto a fresh model with your exercises 5 and 6, and checks it gives the same replies. Then it prints the two runs side by side. About 3 minutes in all. `--tool mlx` or `--tool peft` runs just one.
 
 5. **Pass the checkpoint:** run `make check M=07`. M7 turns green when every exercise passes, your answers are right, and each tool's latest run, with your current code (re-run `train.py` after you change `exercises.py`):
    - reached a held-out loss of at most **0.8** (about 0.68 in the reference runs; 1.16 before training)
-   - rewrote the test set at least **3** chrF points closer to the reference rewrites than the untuned model did (about +7 to +9 in the reference runs)
+   - rewrote the test set at least **3** chrF points closer to the reference rewrites than the untuned model did (about +7 in the reference runs)
    - loaded back from disk and gave the same reply for at least **95%** of the 60 fixed prompts (all 60 in the reference runs)
    - peaked under **18 GB**
 
@@ -69,12 +69,14 @@
 
 | | mlx-lm | PEFT |
 |---|---|---|
-| held-out loss | 1.159 → 0.682 | 1.163 → 0.685 |
-| chrF against the reference rewrites | 54.8 → 63.8 | 55.1 → 61.9 |
+| held-out loss | 1.159 → 0.685 | 1.163 → 0.685 |
+| chrF against the reference rewrites | 54.8 → 62.0 | 55.1 → 61.9 |
 | general questions right | 10/10 | 10/10 |
-| training time | 94 s | 86 s |
-| tokens/sec (real tokens) | 605 | 658 |
-| peak memory (macOS) | 9.3 GB | 12.8 GB |
+| training time | 20 s | 25 s |
+| tokens/sec (real tokens) | 2,810 | 2,308 |
+| peak memory (macOS) | 9.2 GB | 12.8 GB |
+
+Times and speeds depend on what else your Mac is doing: with other heavy work running, the same runs took four times as long. Loss, chrF and memory don't change. One thing had to be set by hand to make the comparison fair: MLX's AdamW skips Adam's bias correction unless asked (`bias_correction=True`), and PyTorch's always does it. Lesson section 5 explains.
 | trainable parameters | 0.141% | 0.141% |
 | adapter file | 8.7 MB | 8.8 MB |
 

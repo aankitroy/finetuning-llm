@@ -274,24 +274,25 @@
   // ---------------------------------------------------------------- s07
   S.race = (g, K) => {
     const h = heading(g, K, "A fair race: 100 steps each");
-    const rules = ["same batches", "same order", "same loss", "100 steps"].map((s, i) => {
+    const rules = ["same batches", "same order", "same loss", "same optimizer", "100 steps"].map((s, i) => {
       const r = K.el(g, "g", {});
-      box(r, K, 80 + i * 285, 130, 265, 50, s, { size: 22 });
+      box(r, K, 80 + i * 228, 130, 212, 50, s, { size: 21 });
       return r;
     });
     const head = K.el(g, "g", {});
     K.text(head, 640, 240, "mlx-lm", { "font-size": 28, "font-weight": 700, fill: K.color.cobalt, "font-family": K.color.mono });
     K.text(head, 960, 240, "PEFT", { "font-size": 28, "font-weight": 700, fill: K.color.moss, "font-family": K.color.mono });
     const rows = [
-      ["held-out loss", "1.159 → 0.682", "1.163 → 0.685"],
-      ["training time", "94 s", "86 s"],
-      ["chrF vs reference rewrites", "54.8 → 63.8", "55.1 → 61.9"],
+      ["held-out loss", "1.159 → 0.685", "1.163 → 0.685"],
+      ["training time", "20 s", "25 s"],
+      ["chrF vs reference rewrites", "54.8 → 62.0", "55.1 → 61.9"],
       ["ordinary questions right", "10 / 10", "10 / 10"],
     ].map(([label, a, b], i) => {
       const y = 300 + i * 82;
       const r = K.el(g, "g", {});
       K.el(r, "line", { x1: 80, y1: y + 26, x2: 1200, y2: y + 26, stroke: K.color.line, "stroke-width": 1 });
       K.text(r, 80, y, label, { "font-size": 24 });
+      if (i === 1) K.text(r, 290, y, "depends on what else the Mac is doing", { "font-size": 17, fill: K.color.muted });
       K.text(r, 640, y, a, { "font-size": 28, "font-weight": 600, "font-family": K.color.mono });
       K.text(r, 960, y, b, { "font-size": 28, "font-weight": 600, "font-family": K.color.mono });
       return r;
@@ -300,10 +301,10 @@
     const foot = K.text(g, 80, 690, "Same result, from two different tools.", { "font-size": 26, "font-weight": 600, fill: K.color.moss });
     return (t, d) => {
       K.show(h, P(K, t, d, 0));
-      rules.forEach((r, i) => K.show(r, P(K, t, d, 0.04 + i * 0.05), 10));
-      K.show(head, P(K, t, d, 0.26));
-      [0.3, 0.5, 0.66, 0.86].forEach((a, i) => K.show(rows[i], P(K, t, d, a), 10));
-      K.show(note, P(K, t, d, 0.68));
+      rules.forEach((r, i) => K.show(r, P(K, t, d, [0.04, 0.07, 0.1, 0.15, 0.12][i]), 10));
+      K.show(head, P(K, t, d, 0.28));
+      [0.32, 0.46, 0.7, 0.88].forEach((a, i) => K.show(rows[i], P(K, t, d, a), 10));
+      K.show(note, P(K, t, d, 0.72));
       K.show(foot, P(K, t, d, 0.93));
     };
   };
@@ -335,19 +336,20 @@
     K.text(stat, 640, 300, "padded speed looks about 35% higher", { "font-size": 24 });
     K.text(stat, 640, 336, "but the model learns nothing from padding", { "font-size": 24, fill: K.color.muted });
     // the full mlx-lm run, two ways
-    const W = 560 / 824;
+    const W = 560 / 3827;
     const bars = [
-      ["real tokens only", 605, K.color.moss],
-      ["counting padding too", 824, K.color.line],
+      ["real tokens only", 2810, K.color.moss],
+      ["counting padding too", 3827, K.color.line],
     ].map(([label, v, color], i) => {
       const y = 450 + i * 90;
       const r = K.el(g, "g", {});
       K.text(r, 80, y + 34, label, { "font-size": 24, "font-weight": i ? 400 : 700 });
       const bar = K.el(r, "rect", { x: 380, y, width: 0, height: 50, rx: 6, fill: color });
-      const val = K.text(r, 380, y + 36, `${v} tokens/s`, { "font-size": 26, "font-weight": 700, fill: i ? K.color.muted : K.color.moss });
+      const val = K.text(r, 380, y + 36, `${v.toLocaleString("en-US")} tokens/s`, { "font-size": 26, "font-weight": 700, fill: i ? K.color.muted : K.color.moss });
       return { r, bar, val, v };
     });
     const runLbl = K.text(g, 80, 430, "The full mlx-lm run:", { "font-size": 22, fill: K.color.muted });
+    const peftNote = K.text(g, 80, 660, "PEFT's full run: 2,308 real tokens/s", { "font-size": 20, fill: K.color.muted });
     return (t, d) => {
       K.show(h, P(K, t, d, 0));
       K.show(batch, P(K, t, d, 0.04));
@@ -356,6 +358,7 @@
       pads.forEach((c) => c.setAttribute("fill", hl > 0.5 ? K.color.amber : K.color.line));
       K.show(stat, P(K, t, d, 0.3), 12);
       K.show(runLbl, P(K, t, d, 0.68));
+      K.show(peftNote, P(K, t, d, 0.9));
       bars.forEach((b, i) => {
         const p = P(K, t, d, [0.72, 0.84][i], 0.08);
         K.show(b.r, Math.min(1, p * 3));
@@ -376,7 +379,7 @@
     const BASE = 560;
     const sc = 300 / 13;
     const peak = [
-      ["mlx-lm", 9.3, K.color.cobalt, 110],
+      ["mlx-lm", 9.2, K.color.cobalt, 110],
       ["PEFT", 12.8, K.color.moss, 290],
     ].map(([label, v, color, x]) => {
       const r = K.el(L, "rect", { x, width: 130, rx: 6, fill: color });
@@ -479,7 +482,7 @@
       "5. load_peft_adapter",
       "6. load_mlx_adapter",
       "six questions in answers.toml",
-      "train.py: both tools, ~8 minutes",
+      "train.py: both tools, ~3 minutes",
       "make check M=07",
     ];
     const rows = items.map((s, i) => {

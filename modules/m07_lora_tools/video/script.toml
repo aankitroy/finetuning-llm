@@ -37,17 +37,17 @@ narration = "So both tools train the same adapter. Twenty-eight blocks, each wit
 [[scene]]
 id = "s07"
 visual = "race"
-narration = "To compare them fairly, both get the same batches, in the same order, with the same loss, for a hundred steps. The held-out loss falls from about one point one six to zero point six eight in both. M L X took ninety-four seconds, and PEFT took eighty-six. Against reference rewrites, both scores rise by seven to nine points. And both still answer all ten ordinary questions right."
+narration = "To compare them fairly, both get the same batches, in the same order, with the same loss, for a hundred steps. Even the optimizer had to be told to do the same thing. The held-out loss falls from about one point one six to the same zero point six eight five in both. M L X took twenty seconds, and PEFT took twenty-five, though timings depend on what else your Mac is doing. Against reference rewrites, both scores rise by about seven points. And both still answer all ten ordinary questions right."
 
 [[scene]]
 id = "s08"
 visual = "tokens"
-narration = "Now, speed. Count tokens per second, but count only the real tokens. In twenty sample batches, more than a quarter of the positions were padding. Counting them makes the speed look about a third higher, but the model learns nothing from padding. On the full M L X run, that's six hundred and five real tokens a second, not eight hundred and twenty-four."
+narration = "Now, speed. Count tokens per second, but count only the real tokens. In twenty sample batches, more than a quarter of the positions were padding. Counting them makes the speed look about a third higher, but the model learns nothing from padding. On the full M L X run, that's two thousand, eight hundred and ten real tokens a second, not three thousand, eight hundred and twenty-seven."
 
 [[scene]]
 id = "s09"
 visual = "memory"
-narration = "Memory, measured the same way for both. M L X L M peaked at nine point three gigabytes, and PEFT at twelve point eight: the same adapter, in different frameworks. Sequence length matters even more. Each time it doubles, the memory above the weights roughly doubles too, from under one gigabyte at sixty-four tokens, to five at five hundred and twelve. Every layer keeps its in-between results for the backward pass."
+narration = "Memory, measured the same way for both. M L X L M peaked at nine point two gigabytes, and PEFT at twelve point eight: the same adapter, in different frameworks. Sequence length matters even more. Each time it doubles, the memory above the weights roughly doubles too, from under one gigabyte at sixty-four tokens, to five at five hundred and twelve. Every layer keeps its in-between results for the backward pass."
 
 [[scene]]
 id = "s10"
@@ -57,4 +57,4 @@ narration = "The saved adapter is just eight point seven megabytes, next to abou
 [[scene]]
 id = "s11"
 visual = "your_turn"
-narration = "Now it's your turn. You'll write six small functions: a chat record, a config for each tool, an honest tokens per second, and a loader for each tool. Then answer six questions. The training script runs both tools, in about eight minutes. Then run the checkpoint. Next, in M8, you'll fit a seven billion parameter model, squeezed into four bits."
+narration = "Now it's your turn. You'll write six small functions: a chat record, a config for each tool, an honest tokens per second, and a loader for each tool. Then answer six questions. The training script runs both tools, in about three minutes. Then run the checkpoint. Next, in M8, you'll fit a seven billion parameter model, squeezed into four bits."
