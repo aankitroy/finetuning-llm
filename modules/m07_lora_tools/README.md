@@ -8,7 +8,7 @@
 
 **Download:** [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) (about 3 GB, Apache-2.0 licence), once; both tools read the same copy. `mlx-lm` and `peft` come with the course's packages (`uv sync`). The checkpoint's exercise tests use tiny random models and need no download.
 
-**Memory:** on the reference Mac, mlx-lm peaked at about 9 GB and PEFT at about 13 GB. Each tool runs in its own process, one after the other. Close other big apps, and close the lesson notebook (or restart its kernel) before you run `train.py`.
+**Memory:** on the reference Mac, mlx-lm peaked at about 9 GB and PEFT at about 13 GB. Each tool runs in its own process, one after the other. The lesson notebook holds both tools' models at once and peaks at about 16 GB. Close other big apps, and close the lesson notebook (or restart its kernel) before you run `train.py`.
 
 **Mac only for mlx-lm:** MLX runs only on Apple-silicon Macs. Elsewhere `train.py` trains with PEFT only, and the mlx parts of the checkpoint are skipped.
 
