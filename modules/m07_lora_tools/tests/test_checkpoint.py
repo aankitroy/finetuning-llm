@@ -3,13 +3,18 @@
 Run `uv run python modules/m07_lora_tools/train.py` first, then `make check M=07`.
 """
 
+import hashlib
 import importlib.util
 import json
+import os
 import sys
 
 import pytest
 import torch
 from conftest import MODULE_DIR
+
+from common.checkpoint import check_answer
+from common.progress import report_metric
 
 sys.path.insert(0, str(MODULE_DIR))
 from tiny_models import make_tiny_hf_model, save_tiny_mlx_model  # noqa: E402
@@ -99,7 +104,7 @@ def test_tokens_per_sec(ex):
     assert got == pytest.approx(5.0), f"(5 + 5) real tokens in 2 seconds is 5.0, not {got}"
 
 
-# --- exercise 5 ---
+# --- exercises 5 and 6 ---
 
 
 def _logits_hf(model, ids):
@@ -168,3 +173,78 @@ def test_load_mlx_adapter(ex, tmp_path):
         "That's the model without its adapter. Pass adapter_path=adapter_dir to load"
     )
     assert mx.allclose(got, want, atol=1e-4).item(), "The loaded model should match the saved one"
+
+
+# --- the runs ---
+
+LOSS_BAR = 0.80  # the held-out loss after training must be at most this (1.16 untrained)
+STYLE_GAIN = 3.0  # rewrites must score at least this much more chrF than the untuned model's
+RELOAD_SHARE = 0.95  # the reloaded adapter must give the same reply for this share of prompts
+MAX_PEAK_GB = 18.0  # each tool's run must fit in this much memory
+
+
+def _run(outputs, tool):
+    f = outputs / tool / "run.json"
+    if tool == "mlx" and not HAS_MLX:
+        pytest.skip("mlx-lm runs only on Apple-silicon Macs")
+    assert f.exists(), (
+        f"No {tool} run found. Run: uv run python modules/m07_lora_tools/train.py --tool {tool}"
+    )
+    return json.loads(f.read_text())
+
+
+@pytest.mark.parametrize("tool", ["mlx", "peft"])
+def test_run_trains_and_reloads(outputs, tool):
+    s = _run(outputs, tool)
+    if tool == ("mlx" if HAS_MLX else "peft"):
+        for key in ("final_loss", "peak_mem_gb", "tokens_per_sec", "trainable_pct"):
+            report_metric(key, s[key])
+    need = round(RELOAD_SHARE * s["reload_total"])
+    assert s["reload_matches"] >= need, (
+        f"The adapter loaded back from disk gave the same reply for only {s['reload_matches']} "
+        f"of {s['reload_total']} prompts. Loading must put back exactly what was trained: check "
+        f"your load_{tool}_adapter (exercise {5 if tool == 'peft' else 6})."
+    )
+    if s["tiny"]:
+        assert s["heldout_after"] < s["heldout_before"], "The tiny run should still learn"
+        return
+    assert s["heldout_after"] <= LOSS_BAR, (
+        f"{tool}'s held-out loss after training is {s['heldout_after']:.3f}; it needs to be at "
+        f"most {LOSS_BAR:g} (it was {s['heldout_before']:.3f} before). Try the defaults: rank 8, "
+        "alpha 16, learning rate 2e-4, 2 epochs."
+    )
+    gain = s["tuned"]["chrf"] - s["base"]["chrf"]
+    assert gain >= STYLE_GAIN, (
+        f"{tool}'s rewrites scored chrF {s['tuned']['chrf']:.1f} against the reference rewrites, "
+        f"vs {s['base']['chrf']:.1f} before training: they should be at least {STYLE_GAIN:g} "
+        "points closer to the house style."
+    )
+    assert s["peak_mem_gb"] <= MAX_PEAK_GB, (
+        f"{tool}'s run peaked at {s['peak_mem_gb']:.1f} GB; it should fit in {MAX_PEAK_GB:g} GB. "
+        "Close other apps and the lesson notebook, and keep --batch 8 and --max-len 160."
+    )
+
+
+@pytest.mark.parametrize("tool", ["mlx", "peft"])
+def test_run_was_full_size_with_your_code(outputs, tool):
+    if os.environ.get("FTCOURSE_SOLUTIONS"):
+        pytest.skip("reference-solution run (used by the project's own tests)")
+    s = _run(outputs, tool)
+    assert not s["tiny"], "That was a --tiny run. Run train.py without --tiny."
+    assert not s.get("used_solutions"), (
+        "That run used the reference solutions. Re-run train.py with your own code."
+    )
+    now = hashlib.sha256((MODULE_DIR / "exercises.py").read_bytes()).hexdigest()
+    assert s.get("exercises_sha256") == now, (
+        "exercises.py has changed since your last run. Run train.py again, so the run uses the "
+        "code you're being checked on."
+    )
+
+
+ANSWER_IDS = sorted(json.loads((MODULE_DIR / "tests" / "answer_hashes.json").read_text()))
+
+
+@pytest.mark.parametrize("qid", ANSWER_IDS)
+def test_understanding(qid):
+    ok, message = check_answer(MODULE_DIR, "m07", qid)
+    assert ok, message

@@ -6,7 +6,7 @@ The lesson section named in each exercise shows every piece you need.
 
 Exercise 1 turns an M5 example into the format the tools read. Exercises 2 and 3 set up LoRA
 in mlx-lm and in PEFT: the same rank 8 adapter you built in M6, described two ways.
-Exercise 4 measures speed. Exercise 5 loads a saved adapter back, in each tool.
+Exercise 4 measures speed. Exercises 5 and 6 load a saved adapter back, one in each tool.
 train.py also uses your M5 exercises for the batches.
 
 Check your work any time with:  make check M=07
@@ -73,7 +73,7 @@ def tokens_per_sec(attention_masks, seconds):
 
 
 def load_peft_adapter(base_model, adapter_dir):
-    """Exercise 5a. Put a saved PEFT adapter back on a fresh copy of the model.
+    """Exercise 5. Put a saved PEFT adapter back on a fresh copy of the model.
 
     In plain words: train.py saved the adapter's A and B (and its LoraConfig) in adapter_dir.
     PEFT has a class, PeftModel, that wraps a base model and loads an adapter from a folder in
@@ -85,7 +85,7 @@ def load_peft_adapter(base_model, adapter_dir):
 
 
 def load_mlx_adapter(model_path, adapter_dir):
-    """Exercise 5b. Load the model in mlx-lm, with a saved adapter on it.
+    """Exercise 6. Load the model in mlx-lm, with a saved adapter on it.
 
     In plain words: mlx-lm's load function reads a model (and its tokenizer) and, if you tell
     it where an adapter folder is, wraps the right layers and loads A and B into them. Return
@@ -93,4 +93,4 @@ def load_mlx_adapter(model_path, adapter_dir):
     """
     # 1. from mlx_lm import load
     # 2. Return load(model_path, adapter_path=adapter_dir)
-    raise NotImplementedError("Exercise 5: load_mlx_adapter")
+    raise NotImplementedError("Exercise 6: load_mlx_adapter")
