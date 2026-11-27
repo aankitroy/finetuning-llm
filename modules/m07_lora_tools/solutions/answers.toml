@@ -1,0 +1,32 @@
+# M7 reference answers. Use `make solution M=07 EX=q1` instead of reading this file,
+# so the dashboard shows what you did unaided.
+
+[q1]
+kind = "number"
+answer = "4"
+why = "mlx-lm multiplies B @ A by the scale you give it, so you work out alpha / r yourself: 16 / 4 = 4. PEFT would take lora_alpha=16 and do the dividing itself. Section 3 shows both."
+
+[q2]
+kind = "number"
+answer = "9"
+why = "2,179,072 x 4 bytes = 8,716,288 bytes, about 8.7 MB: what train.py printed for both tools. The 1.5B model itself is about 3 GB in bf16. Section 8 opens both files."
+
+[q3]
+kind = "choice"
+answer = "a"
+why = "Padding is real work for the GPU, but the loss ignores it, so it teaches nothing. A run that pads more (longer, uneven batches) can show a higher padded speed while learning from fewer real tokens. Section 6 counts both."
+
+[q4]
+kind = "choice"
+answer = "c"
+why = "The weights and the adapter don't depend on sequence length. Activations do: every layer keeps results for every token so .backward() can use them, so twice the tokens is roughly twice the activations (and attention grows faster still). Section 7 measures it."
+
+[q5]
+kind = "choice"
+answer = "d"
+why = "Same adapter (0.141% of the weights), same batches, same dtype. What differs is the framework: PyTorch's MPS allocator keeps freed memory to reuse, and the two libraries compute attention and the backward pass with different kernels and in-between copies. Section 5 shows each tool's own count next to macOS's."
+
+[q6]
+kind = "choice"
+answer = "b"
+why = "Keeping adapters separate lets one base model serve many tasks: load the 3 GB base once and swap 9 MB adapters. Merge when you want one plain model to ship or serve fast. Both tools can merge (mlx_lm.fuse, merge_and_unload)."

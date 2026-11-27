@@ -1,0 +1,67 @@
+# Hints for `make hint M=07 EX=<id>`. `make solution` shows the reference answer.
+
+[[exercise]]
+id = "1"
+test = "test_to_chat_record"
+name = "to_chat_record"
+hint = "A chat is a list of small dicts, each with a role and its content, in the order they were said. Section 2 prints one record from the files mlx-lm reads."
+
+[[exercise]]
+id = "2"
+test = "test_mlx_lora_config"
+name = "mlx_lora_config"
+hint = "mlx-lm doesn't know about alpha: it multiplies B @ A by whatever number you call the scale. Which number did your M6 LoRALinear multiply by? Section 3 prints mlx-lm's own LoRA layer, so you can see where the scale goes."
+
+[[exercise]]
+id = "3"
+test = "test_peft_lora_config"
+name = "peft_lora_config"
+hint = "PEFT is the other way round from mlx-lm: you give it alpha and it does the dividing itself. Section 4 prints the scale PEFT worked out, so you can check it against M6."
+
+[[exercise]]
+id = "4"
+test = "test_tokens_per_sec"
+name = "tokens_per_sec"
+hint = "A batch's shape counts padding too. The attention mask says which positions are real (1) and which are padding (0). Section 6 counts both for one batch."
+
+[[exercise]]
+id = "5"
+test = "test_load_peft_adapter"
+name = "load_peft_adapter"
+hint = "PEFT's wrapper class has one call that takes a base model and an adapter folder and gives you the wrapped model back. Section 8 does it."
+
+[[exercise]]
+id = "6"
+test = "test_load_mlx_adapter"
+name = "load_mlx_adapter"
+hint = "It's the same load you already use to read a model in mlx-lm, with one more argument: where the adapter folder is. Section 8 does it."
+
+[[exercise]]
+id = "q1"
+test = "test_understanding[q1]"
+hint = "mlx-lm wants the number B @ A is multiplied by. Work it out from alpha and r, as in M6 section 3."
+
+[[exercise]]
+id = "q2"
+test = "test_understanding[q2]"
+hint = "Count the bytes: parameters times bytes per number. Section 8 shows what dtype each tool saves its adapter in."
+
+[[exercise]]
+id = "q3"
+test = "test_understanding[q3]"
+hint = "What does a padded position cost, and what does the model learn from it? Section 6 measures both numbers on the same run."
+
+[[exercise]]
+id = "q4"
+test = "test_understanding[q4]"
+hint = "Which things in memory grow with the number of tokens, and which don't? Section 7 measures four lengths."
+
+[[exercise]]
+id = "q5"
+test = "test_understanding[q5]"
+hint = "Section 5 measures each tool twice: with macOS's count and with the tool's own. Why might those differ for PyTorch?"
+
+[[exercise]]
+id = "q6"
+test = "test_understanding[q6]"
+hint = "Think about having ten different adapters for one base model. Section 8 shows how big each file is."
