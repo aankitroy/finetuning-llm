@@ -2,13 +2,13 @@ id = "m07"
 title = "LoRA with real tools (MLX & PEFT)"
 part = "C · Efficient tuning"
 order = 7
-summary = "Run LoRA on a 1B–4B model with mlx-lm and peft, side by side."
+summary = "Run LoRA on a 1.5B model with mlx-lm and PEFT, side by side."
 est_minutes = 180
 
 [next]
-start = "Read modules/m07_lora_tools/README.md, then open lesson.ipynb"
+start = "Watch the video on the dashboard, then read modules/m07_lora_tools/README.md and open lesson.ipynb"
 finish = "make check M=07"
-why = "Your adapter loads and produces the target style on a fixed prompt set"
+why = "Your adapters train in both tools, load back from disk and rewrite in the target style"
 
 [artifacts]
 any = ["outputs/m07/*"]
@@ -32,3 +32,43 @@ better = "higher"
 key = "trainable_pct"
 label = "Trainable parameters (%)"
 better = "lower"
+
+[[steps]]
+kind = "video"
+title = "Watch the video"
+detail = "A 4-minute narrated animation of the whole idea: the two tools, how each describes the LoRA you built in M6, what tokens/sec and memory tell you, and saving and loading an adapter. Watch it first, with the sound on (captions too)."
+
+[[steps]]
+kind = "lesson"
+title = "Run the lesson"
+detail = "Open the notebook and run every cell, top to bottom. It uses Qwen2.5-1.5B-Instruct (about 3 GB, downloaded once). Section 5 trains a short run with each tool. When a cell says Predict, write your guess down before running it. Save the notebook (Cmd-S) so your progress shows here."
+command = "uv run jupyter lab modules/m07_lora_tools/lesson.ipynb"
+file = "lesson.ipynb"
+
+[[steps]]
+kind = "exercises"
+title = "Write the exercises"
+detail = "Open exercises.py and replace each `raise NotImplementedError` with your code, following the numbered steps. Run make check M=07 as often as you like; this panel shows which exercises pass."
+command = "make check M=07"
+file = "exercises.py"
+
+[[steps]]
+kind = "answers"
+title = "Answer the understanding checks"
+detail = "Open answers.toml and put your answer between the quotes for each question. Predict first, then check yourself in the notebook."
+command = "make check M=07"
+file = "answers.toml"
+
+[[steps]]
+kind = "train"
+title = "Train with both tools"
+detail = "Trains the same rank-8 adapter with mlx-lm and then with PEFT, on the same batches, saves each, loads it back with your code and prints them side by side. About 3 minutes, up to 13 GB of memory."
+command = "uv run python modules/m07_lora_tools/train.py"
+file = "outputs/m07/run.json"
+metric = "heldout_after"
+
+[[steps]]
+kind = "checkpoint"
+title = "Pass the checkpoint"
+detail = "Checks your exercises, your answers and your runs together. M7 turns green when everything passes."
+command = "make check M=07"

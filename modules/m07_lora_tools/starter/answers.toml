@@ -1,0 +1,43 @@
+# M7 understanding checks. Put your answer between the quotes, then run: make check M=07
+# There are six questions. Numbers like "7", choices as a single letter like "b".
+# Predict first, then check yourself in lesson.ipynb. Stuck? make hint M=07 EX=q1
+
+[q1]
+question = "You switch the adapter to rank 4 and keep alpha at 16. What number goes in the \"scale\" of mlx-lm's lora_parameters?"
+answer = ""
+
+[q2]
+question = "The adapter trains 2,179,072 numbers, and both tools save them as float32 (4 bytes each). To the nearest whole MB (1 MB = 1,000,000 bytes), how big is the adapter file?"
+answer = ""
+
+[q3]
+question = """train.py reports two speeds for the same mlx-lm run: 2,810 tokens/sec counting real tokens, and 3,827 counting every position in the batches. Which should you use to compare runs, and why?
+  a) The real-token number: padding costs compute but teaches nothing, so more padding can look faster while learning less
+  b) The padded number, because the GPU really does process every position in the batch, so that is the true and only fair speed to quote
+  c) Either one: they always differ by the same fixed ratio for every dataset, so the comparison between two runs comes out the same
+  d) Neither: only seconds per step matters, and tokens don't"""
+answer = ""
+
+[q4]
+question = """Section 7 doubles the longest allowed sequence, with the same batch size. What grows?
+  a) The model's weights, since a longer sequence needs a bigger embedding table and more attention heads to cover the extra positions
+  b) The adapter: A and B get wider to make room for the extra tokens, so the saved adapter file doubles in size as well
+  c) Activations: every layer keeps its in-between results for each token, for the backward pass
+  d) Nothing: memory depends only on the model"""
+answer = ""
+
+[q5]
+question = """Both tools trained the same adapter on the same batches, yet PEFT peaked at 12.8 GB and mlx-lm at 9.2 GB. What's the main reason?
+  a) PEFT trains more of the weights than mlx-lm does, because it also puts an adapter on the MLP layers unless you tell it not to
+  b) mlx-lm quietly squeezes the frozen weights down to 4 bits while it trains, which is why its number is smaller
+  c) PEFT's adapter file is bigger than mlx-lm's, and the file is kept in memory the whole time the model trains
+  d) The frameworks differ: PyTorch keeps freed memory cached and its kernels keep other in-between copies"""
+answer = ""
+
+[q6]
+question = """In M6 you merged the adapter into the weights. Why might you keep it as a separate file instead?
+  a) A merged model can no longer generate text, only score it, so it's useless as soon as you want replies out of it
+  b) One 3 GB base can carry many small 9 MB adapters, one per task, swapped in as needed
+  c) An unmerged adapter always runs faster than a merged one, because the update B @ A is so small to compute
+  d) mlx-lm and PEFT can't merge an adapter at all"""
+answer = ""

@@ -22,6 +22,7 @@ MODULES = [
         [["train.py", "--loop", "--tiny"], ["train.py", "--trainer", "--tiny"]],
     ),
     ("m06_lora_from_scratch", ["train.py", "--tiny"]),
+    ("m07_lora_tools", ["train.py", "--tiny"]),
 ]
 
 
